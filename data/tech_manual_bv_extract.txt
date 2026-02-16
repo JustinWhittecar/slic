@@ -1,0 +1,7457 @@
+# BattleTech Tech Manual - BV Calculation Reference
+# Extracted for SLIC project
+
+## INTERNAL STRUCTURE TABLE (Pages 48-49)
+
+CHOOSE WEIGHT (TONNAGE)
+Under these rules, BattleMechs may measure 20 to 100 tons in 
+weight (increasing in 5-ton increments). Within these limits, the 
+player may choose any tonnage. The total weight of the BattleM-
+ech’s engine, weapons, armor and other components may not 
+exceed this amount. Nor should it fall below; under these rules, 
+any unspent weight left over after the creation process is classi-
+fied as wasted tonnage.
+Andrew decides his Mongoose will be 
+a lightweight scout. Light BattleMechs 
+weigh between 20 and 35 tons, so he 
+chooses to set his Mongoose at 25 tons.
+Brent’s Gladiator is to be a mass of 
+devastating firepower few can withstand. 
+Choosing the assault weight class, Brent 
+decides this ’Mech will weigh in at 95 
+tons—nearly the heaviest mass possible.
+Chas chooses a heavy weight class for 
+his Barghest, giving him a range of 60 to 
+75 tons to choose from. He selects a total 
+mass of 70 tons for his machine.
+ALLOCATE TONNAGE FOR INTERNAL STRUCTURE
+Every BattleMech has an internal structure, which represents 
+its skeleton and joints. The weight of this structure depends on 
+the weight of the BattleMech, as well as on whether the designer 
+chooses a standard or endo-steel frame. Standard structure 
+weighs 10 percent of the BattleMech’s total weight, while endo-
+steel weighs half as much (rounded up to the nearest half ton).
+The BattleMech’s total mass also determines the number of 
+internal structure points each location receives. When using the 
+blank ’Mech Record Sheet, the designer must mark out any excess 
+circles on the Internal Structure Diagram, leaving behind only the 
+number of circles in each location equal to the number of internal 
+structure points in that location.
+BattleMech internal structure points are fixed to their assigned 
+locations, based on the weight and body type of the ’Mech itself. 
+These points may not be redistributed elsewhere.
+The maximum amount of armor points a BattleMech may carry 
+(called its Maximum Armor Factor) is directly determined by the 
+number of internal structure points per section. All locations 
+except the head may carry a maximum of twice the number of 
+armor points as they have internal structure points, including any 
+armor placed in rear locations (see Add Armor, p. 54). All head loca-
+tions may receive a maximum of 9 armor points.
+The BattleMech Internal Structure Table at right provides the 
+mass of internal structure (standard and endo-steel) for all legal 
+BattleMech tonnages, as well as the number of internal structure 
+circles each location must have. Also provided (for designer refer-
+The above design process is a mere framework for designing 
+a BattleMech. The actual process—particularly after the chassis, 
+engine and control systems are determined—can involve a bit 
+more flexibility as weapons, armor and heat sinks are balanced 
+for their best fit in terms of weight and space. For instance, some 
+designers might wish to assign armor as soon as they have chosen 
+the engine and chassis, perhaps to maximize the ’Mech’s protec-
+tion before dealing with heat sinks and weapons. Others may 
+want to choose weapons before adding more heat sinks, to see 
+how many might be needed in addition to those that come free 
+with the engine.
+To assist in this effort, the designer may find it useful to make 
+copies of the ’Mech Record Sheet (in the back of this book), to 
+visually arrange the placement of weapons and equipment while 
+tracking the use of tonnage on a piece of scratch paper. Alterna-
+tively, designers with access to the HeavyMetal Pro software can 
+use it to develop their BattleMechs on their PCs.
+STEP 1: DESIGN THE CHASSIS
+The first step in BattleMech design is the creation of the ’Mech’s 
+basic framework, or chassis. This step establishes some of the most 
+basic aspects of the BattleMech’s design, determining what kind 
+of ’Mech it is, its technology base, its weight and the design type 
+(biped or four-legged). These choices will restrict the designer’s 
+access to certain equipment, and will also determine the weight 
+and bulk of the ’Mech’s internal structure. 
+CHOOSE TECHNOLOGY BASE
+BattleMechs may be constructed using Clan or Inner Sphere 
+technology bases. ’Mechs designed using either technology base 
+may be built as OmniMechs.
+Andrew is designing a BattleMech that 
+he has dubbed the MON-66 Mongoose. 
+Because he plans to create this design for 
+an old Star League-era game, before the 
+time of the Clans, he chooses an Inner 
+Sphere technology base, and notes that 
+the design will not be an OmniMech.
+Brent is designing a BattleMech, which 
+he has named the Gladiator (Clan name: 
+Executioner). He has chosen the Clan 
+technology base for this design, and has 
+elected to make it an OmniMech.
+Chas is designing a four-legged Bat-
+tleMech that he has chosen to name the 
+BGS-1T Barghest. As this will be a modern 
+Lyran-made design, he has chosen an 
+Inner Sphere technology base, and has 
+opted not to make it an Omni.
+ 
+
+
+4747
+INTRODUCTION
+INTRODUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+BATTLE VALUE
+BATTLE VALUE
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+For Andrew’s Mongoose, weight is 
+at a premium, so he chooses to install 
+endo-steel internal structure on his 
+BattleMech. At 25 tons in total weight, 
+the Mongoose’s endo-steel internal 
+structure weighs 1.5 tons, leaving 
+23.5 tons to play with [25 – 1.5 = 23.5]. 
+This endo-steel construction will 
+require 14 slots on the Critical Hit 
+Table, but Andrew opts to wait until later to distribute 
+them. In the meantime, Andrew blacks out all extrane-
+ous circles from the Internal Structure Diagram on his 
+Mongoose’s Record Sheet, leaving only 8 open circles 
+in the center torso, 6 circles each in the left and right 
+torsos, 6 circles in each leg and 4 in each arm. (As all 
+heads receive 3 points of structure automatically, 
+Andrew leaves the head’s internal structure alone.)
+To devote as much internal space 
+as possible, Brent opts for standard 
+internal structure on his Gladiator, 
+confident that the more efficient 
+weight of Clan weaponry will allow 
+him to arm the OmniMech to the 
+teeth without undue expense. Stan-
+dard internal structure for a 95-ton 
+ence) is the maximum possible armor factor for BattleMechs 
+at each tonnage, for biped and four-legged designs.
+Technology Base: Standard internal structure is equally 
+available to BattleMechs of Clan or Inner Sphere technology 
+bases. Inner Sphere endo-steel is available only to BattleMechs 
+with an Inner Sphere Tech Base. Clan endo-steel is available 
+only to BattleMechs with a Clan Tech Base.
+Four-legged: BattleMechs built as quads have four legs, 
+rather than two arms and two legs. The number of internal 
+structure points for all four legs is thus determined by the Legs 
+(Each) column appropriate to the ’Mech’s tonnage. The Arms 
+(Each) column has no bearing on quads.
+Space: If the design uses endo-steel internal structure, Inner 
+Sphere ‘Mech designs must assign 14 critical slots on the Bat-
+tleMech’s Critical Hit Table to endo-steel (Clan designs assign 
+only 7 slots). The location of these slots need not be contiguous, 
+nor do they need to be determined at this stage. However, they 
+must be assigned by the final stages of design, while allocating 
+weapons, heat sinks and any other equipment not otherwise 
+preset (such as engines, gyros and cockpit systems).
+OmniMechs: The type of internal structure and placement of 
+any critical slots required must be determined upon the design of 
+the base configuration. All complete primary and alternate con-
+figurations thereafter must use the same number in any given 
+bodily location for their slots, although it is permissible to shift 
+the slots within a location when designing a new configuration.
+BATTLEMECH INTERNAL STRUCTURE TABLE
+Internal Structure Tonnage
+Internal Structure Circles
+Maximum Armor 
+Factor  (Biped/
+Four-legged)
+Total ’Mech 
+Tonnage
+Standard 
+Structure
+Endo Steel
+Head
+Torso (Center)
+Torso (Left/Right)
+Arms (Each)
+Legs (Each)
+20
+2.0
+1.0
+3
+6
+5
+3
+4
+69/73
+25
+2.5
+1.5
+3
+8
+6
+4
+6
+89/97
+30
+3.0
+1.5
+3
+10
+7
+5
+7
+105/113
+35
+3.5
+2.0
+3
+11
+8
+6
+8
+119/127
+40
+4.0
+2.0
+3
+12
+10
+6
+10
+137/153
+45
+4.5
+2.5
+3
+14
+11
+7
+11
+153/169
+50
+5.0
+2.5
+3
+16
+12
+8
+12
+169/185
+55
+5.5
+3.0
+3
+18
+13
+9
+13
+185/201
+60
+6.0
+3.0
+3
+20
+14
+10
+14
+201/217
+65
+6.5
+3.5
+3
+21
+15
+10
+15
+211/231
+70
+7.0
+3.5
+3
+22
+15
+11
+15
+217/233
+75
+7.5
+4.0
+3
+23
+16
+12
+16
+231/247
+80
+8.0
+4.0
+3
+25
+17
+13
+17
+247/263
+85
+8.5
+4.5
+3
+27
+18
+14
+18
+263/279
+90
+9.0
+4.5
+3
+29
+19
+15
+19
+279/295
+95
+9.5
+5.0
+3
+30
+20
+16
+20
+293/309
+100
+10.0
+5.0
+3
+31
+21
+17
+21
+307/323
+
+
+## BATTLE VALUE SECTION (Pages 304-325)
+
+--- PAGE 304 ---
+The Battle Value (BV) system provides a numerical rating that 
+represents the capabilities and survivability of every BattleTech unit: 
+BattleMechs, IndustrialMechs, Combat Vehicles, Support Vehicles, 
+aerospace fighters, conventional fighters, DropShips, Small Craft, 
+ProtoMechs, conventional infantry and battle armor. With the Battle 
+Value system, players can create fairly well matched battles by assem-
+bling two opposing forces, each with the same total BV ratings (see 
+Constructing a Battle Force, p. 315) and equivalent force sizes. The BV 
+ratings for combat-effective weapons and equipment are listed in 
+the Inner Sphere, Clan and Conventional Infantry Weapons Battle 
+Value tables at the end of this section, beginning on page 317.
+The formulas in this section allow players to calculate the exact 
+BV of any BattleMech, vehicle or other unit. However, the variety 
+of hardware and units encompassed by BattleTech precludes an 
+easy-to-use system. Players may find some of the formulas com-
+plex, and space prohibits a detailed analysis of the methods by 
+which equipment values and other modifiers are derived.
+This revised Battle Value system replaces the system first published 
+in Maximum Tech and the BattleTech Master Rules. A list of Battle Values 
+for all units with a published Record Sheet can be found on Catalyst 
+Game Labs’ Master Unit List website (http://www.masterunitlist.info/).
+CALCULATING ’MECH BV
+BattleMechs and IndustrialMechs share the same method of 
+calculating their BV ratings, involving three main steps. First, cal-
+culate the ’Mech’s Defensive Battle Rating (DBR). Second, calculate 
+the Offensive Battle Rating (OBR). Finally, add the Defensive and 
+Offensive Battle Ratings together for a combined BV and then 
+round to the nearest whole number (round .5 up) to obtain the 
+final BV. As you read each step, refer to pages 304–305 for an 
+example of calculating the BV for a MON-66 Mongoose, a TDR-
+10SE Thunderbolt and a WI-DM DemolitionMech.
+STEP 1: CALCULATE DEFENSIVE BATTLE RATING
+First, ADD the following figures:
+Total Armor Factor x 2.5 x Armor Type Modifier
+Consult the ’Mech Armor Type Modifier Table on page 315.
+Total Internal Structure Points x 1.5 x Internal Structure Type 
+Modifier x Engine Type Modifier
+Consult the ’Mech Internal Structure Type Modifier Table on p. 
+315 and the ’Mech Engine Type Modifier Table on page 315.
+Gyro (’Mech Tonnage x ’Mech Gyro Modifier)
+Consult the ’Mech Gyro Type Modifier Table on page 315.
+Total BV of all Defensive Equipment
+Defensive Equipment includes active probes, anti-missile 
+system (including AMS ammo up to the BV of the systems them-
+selves), antipersonnel pods, anti-battle armor pods, bridgelayers 
+and ECM suites. All TechManual Defensive Equipment is identified 
+on the Weapon and Equipment Battle Value Tables by a dagger 
+footnote (†).
+Then SUBTRACT the following figures. These subtractions can-
+not drop the running total below 1.
+15 points per critical space of explosive ammo in the center 
+torso, legs or head (Clan ’Mech)
+15 points per critical space of explosive ammo in any loca-
+tion (’Mech with Inner Sphere XL engine)
+15 points per critical space of explosive ammo in the center 
+torso, legs or head, or not protected by CASE* in its location (Inner 
+Sphere ’Mech with Standard or Light engines)
+DF
+RA
+Clan Jade Falcon’s Delta Galaxy conducts a Trial of Possession to take a power station from the Steel Vipers’ Rho Galaxy.
+
+
+--- PAGE 305 ---
+303
+303
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+15 points per critical space of explosive ammo in arm 
+not protected by CASE* in its location, or in the next location 
+inward on the Damage Transfer Diagram (see p. 123, TW) 
+(Inner Sphere ’Mechs with standard or light engines)
+1 point per Gauss weapon critical space in the center 
+torso, legs or head (Clan ’Mech)
+1 point per Gauss weapon critical space in any location 
+(’Mech with Inner Sphere XL engine)
+1 point per Gauss weapon critical space in the center 
+torso, legs or head, or not protected by CASE* in its location 
+(Inner Sphere ’Mech with Standard or Light engine)
+1 point per Gauss weapon critical space in arm not pro-
+tected by CASE* in its location, or in the next location inward 
+on the Damage Transfer Diagram (see p. 123, TW) (Inner 
+Sphere ’Mechs with standard or light engines)
+Note: Explosive ammo is any ammunition that may explode 
+inside a ’Mech. Gauss weapons include Gauss rifles, HAGs and 
+AP Gauss.
+* – It is assumed Clan ’Mechs have CASE installed. If the 
+design specifically did not pay the C-bill cost to install CASE 
+then treat a Clan-built ’Mech as an Inner Sphere ’Mech for the 
+purpose of these calculations.
+Calculate ’Mech’s Defensive Battle Rating
+MULTIPLY the current total by the ’Mech’s Defensive Factor. 
+A ’Mech’s Defensive Factor is based on the unit’s highest poten-
+tial target modifier (including bonuses for jump capability, 
+enhanced movement capability from MASC or triple-strength 
+myomer, and the maximum effects of stealth armor, such as 
+the modifier for long range), as shown on the Defensive Fac-
+tors Table and Defensive Factor Modifier Table (p. 316). The final 
+result is the ’Mech’s Defensive Battle Rating (DBR).
+STEP 2: CALCULATE OFFENSIVE BATTLE RATING
+To calculate the Offensive Battle Rating, first calculate the 
+Modified Battle Value of each weapon on the ’Mech. Then, 
+make any required adjustments for the ’Mech’s Heat Efficiency, 
+offensive equipment, and tonnage to get the ’Mech’s Weapon 
+Battle Rating. Multiply the Weapon Battle Rating by the 
+’Mech’s Speed Factor: the result is the Offensive Battle Rating.
+Calculate Each Weapon’s Modified BV 
+First, determine the Battle Value of each weapon and its 
+ammunition (if applicable) carried by the ’Mech (see pp. 317-
+318). Then apply the following BV modifiers as necessary. All 
+modifiers are cumulative. The result is the weapon’s Modified 
+BV, which is used in the steps that follow.
+Excessive Ammunition: To prevent excessive ammo from 
+distorting the Battle Value, the BV added for ammunition can-
+not exceed the unmodified BV of the weapon itself. If the BV 
+of the ammo exceeds the weapon BV, reduce the ammo BV to 
+equal the unmodified weapon BV. When a ’Mech carries sev-
+eral weapons of the same model, total the unmodified BV for 
+all examples of that model and then the BV for all ammunition 
+carried for that model before comparing the two BVs.
+Rear-Firing Weapons: Rear-firing torso-, leg- and head-
+mounted weapons (but not their ammunition) count as half 
+their normal BV value. If the unmodified BV of forward-firing 
+weapons in those locations is less than the unmodified BV of 
+rear-firing weapons, then halve the value of the forward-firing 
+torso-, leg- and head-mounted weapons instead. When mak-
+ing heat adjustments to a weapon’s BV (see below), switch the 
+forward- and rear-firing arcs in an identical manner.
+Artemis IV FCS: Increase by 20 percent the BV of any mis-
+sile launcher equipped with Artemis IV. This increase does not 
+apply to the launcher’s ammunition.
+Targeting Computer: Each weapon linked to a targeting 
+computer (see p. 238) multiplies its BV by 1.25. Do not include 
+ammunition when adjusting linked weapon BVs.
+Determine ’Mech Heat Efficiency and Total Weapon Heat
+Determine ’Mech Heat Efficiency: A weapon’s Modified BV 
+may need to be reduced to take into consideration the ’Mech’s 
+Heat Efficiency. To calculate ’Mech Heat Efficiency, add 6 to 
+the unit’s Heat Sink Capacity and subtract the heat generated 
+when the ’Mech moves.
+’Mech Heat Efficiency = 6 + Heat Sink Capacity – Movement Heat
+Heat Sink Capacity: Heat Sink Capacity denotes the maxi-
+mum number of Heat Points a ’Mech can dissipate in a single 
+turn. Each single heat sink dissipates 1 point of heat. Double-
+capacity heat sinks dissipate 2 points of heat.
+Movement Heat: Movement Heat is the amount of heat 
+generated when the ’Mech moves in the most heat-intensive 
+manner possible (Running or Jumping at its maximum capac-
+ity) during a single turn. If the ’Mech has stealth armor, add 10 to 
+this value. ICE-powered IndustrialMechs do not generate heat 
+when moving and so always have a Movement Heat Value of 0.
+Determine Total Weapon Heat: Determine the total heat 
+that the ’Mech would generate if it fired all its offensive weap-
+ons, including rear-firing weapons, in a single turn (Defensive 
+Equipment is never figured in this value). Multiply by 2 the 
+heat points generated by Ultra autocannons, multiply by 6 
+the heat points generated by rotary autocannons, reduce by 
+half the heat points generated by Streak SRMs and reduce to 
+one-quarter the heat points generated by one-shot weapons.
+Calculate Weapon Battle Rating
+Start a running Weapon Battle Rating total, beginning at 0. 
+When instructed, add the specified amount to this total.
+1	
+Add the Modified BV of any weapon on the ’Mech that 
+does not generate heat when fired to the running 
+Weapon Battle Rating total.
+2	
+Add the BV of any ammunition and non-Defensive Equip-
+ment on the ’Mech to the running Weapon Battle Rating total.
+3	
+If the ’Mech’s Total Weapon Heat is equal to or less than 
+the ’Mech’s Heat Efficiency, add the Modified BV of all 
+the ’Mech’s remaining weapons to the running Weapon 
+Battle Rating and proceed to Step 8. If the Total Weapon 
+Heat is greater than the ’Mech’s Heat Efficiency, start a 
+running heat total, beginning at 0, and proceed to Step 4.
+4	
+Ignoring weapons that generate no heat when fired, 
+choose the weapon on the ’Mech with the highest Modi-
+fied BV. If more than one weapon has the same Modified 
+BV, choose the one that generates the least heat when 
+fired. If multiple weapons of the same type are mounted, 
+choose one randomly.
+
+
+--- PAGE 306 ---
+At a run, the Mongoose presents a Target Movement Modifier of 
++4. That gives the ’Mech a Defensive Factor of 1.4.
+
+309.5
+
+x 1.4
+
+Defensive Battle Rating = 433.3
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Each Weapon’s Modified BV
+The Mongoose is armed with 3 Medium Lasers and 1 Small Laser. 
+It has no special equipment that modifies the BV of its weapons.
+3 Medium Lasers:
+46 each
+1 Small Laser:
+9
+2. Determine ’Mech Heat Efficiency and Total Weapon Heat
+The Mongoose has 10 single heat sinks. It cannot jump, and 
+so its hottest movement mode is Running (2 points of heat). It is 
+armed with 3 Medium Lasers (3 heat each) and 1 Small Laser (1 
+heat). Find its ’Mech Heat Efficiency and Total Weapon Heat.
+
+’Mech Heat Efficiency = 6 + 10 - 2 = 14
+
+Total Weapon Heat = 3 + 3 + 3 + 1 = 10
+Because the Total Weapon Heat is lower than the ’Mech Heat 
+Efficiency, there is no need to reduce the BV of any of its weapons. 
+The Weapon Battle Rating is therefore the sum of these weapons’ 
+BVs, plus the ’Mech’s tonnage.
+3 Medium Lasers:
+3 x 46 = 138
+1 Small Laser:
+1 x 9 = 9
+25-ton ’Mech (No TSM):
+25
+
+Weapon Battle Rating = 172
+3. Calculate Offensive Battle Rating
+Multiply the Mongoose’s Weapon Battle Rating by its Speed Fac-
+tor. With a maximum Running MP of 12, and no Jumping MP, its 
+Speed Factor is 1.89.
+
+172 x 1.89 = 325.08
+	
+
+Offensive Battle Rating = 325.08
+CALCULATE FINAL BATTLE VALUE
+
+Defensive Battle Rating + Offensive Battle Rating = BV
+ 
+
+433.3 + 325.08 = 758.38
+	
+MON-66 Mongoose BV = 758
+5	
+Add this weapon’s Modified BV to the running Weapon Battle 
+Rating total, and add its Heat Value to the running heat total.
+6	
+If the running heat total is less than the ’Mech Heat Efficiency, 
+repeat Steps 4-5 (ignoring any weapons already chosen). If 
+the running heat total is equal to or has exceeded the Heat 
+Efficiency, proceed to Step 7.
+7	
+The weapon that causes the ’Mech’s Heat Efficiency to be 
+equaled or exceeded is still calculated at its full Modified 
+BV. All remaining weapons are then added to the running 
+Weapon Battle Rating total at half their Modified BV.
+8	
+Add the total ’Mech tonnage to the running Weapon Battle 
+Rating total. Note: TSM-equipped ’Mechs multiply their ton-
+nage by 1.5. Industrial TSM-equipped ’Mechs multiply their 
+tonnage by 1.15.
+Having followed the steps above, the result is the ’Mech’s 
+Weapon Battle Rating. Proceed to the next step, Calculate Offen-
+sive Battle Rating.
+Calculate Offensive Battle Rating
+Determine Speed Factor: A ’Mech’s Speed Factor reflects its 
+ability to maneuver on the battlefield. To find the Speed Factor 
+of a ’Mech, add together its Running MP and half its Jumping MP 
+(rounded up). If the ’Mech has equipment that increases its Run-
+ning and/or Jumping MP, such as MASC or triple-strength myomer 
+(but not industrial triple-strength myomer), use the maximum MP 
+it can legally generate for each movement type. Then consult the 
+Speed Factor Table (p. 316).
+Multiply the Weapon Battle Rating by the Speed Factor to 
+give the Offensive Battle Rating. Note: IndustrialMechs, unless 
+equipped with Advanced Fire Control (see p. 69), multiply their 
+Offensive Battle Rating by 0.9.
+STEP 3: CALCULATE FINAL BATTLE VALUE
+Calculate a ’Mech’s final BV by adding its Defensive and Offen-
+sive Battle Ratings. If the ’Mech is equipped with a Small cockpit, 
+multiply this total by .95. Round the remaining fraction to the 
+nearest whole number (round .5 up).
+This formula yields the Battle Value of a ’Mech piloted by a 
+MechWarrior with the standard Gunnery 4 and Piloting 5 Skill 
+levels. If the MechWarrior has higher or lower skill levels, multiply 
+the BV by the appropriate skill level multiplier (see Constructing a 
+Battle Force, p. 315).
+CALCULATING THE BV OF: 
+A MON-66 MONGOOSE
+CALCULATE DEFENSIVE BATTLE RATING
+89 points Ferro-Fibrous Armor (1.0 multiplier)
+Total Armor Factor x 2.5:
+89 x 2.5 x 1.0 = 222.5
+43 Points Endo Steel (1.0 multiplier) with Standard 
+Engine (1.0 multiplier)
+Total Internal Structure Points x 1.5 x 1.0 x 1.0:
+43 x 1.5 = 64.5
+Gyro:
+25 x 0.5 = 12.5
+Total BV of all Defensive Equipment:	
+1 Beagle Active Probe
+10
+
+309.5
+
+
+--- PAGE 307 ---
+305
+305
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+2. Determine ’Mech Heat Efficiency and Total Weapon Heat
+The DemolitionMech has 1 single heat sink. It cannot jump, 
+and so its hottest movement mode is Running (2 points of 
+heat). It is armed with 1 Small Laser (1 heat). Find its ’Mech 
+Heat Efficiency and Total Weapon Heat.
+
+’Mech Heat Efficiency = 6 + 1 - 2 = 5
+
+Total Weapon Heat = 1
+Because the Total Weapon Heat is lower than the ’Mech 
+Heat Efficiency, there is no need to reduce the BV of any of its 
+weapons. The Weapon Battle Rating is therefore the sum of its 
+equipment and weapon BVs, plus the ’Mech’s tonnage.
+Rock Cutter:
+6
+Wrecking Ball:
+8
+1 Small Laser:
+9
+35-ton ’Mech (No Industrial TSM):
+35
+	
+
+Weapon Battle Rating = 58
+3. Calculate Offensive Battle Rating
+Multiply the DemolitionMech’s Weapon Battle Rating by 
+its Speed Factor. With a maximum Running MP of 5, and no 
+Jumping MP, its Speed Factor is 1.00.
+
+58 x 1.00 = 58
+Because the DemolitionMech is an IndustrialMech and does 
+not have an Advanced Fire Control System, the Offensive 
+Battle Rating needs to be multiplied by 0.9.
+
+58 x 0.9 = 52.2
+
+Offensive Battle Rating = 52.2
+CALCULATE FINAL BATTLE VALUE
+	
+
+Defensive Battle Rating + Offensive Battle Rating = BV
+	
+
+328.2 + 52.2 = 380.4
+ WI-DM DemolitionMech BV = 380
+CALCULATING THE BV OF: 
+A WI-DM DEMOLITIONMECH
+CALCULATE DEFENSIVE BATTLE RATING
+85 points Industrial Armor (1.0 multiplier)
+Total Armor Factor x 2.5:
+85 x 2.5 = 212.5
+58 Points Industrial (0.5 multiplier) with Inner 
+Sphere Fuel Cell Engine (1.0 multiplier)
+Total Internal Structure  
+	
+Points x 1.5 x 0.5 x 1.0:
+58 x 1.5 x 0.5 x 1.0 = 43.5
+Gyro:
+35 x 0.5 = 17.5
+Total BV of all Defensive Equipment:
+0
+
+273.5
+At the run, the DemolitionMech presents a Target Movement 
+Modifier of +2. That gives the ’Mech a Defensive Factor of 1.2.
+
+273.5
+
+x 1.2
+	
+
+Defensive Battle Rating = 328.2
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Each Weapon’s Modified BV
+The DemolitionMech is armed with 1 Small Laser. It has no 
+special equipment that modifies the BV of its weapons.
+1 Small Laser:
+9
+DF
+RA
+A Blood Spirit Elemental Point dismounts from a Black Hawk OmniMech.
+
+
+--- PAGE 308 ---
+STEP 3: CALCULATE FINAL BATTLE VALUE
+Players calculate the BV of a ProtoMech by adding the Pro-
+toMech’s Defensive and Offensive Battle Ratings. Round the 
+remaining fraction to the nearest whole number (.5 rounds up).
+This formula yields the Battle Value of a ProtoMech piloted by 
+a warrior with the standard Gunnery Skill level of 4. If the warrior 
+has a higher or lower skill level, multiply the BV by the appropriate 
+skill level multiplier (see Constructing a Battle Force, p. 315).
+CALCULATING THE BV OF:  
+A DELPHYNE-2
+CALCULATE DEFENSIVE BATTLE RATING
+Total Armor Factor x 2.5:
+40 x 2.5 = 100
+Total Internal Structure Points x 1.5:
+20 x 1.5 = 30
+Total BV of all Defensive Equipment:
+0
+
+130
+At a run or when jumping, the Delphyne-2 presents a Target 
+Movement Modifier of +3. That gives the ProtoMech a Defensive 
+Factor of 1.3 + 0.1 (because it is a ProtoMech) = 1.4.
+
+130
+
+x 1.4
+
+Defensive Battle Rating = 182
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Weapon Battle Rating
+The Delphyne-2 is armed with 2 ER Micro Lasers and 2 SRM 3s. 
+The Delphyne-2 carries 20 shots for its SRM 3, or 60 missiles, which 
+weigh 10 kg each (see p. 88, ProtoMech Ammunition Weight Table).
+Ammunition (SRM) 60:
+60 x 10 = 600
+600 kg is less than a full ton of SRM ammunition so it must cal-
+culate the modified BV for its ammunition. SRM 3 ammunition has 
+a BV of 4 for each full ton.
+600 kg of SRM 3 ammunition:
+(600 ÷ 1,000) x 4 = 2.4
+No weapon has an ammunition BV greater than the BV of the 
+weapon, so no further modifications to BV are needed.
+2 ER Micro Lasers:
+2 x 7 = 14
+2 SRM-3s:
+2 x 30 = 60
+Ammunition (SRM) 60 (at full value):
+2.4
+
+76.4
+2. Calculate Offensive Battle Rating
+Multiply the Delphyne’s Weapon Battle Rating by its Speed Fac-
+tor. With a maximum Running MP of 8, and a Jumping MP of 5, its 
+Speed Factor is 1.76.
+CALCULATING PROTOMECH BV
+The procedure for calculating the Battle Value (BV) of a Pro-
+toMech is similar to that for ’Mechs. The player first determines 
+the ProtoMech’s Defensive and Offensive Battle Ratings and then 
+combines them to produce the final BV. In all cases, retain frac-
+tions until reaching the final BV, then round to the nearest whole 
+number (.5 rounds up). As you read each step, refer to p. 307 for an 
+example of calculating the BV for a Delphyne-2.
+STEP 1: CALCULATE DEFENSIVE BATTLE RATING
+First, ADD the following figures:
+Total Armor Factor x 2.5
+Total Internal Structure Points x 1.5
+Total BV of all Defensive Equipment
+Defensive Equipment includes active probes, anti-missile 
+systems (including AMS ammo, up to the BV of the systems them-
+selves) and ECM suites. All TechManual Defensive Equipment is 
+identified on the Weapon and Equipment Battle Value Tables by 
+a dagger footnote (†).
+Calculate ProtoMech’s Defensive Battle Rating
+MULTIPLY the current total by the ProtoMech’s Defensive Fac-
+tor. The Defensive Factor is based on the unit’s highest potential 
+target modifier (including bonuses for jump capability and the 
+use of a ProtoMech myomer booster), as shown on the Defensive 
+Factors Table and Defensive Factor Modifier Table (p. 316). Proto-
+Mechs add 0.1 to the value from the table.
+The final result is the ProtoMech’s Defensive Battle Rating (DBR).
+STEP 2: CALCULATE OFFENSIVE BATTLE RATING
+To calculate the Offensive Battle Rating, calculate each weapon’s 
+BV in order to determine the Weapon Battle Rating. Then MULTIPLY 
+the Weapon Battle Rating by the ProtoMech’s Speed Factor.
+Calculate Weapon Battle Rating
+Determine the Battle Value of each weapon and its ammunition 
+(if applicable) carried, as well as any equipment (see pp. 317-318).
+Ammunition: If the ProtoMech carries a quantity of ammo other 
+than a full ton, divide the kilograms of ammo carried by 1,000, 
+then multiply the result by the BV of the ammo per ton. The result 
+is the BV for the amount of ammo carried.
+To prevent excessive ammo from distorting the Battle Value, the 
+BV added for ammunition cannot exceed the BV of the weapon 
+itself. If the ammo BV exceeds that of the weapon, reduce the 
+ammo BV to match the weapon BV.
+Calculate Offensive Battle Rating
+Determine Speed Factor: A ProtoMech’s Speed Factor reflects 
+its ability to maneuver on the battlefield. To find the Speed Factor, 
+add together the ProtoMech’s Running MP and half its Jumping MP 
+(rounded up). Add 1 to the result if the ProtoMech is equipped with 
+a myomer booster. Then consult the Speed Factor Table (p. 316).
+Multiply the Weapon Battle Rating by the listed Speed Factor to 
+give the Offensive Battle Rating.
+
+
+--- PAGE 309 ---
+307
+307
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+Calculate Each Weapon’s Modified BV 
+First, determine the Battle Value of each weapon and its 
+ammunition (if applicable) carried (see pp. 317-318). Then 
+apply the following BV modifiers as necessary. All modifiers 
+are cumulative. The result is the weapon’s Modified BV, which 
+is used in the steps that follow.
+Support Vehicles: Adjust the Battle Value of all heavy 
+weapons and their ammunition by the fire control multiplier 
+from the Offensive BV Adjustment Table (see p. 316). Players 
+need not adjust light and medium weapons.
+Turret-Mounted Weapons: Weapons mounted in a turret 
+are not included in any arc, and their full BV value is always 
+used.
+Excessive Ammunition: To prevent excessive ammo from 
+distorting the Battle Value, the BV added for ammunition can-
+not exceed the unmodified BV of the weapon itself. If the BV 
+of the ammo exceeds the weapon BV, reduce the ammo BV 
+to equal the unmodified weapon BV. If the unit has several 
+weapons of the same model, total the unmodified BV for all 
+examples of that model and then the BV for all ammunition 
+carried for that model before comparing the two BVs.
+Rear-Firing Weapons: Rear-firing weapons (but not 
+their ammunition) count as half their normal BV value. If 
+the unmodified BV of forward-arc weapons is less than the 
+unmodified BV of rear-arc weapons, then halve the value of 
+the forward-arc weapons instead. When making heat adjust-
+ments to a weapon’s BV (see below), switch the forward- and 
+rear-firing arcs in an identical manner.
+Artemis IV FCS: Increase by 20 percent the BV of any mis-
+sile launcher equipped with Artemis IV. This increase does not 
+apply to the launcher’s ammunition.
+Targeting Computer: Each weapon linked to a targeting 
+computer (see p. 238) multiplies its BV by 1.25. Do not include 
+ammunition when adjusting linked weapon BVs.
+Calculate Weapon Battle Rating
+Add the Modified BV of all weapons, ammunition and 
+equipment. 
+Next, ADD total Vehicle tonnage ÷ 2
+Calculate Offensive Battle Rating
+Determine Speed Factor: Use the Vehicle’s Flanking MP 
+rating and consult the Speed Factor Table (p. 316).
+Multiply the vehicle’s Weapon Battle Rating and Speed Fac-
+tor to determine its Offensive BV. 
+STEP 3: CALCULATE FINAL BV
+Add the Defensive and Offensive Battle Value Ratings and 
+round the resulting sum to the nearest whole number. The 
+result is the vehicle’s BV.
+This formula yields the BV of a vehicle controlled by a crew 
+with the standard Gunnery 4 and Piloting/Driving Skill 5. If 
+a crew with a different skill level pilots the unit, multiply the 
+BV by the appropriate skill level multiplier (see Constructing a 
+Battle Force, p. 315).
+
+76.4 x 1.76 = 134.464
+
+Offensive Battle Rating = 134.464
+CALCULATE FINAL BATTLE VALUE
+
+Defensive Battle Rating + Offensive Battle Rating = BV
+
+182 + 134.464 = 316.464
+	
+
+Delphyne-2 BV = 316
+CALCULATING VEHICLE BV
+The procedure for calculating the Battle Value (BV) of Com-
+bat Vehicles and tracked, wheeled, hover, VTOL, WiGE and 
+naval Support Vehicles is similar to that for ’Mechs. First deter-
+mine the vehicle’s Defensive and Offensive Battle Ratings, and 
+then combine them to produce the final BV. Retain fractions 
+until reaching the final BV, then round to the nearest whole 
+number (.5 rounds up). As you read each step, refer to page 
+308 for an example of calculating the BV for a CellCo Ranger 
+APC and a Hephaestus OmniVehicle.
+For Airship and Fixed Wing Support Vehicles, use the rules for 
+Aerospace units, starting on page 312.
+STEP 1: CALCULATE DEFENSIVE BATTLE RATING
+First, ADD the following figures:
+Total Armor Factor x 2.5
+(Support Vehicles: multiply by BAR ÷ 10)
+Total Internal Structure Points x 1.5 (including rotor and
+turret internal structure)
+Total BV of all Defensive Equipment
+Defensive Equipment includes active probes, anti-missile 
+systems (including AMS ammo, up to the BV of the systems 
+themselves) and ECM suites. All TechManual Defensive Equip-
+ment is identified on the Weapon and Equipment Battle Value 
+Tables by a dagger footnote (†).
+Calculate the Vehicle’s Defensive Battle Rating
+MULTIPLY the current value by the appropriate modifier 
+from the Unit Type Modifiers Table (p. 316). The Unit Type 
+Modifier represents a unit’s terrain restrictions and vulner-
+abilities to critical damage. Surface vessels, hydrofoils and 
+submarines are considered naval vessels for this purpose.
+Next, MULTIPLY the current total by the vehicle’s Defensive 
+Factor. The Defensive Factor is based on the unit’s highest 
+potential target Modifier, as shown on the Defensive Factors 
+Table and Defensive Factor Modifier Table (p. 316).
+The final result is the vehicle’s Defensive Battle Rating (DBR).
+STEP 2: CALCULATE OFFENSIVE BATTLE RATING
+To calculate the Offensive Battle Rating, calculate each 
+weapon’s Modified BV in order to determine the Weapon 
+Battle Rating. Then MULTIPLY the Weapon Battle Rating by 
+the Vehicle’s Speed Factor.
+
+
+--- PAGE 310 ---
+CALCULATING THE BV OF: 
+A HEPHAESTUS 
+OMNIVEHICLE (PRIMARY CONF)
+CALCULATE DEFENSIVE BATTLE RATING
+Total Armor Factor x 2.5:
+96 x 2.5 = 240
+Total Internal Structure Points x 1.5:
+15 x 1.5 = 22.5
+Total BV of all Defensive Equipment:
+	
+1 Active Probe and 1 ECM Suite
+73
+
+335.5
+
+335.5
+Multiply by Unit Type Modifier (Hover):
+x 0.7
+
+234.85
+At Flanking speed, the Hephaestus presents a Target Movement 
+Modifier of +4. That gives the vehicle a Defensive Factor of 1.4.
+
+234.85
+
+x 1.4
+
+Defensive Battle Rating = 328.79
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Weapon Battle Rating
+2 Medium Pulse Lasers (Clan):
+2 x 111 = 222
+Add Total Vehicle Tonnage ÷ 2:
+30 ÷ 2 = 15
+
+Weapon Battle Rating = 237
+2. Calculate Offensive Battle Rating
+Use the Flanking MP rating for all vehicles except unmotorized 
+trailers (assume their Flanking MP is 1) and consult the Speed Fac-
+tor Table.
+
+237 x 1.89 = 447.93
+
+Offensive Battle Rating = 447.93
+CALCULATE FINAL BATTLE VALUE
+
+Defensive Battle Rating + Offensive Battle Rating = BV
+
+328.79 + 447.93 = 776.72
+
+Hephaestus (Prime) BV = 777
+CALCULATING THE BV OF: 
+A CELLCO RANGER APC 
+CALCULATE DEFENSIVE BATTLE RATING
+The CellCo Ranger is equipped with 38 points of BAR 7 armor.
+Total Armor Factor x (BAR ÷ 10):
+38 x 0.7 = 26.6
+Total Internal Structure Points x 1.5:
+10 x 1.5 = 15
+Total BV of all Defensive Equipment:
+0
+
+41.6
+
+41.6
+Multiply by Unit Type Modifier (Wheeled):	
+x 0.8
+
+33.28
+At Flanking speed, the CellCo Ranger presents a Target Move-
+ment Modifier of +2. That gives the vehicle a Defensive Factor of 1.2.
+
+33.28
+
+x 1.2
+
+Defensive Battle Rating = 39.94
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Each Weapon’s Modified BV
+The CellCo Ranger is armed with 1 Machine Gun with a half-ton 
+of ammunition. It is a Support Vehicle and does not mount a Basic 
+or Advanced Fire Control System, so all its weapons and ammuni-
+tion BV must be multiplied by 0.8. 
+1 Machine Gun:
+5 x 0.8 = 4 
+Ammunition (MG) 100:
+1 x 0.8 = 0.8
+2. Calculate Weapon Battle Rating
+1 Machine Gun (modified for no Fire Control):
+4
+Ammunition (MG) 100 (modified for no Fire Control):
+0.8
+
+4.8
+Add Total Vehicle Tonnage ÷ 2:
+17 ÷ 2 = 8.5
+
+4.8
+
+8.5
+
+Weapon Battle Rating = 13.3
+3. Calculate Offensive Battle Rating
+Use the Flanking MP rating for all vehicles except unmotorized 
+trailers (assume their Flanking MP is 1) and consult the Speed Fac-
+tor Table.
+
+13.3 x 1.00 = 13.3
+
+Offensive Battle Rating = 13.3
+CALCULATE FINAL BATTLE VALUE
+	
+
+Defensive Battle Rating + Offensive Battle Rating = BV
+
+39.94 + 13.3 = 53.24
+
+CellCo Ranger BV = 53
+
+
+--- PAGE 311 ---
+309
+309
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+CALCULATING THE BV OF: AN ANTI-
+’MECH JUMP INFANTRY PLATOON
+CALCULATE DEFENSIVE BATTLE RATING
+(Number of Troopers x 1.5):
+(21 x 1.5) = 31.5
+The Anti-’Mech Jump Infantry platoon receives a Target 
+Movement Modifier of +2. That gives it a Defensive Factor of 
+1.2.
+
+31.5
+
+x 1.2
+
+Defensive Battle Rating = 37.8
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Weapon Battle Rating
+Individual Weapons
+	
+18 Blazer Rifles:
+18 x 1.79 = 32.22
+Support Weapons
+	
+3 Heavy Support Lasers:
+3 x 17.34 = 52.02
+Anti-’Mech Attack Capability
+	
+Individual Weapons BV + Support Weapons BV: 
+
+32.22 + 52.02 = 84.24
+
+32.22
+
+52.02
+
+84.24
+
+Weapon Battle Rating = 168.48
+2. Calculate Offensive Battle Rating
+Multiply the unit’s Weapon Battle Rating by its Speed Factor.
+
+168.48 x 0.77 = 129.73
+
+Offensive Battle Rating = 129.73
+CALCULATE FINAL BATTLE VALUE
+
+Defensive Battle Rating + Offensive Battle Rating = Platoon BV
+
+37.8 + 129.73 = 167.53
+
+Anti-’Mech Infantry Platoon BV = 168
+CALCULATING CONVENTIONAL 
+INFANTRY BV
+The process for calculating the Battle Value (BV) of a 
+conventional infantry unit is similar to that for ’Mechs and 
+vehicles. First determine the unit’s Defensive and Offensive 
+Battle Ratings, and then combine them to produce the final 
+BV. Retain fractions until reaching the final BV, then round to 
+the nearest whole number (.5 rounds up). As you read each 
+step, refer to page 310 for an example of calculating the BV for 
+an Anti-’Mech Jump Infantry Platoon.
+STEP 1: CALCULATE DEFENSIVE BATTLE RATING
+MULTIPLY the number of troopers by 1.5 and the unit’s 
+Defensive Factor. The Defensive Factor is based on the unit’s 
+highest potential target modifier (including bonuses for jump 
+capability), as shown on the Defensive Factors Table (p. 316).
+The final result is the conventional infantry unit’s Defensive 
+Battle Rating.
+STEP 2: CALCULATE OFFENSIVE BATTLE RATING
+To calculate the Offensive Battle Rating, determine the 
+Weapon Battle Rating and then MULTIPLY the result by the 
+infantry unit’s Speed Factor.
+Calculate Weapon Battle Rating
+Add the BV ratings of all individual and support weapons 
+(see the Conventional Infantry Weapons BV Table, p. 319). If 
+the unit is capable of performing anti-’Mech attacks, add these 
+amounts again (all non-mechanized conventional infantry has 
+this capability).
+Multiply Weapon Battle Rating by Speed Factor
+Multiply the unit’s Weapon Battle Rating and Speed Factor 
+to determine its Offensive BV Rating. Use the infantry unit’s 
+fastest movement mode; for example, jump infantry use their 
+Jumping movement.
+STEP 3: CALCULATE FINAL BATTLE VALUE
+Add the Defensive Battle Rating and the Offensive Battle Rat-
+ing and round to the nearest whole number (0.5 rounds up).
+This formula yields the Battle Value of an infantry unit with 
+the standard Gunnery 4 and Anti-’Mech 5 Skill Ratings. If the 
+unit possesses higher or lower skill ratings, multiply the BV 
+by the appropriate skill rating multiplier (see Constructing a 
+Battle Force, p. 315). Remember that, for infantry units with 
+the Mechanized Motive Type, as well as units which lack the 
+Anti-’Mech Infantry kits referred to on page 155, the unit’s 
+Anti-’Mech Skill should be treated as fixed at 8 for this purpose.
+
+
+--- PAGE 312 ---
+Multiply the Weapon Battle Rating by the Battle Armor’s 
+Speed Factor
+Multiply the battle armor’s Weapon Battle Rating by its Speed 
+Factor as shown on the Speed Factor Table (see p. 316). Use the 
+movement mode that gives the highest movement rate.
+This calculation gives the battle armor unit’s final Weapon 
+Battle Rating.
+STEP 3: CALCULATE FINAL BATTLE VALUE
+The BV of a single suit of battle armor is calculated by adding 
+the battle armor’s Defensive and Offensive Battle Ratings. To 
+determine the BV for a squad / point / Level I, multiply this value by 
+the Modifier for the appropriate size of battle armor unit from the 
+Battle Armor Unit Size Modifier Table (p. 316). Inner Sphere squads 
+usually contain four troopers, Clan Stars contain five troopers and 
+a ComStar/Word of Blake Level I contains six troopers.
+This formula yields the Battle Value of a battle armor unit with 
+the standard Gunnery 4 and Anti-’Mech 5 Skill Ratings. If the unit 
+possesses higher or lower skill ratings, multiply the BV by the appro-
+priate skill rating multiplier (see Constructing a Battle Force, p. 315).
+CALCULATING THE BV OF A: 
+PURIFIER LEVEL I
+CALCULATE DEFENSIVE BATTLE RATING
+6 points Mimetic Armor (BV 2.5 per point)
+(Total Armor x Armor BV) + 1:
+(6 x 2.5) + 1 = 16
+The Purifier has a Jumping MP of 3, and so receives a Target 
+Movement Modifier of +2. That gives it a Defensive Factor of 1.2 + 
+0.1 (because it is battle armor) + 0.3 (Mimetic Armor) = 1.6.
+
+16
+
+x 1.6
+
+Defensive Battle Rating = 25.6
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Weapon Battle Rating
+Direct-Fire Weapons
+	
+1 ER Small Laser:
+1 x 17 = 17
+Missile Weapons
+	
+None 
+0
+Anti-’Mech Attacks
+	
+Direct-Fire Weapons:	
+
+17
+Anti-Personnel Weapons
+	
+None
+0
+Squad Support Weapons
+	
+None
+0
+Other Equipment
+	
+None
+0
+
+34
+2. Calculate Offensive Battle Rating
+Multiply the unit’s Weapon Battle Rating by its Speed Factor.
+
+34 x 0.77 = 26.18
+
+Offensive Battle Rating = 26.18
+CALCULATING BATTLE ARMOR BV
+The procedure for calculating the Battle Value (BV) of Battle 
+Armor very similar to that for calculating the BV for ’Mechs and 
+vehicles. The Defensive and Offensive Battle Ratings of the Battle 
+Armor are determined and then combined to produce the final 
+BV. In all cases retain fractions until reaching the final BV, then 
+round to the nearest whole number (.5 rounds up). As you read 
+each step, refer to page 310 and page 311 for an example of cal-
+culating the BV for a Purifier unit and a Grenadier unit.
+STEP 1: CALCULATE DEFENSIVE BATTLE RATING
+First, ADD the following figures:
+Total Armor Points x Armor BV (not including the 1 point for 
+the warrior) + 1
+Fire-resistant armor has a BV of 3.5; all other armor has a BV of 2.5.
+Add 1 to the total for each of these systems the battle armor 
+mounts (if any): Improved Sensors, Active Probes, or ECM.
+Next, MULTIPLY the current value by the battle armor unit’s 
+Defensive Factor. A battle armor unit’s Defensive Factor is based on 
+its highest potential target movement modifier (including bonuses 
+for jump capability and enhanced movement), as shown on the 
+Defensive Factors Table (see p. 316). In addition, add to the Defensive 
+Factor any appropriate modifiers from the Defensive Factor Modifier 
+Table. The final result is the battle armor’s Defensive Battle Rating.
+STEP 2: CALCULATE OFFENSIVE BATTLE RATING
+Calculate Weapon Battle Rating
+ADD the following:
+Direct Fire Weapons Battle Rating: Add the BV of all direct-
+fire weapons. Direct-fire weapons are all weapon systems except 
+SRM launchers, advanced SRM launchers, MRM launchers, rocket 
+launchers, LRM launchers, Narc (Compact) and Popup Mine. Do 
+not factor BV for any ammunition used by direct fire weapons.
+Missile Weapon Battle Rating: Calculate the Missile Weapon 
+Battle Ratting for SRMs, advanced SRMs, MRMs, rocket launchers 
+and LRMs. Use the BV of the launcher as normal. Calculate the 
+ammunition BV for the kilograms of ammo carried proportionate 
+to the BV for a full ton (1,000 kg) of that type of ammunition. That 
+is, divide the kilograms of ammo carried by 1,000, and multiply 
+the result by the BV of a full ton of the required ammunition type. 
+Keep any fractional results.
+Anti-’Mech Attacks: If the unit can perform Swarm Attacks, 
+add the BV of all direct-fire weapons plus the BV of vibroclaws 
+and/or claws and magnets that aid Swarm operations.
+Anti-Personnel Weapons: Add the BV of anti-personnel weap-
+ons from the Conventional Infantry Weapons BV Table on p. 319.
+Squad Support Weapon: The BV of a Squad Support Weapon 
+is equal to the total BV of the weapon divided by the number 
+of troopers in the unit. Squad Support Weapons have their BV 
+divided between all units, and so Inner Sphere units will only use 
+1/4 of the BV, whereas a Clan unit uses 1/5 of the BV and ComStar/
+Word of Blake units use 1/6.
+Other Equipment: Add BV for other Offensive equipment. The 
+final sum is the total Weapon Battle Rating.
+
+
+--- PAGE 313 ---
+311
+311
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+CALCULATE FINAL BATTLE VALUE
+
+Defensive Battle Rating + Offensive Battle Rating = BV per suit
+
+30.55 + 32.11 = 62.66
+
+Individual Grenadier BV = 63
+There are four suits of battle armor in a Grenadier squad, yielding a 
+BV Modifier of 5.2.
+
+63 x 5.2 = 325.832
+
+Grenadier [SRM/SL] squad BV = 326
+CALCULATING AEROSPACE BV
+The procedure for calculating the Battle Value (BV) of 
+aerospace units is similar to that for ’Mechs. Determine the 
+Defensive and Offensive Battle Ratings of the aerospace unit 
+and combine them to produce the final BV. Retain fractions 
+until reaching the final BV, then round to the nearest whole 
+number (.5 rounds up). Refer to pp. 313–314 for an example 
+of calculating BV for a TRB-D36 Thunderbird and a Dragau II.
+STEP 1: CALCULATE DEFENSIVE BATTLE RATING
+First, ADD the following numbers.
+Total Armor Factor x 2.5 (Fighters, DropShips, Small Craft)
+(Support Vehicles: multiply by BAR ÷ 10)
+Structural Integrity x 2.0
+Total BV of all Defensive Equipment
+Defensive Equipment includes screen launchers anti-missile 
+systems and ECM (including ammo up to the BV of the sys-
+tems and launchers themselves). All TechManual Defensive 
+Equipment is identified on the Weapon and Equipment Battle 
+Value Tables by a dagger footnote (†).
+For aerospace fighters, small craft and conventional fight-
+ers, then SUBTRACT the following figures. (Explosive ammo is 
+any ammunition that may explode inside an aerospace fighter. 
+Gauss weapons include Gauss rifles, HAGs and AP Gauss.) 
+These subtractions cannot drop the running total below 1.
+15 points per type of explosive ammo (regardless of 
+tonnage) in an Inner Sphere aerospace or small craft not 
+equipped with CASE*
+1 point per Gauss weapon in Inner Sphere aerospace or 
+small craft not equipped with CASE*
+ 
+* – It is assumed Clan aerospace units have CASE installed. 
+If the design specifically did not pay the C-bill cost to install 
+CASE then treat all Clan-built aerospace units as Inner Sphere 
+aerospace units for the purpose of these calculations.
+Calculate Defensive Battle Rating
+MULTIPLY the resulting Defensive Battle Rating by the unit 
+type multiplier from the Unit Type Modifiers Table (p. 316) to 
+give the aerospace unit’s final Defensive Battle Rating (DBR).
+STEP 2: CALCULATE OFFENSIVE BATTLE RATING
+To calculate the Offensive Battle Rating, first calculate the 
+Modified Battle Value of each weapon on the unit. Then, make any 
+CALCULATE FINAL BATTLE VALUE
+	
+
+Defensive Battle Rating + Offensive Battle Rating = BV per suit
+
+25.6 + 26.18 = 51.78
+
+Individual Purifier BV = 52
+There are six suits of battle armor in a Level I Purifier unit, yielding 
+a BV Modifier of 9.
+
+51.78 x 9.0 = 466.02
+
+Purifier Level I BV = 466
+CALCULATING THE BV OF: 
+A GRENADIER [SRM/SL] SQUAD
+CALCULATE DEFENSIVE BATTLE RATING
+9 points Stealth Armor (BV 2.5 per point)
+(Total Armor x Armor BV) + 1: 
+(9 x 2.5) + 1 = 23.5
+The Grenadier has a ground MP of 2, and no jumping move-
+ment, and so receives a Target Movement Modifier of 0. That 
+gives it a Defensive Factor of 1.0 + 0.1 (because it is battle 
+armor) + 0.2 (Standard Stealth Armor) = 1.3
+
+23.5
+
+x 1.3
+
+Defensive Battle Rating = 30.55
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Weapon Battle Rating
+Direct-Fire Weapons
+	
+1 Small Laser:
+1 x 9 = 9
+Missile Weapons
+	
+1 SRM 4:
+1 x 39 = 39
+	
+Ammo (SRM 4) 7 (280 kg):
+(280/1,000) x 5 = 1.4
+Anti-’Mech Attacks
+	
+Not Applicable
+0
+Anti-Personnel Weapons
+	
+None
+0
+Squad Support Weapons
+	
+None
+0
+Other Equipment
+	
+None
+0
+
+49.4
+2. Calculate Offensive Battle Rating
+Multiply the unit’s Weapon Battle Rating by its Speed Factor.
+
+49.4 x 0.65 = 32.11
+
+Offensive Battle Rating = 32.11
+
+
+--- PAGE 314 ---
+2	 Add the BV of any ammunition and non-Defensive Equip-
+ment on the unit to the running Weapon Battle Rating total.
+3	 If the unit’s Total Weapon Heat is equal to or less than its Heat 
+Efficiency, add the Modified BV of all the unit’s remaining 
+weapons to the running Weapon Battle Rating total and pro-
+ceed to Calculate Offensive Battle Rating. If the Total Weapon 
+Heat is greater than the unit’s Heat Efficiency, start a running 
+heat total, beginning at 0, and proceed to Step 4.
+4	 Ignoring weapons that generate no heat when fired, choose 
+the weapon on the unit that has the highest Modified BV. If 
+more than one weapon has the same Modified BV, choose the 
+one that generates the least heat when fired. If multiple weap-
+ons of the same type are mounted, choose one randomly.
+5	 Add this weapon’s Modified BV to the running Weapon Battle 
+Rating total, and add its Heat Value to the running heat total.
+6	 If the running heat total is less than the unit’s Heat Efficiency, 
+repeat Steps 4-5 (ignoring any weapons already chosen). If 
+the running heat total is equal to or has exceeded the Heat 
+Efficiency, proceed to Step 7.
+7	 The weapon that causes the Heat Efficiency to be equaled or 
+exceeded is still calculated at its full Modified BV. All remain-
+ing weapons are then added to the running Weapon Battle 
+Rating total at half their Modified BV.
+For DropShips: 
+DropShips calculate their Weapon Battle Rating by firing arc, 
+instead of by individual weapons, reflecting their firing by weapon 
+bay and generating heat by firing arcs.
+1	 Calculate individual firing arc BVs: First determine the total 
+Modified BV of each individual firing arc (Nose, Aft, Fore 
+(Wing) Left/Right, Aft (Rear Wing (Left/Right). Do not include 
+ammunition or equipment at this time.
+2	 Determine the “Front” firing arc: Compare these BV totals. The 
+arc with the highest BV becomes the “Front” arc for calculat-
+ing BV and Heat Efficiency.
+3	 Calculate the BV for the “Front” arc: Add the BV of any ammu-
+nition located in “Front” arc to the “Front” arc total. “Front” BV 
+is always factored at 100% even if the DropShip will overheat 
+firing the “Front” arc.
+4	 Determine the “Left Side” firing arc: Look at the Battle Value 
+of the two arcs adjacent to the “Front” arc. The one with the 
+highest BV becomes the “Left Side” firing arc. If both arcs are 
+of equal BV, choose one at random.
+5	 Calculate the BV for the “Left Side” arc: Add the BV of ammunition 
+in the “Left Side” to the BV total for that side obtained in Step 1. 
+If the DropShip has exceeded its DropShip Heat Efficiency after 
+firing the “Front” arc, multiply the “Left Side” arc BV by 0.5.
+6	 Determine the “Right Side” firing arc: The remaining arc adja-
+cent to the “Front” arc now becomes the “Right Side” firing arc.
+7	 Calculate the BV for the “Right Side” arc: Add the BV of ammu-
+nition in the “Right Side” to the BV total for that side obtained 
+in Step 1. If the DropShip has not exceeded its DropShip Heat 
+Efficiency after firing the “Left Side” arc, multiply the “Right 
+Side” BV by 0.5. If the DropShip has exceeded its DropShip 
+Heat Efficiency, then the multiply the “Right Side” BV by 0.25.
+8	 Total remaining firing arcs: The remaining three arcs are now 
+considered the “Rear” firing arc. Add the BV of ammunition 
+in these arcs to the BV total for those arcs obtained in Step 1. 
+Multiply the “Rear” BV by 0.25.
+9	 Add the BV of any equipment with a BV rating.
+Having followed Steps 1-7 (1-9 for DropShips), the result is 
+the unit’s Weapon Battle Rating. Proceed to Calculate Offensive 
+Battle Rating.
+required adjustments for the Heat Efficiency and equipment to get 
+the unit’s Weapon Battle Rating. Multiply the Weapon Battle Rating by 
+the unit’s Speed Factor: the result is the Offensive Battle Rating.
+Calculate Each Weapon’s Modified BV 
+First, determine the Battle Value of each weapon and its ammu-
+nition (if applicable) carried by the unit (see pp. 317-318). Then 
+apply the following BV modifiers as necessary. All modifiers are 
+cumulative. The result is the weapon’s Modified BV, which is used 
+in the steps that follow.
+Excessive Ammunition: To prevent excessive ammo from 
+distorting the Battle Value, the BV added for ammunition cannot 
+exceed the unmodified BV of the weapon itself. If the BV of the 
+ammo exceeds the weapon BV, reduce the ammo BV to equal the 
+unmodified weapon BV. When a unit carries several weapons of 
+the same model, total the unmodified BV for all examples of that 
+model and then the BV for all ammunition carried for that model 
+before comparing the two BVs.
+Rear-Firing Weapons: Aft-mounted weapons (but not their 
+ammunition) count as half their normal BV value (aft-side arcs are 
+not considered). If the unmodified BV of nose-mounted weapons 
+is less than the unmodified BV of rear-firing weapons, then halve 
+the value of the forward-firing weapons instead. When making 
+heat adjustments to a weapon’s BV (see below), switch the nose- 
+and aft-firing arcs in an identical manner. Note: DropShips do not 
+use this modifier. 
+Artemis IV FCS: Increase by 20 percent the BV of any missile 
+launcher equipped with Artemis IV. This increase does not apply 
+to the launcher’s ammunition.
+Targeting Computer: Each weapon linked to a targeting 
+computer (see p. 238) multiplies its BV by 1.25. Do not include 
+ammunition when adjusting linked weapon BVs.
+Determine Unit’s Heat Efficiency
+For aerospace fighters, Small Craft and DropShips, a weapon’s 
+Modified Battle Value may need to be reduced to take into consid-
+eration the unit’s Heat Efficiency. The Heat Efficiency of a design is 
+equal to its Heat Sink Capacity. Aerospace fighters and Small Craft 
+add 6 to this value.
+DropShip Heat Efficiency = Heat Sink Capacity
+Aerospace Heat Efficiency = 6 + Heat Sink Capacity
+Heat Sink Capacity: Heat Sink Capacity denotes the maximum 
+number of Heat Points the unit can dissipate in a single turn. Each 
+single heat sink dissipates 1 point of heat. Double heat sinks dis-
+sipate 2 points of heat.
+Determine Total Weapon Heat: Find and write down the total 
+heat that the unit would generate if it fired all its offensive weap-
+ons, including rear-firing weapons, in a single turn (Defensive 
+Equipment is never figured in this value). Multiply by 2 the heat 
+points generated by Ultra autocannons, multiply by 6 the heat 
+points generated by rotary autocannons, reduce by half the heat 
+points generated by Streak SRMs and reduce to one-quarter the 
+heat points generated by one-shot weapons.
+Calculate Weapon Battle Rating
+For aerospace fighters, conventional fighters and Small Craft: 
+Start a running Weapon Battle Rating total, beginning at 0. 
+When instructed, add the specified amount to this total.
+1	 Add the Modified BV of any weapon on the unit that does 
+not generate heat when fired to the running Weapon Battle 
+Rating total.
+
+
+--- PAGE 315 ---
+313
+313
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+2. Determine Heat Efficiency and Total Weapon Heat
+The Thunderbird has 25 single heat sinks. It is armed with 
+3 Large Lasers (8 heat each), 2 LRM 20s (6 heat each) and 5 
+Medium Lasers (3 heat each). Find its Heat Efficiency and Total 
+Weapon Heat.
+
+Unit Heat Efficiency = 6 + 25 = 31
+ Total Weapon Heat = 8 + 8 + 8 + 6 + 6 + 3 + 3 + 3 + 3 + 3 = 51
+Because the Total Weapon Heat is higher than the Heat 
+Efficiency, its weapons must be sorted in order of Modified BV 
+and a running heat total tracked to determine when weapon 
+BVs should be halved. Ammunition is still handled as normal.
+4 tons LRM 20 ammunition:
+(4 x 23) = 92
+LRM 20:
+181
+	
+Running Heat Total:  0 + 6 = 6
+LRM 20:
+181
+	
+Running Heat Total:  6 + 6 = 12
+Large Laser:
+123
+	
+Running Heat Total: 12 + 8 = 20
+Large Laser:
+123
+	
+Running Heat Total:  20 + 8 = 28
+Large Laser:
+123
+	
+Running Heat Total:  28 + 8 = 36 (Overheat)
+Because the third Large Laser exceeds the Heat Efficiency of 
+the Thunderbird (31), all subsequent heat-generating weapons 
+will halve their Modified BV.
+Medium Laser:
+46 ÷ 2 = 23
+	
+Running Heat Total: (Overheat)
+Medium Laser:
+46 ÷ 2 = 23
+	
+Running Heat Total: (Overheat)
+Medium Laser:
+46 ÷ 2 = 23
+	
+Running Heat Total: (Overheat)
+Medium Laser (Aft):
+23 ÷ 2 = 11.5
+	
+Running Heat Total: (Overheat)
+Medium Laser (Aft):
+23 ÷ 2 = 11.5
+	
+Running Heat Total: (Overheat)
+
+Weapon Battle Rating = 915
+3. Calculate Offensive Battle Rating
+Multiply the Thunderbird’s Weapon Battle Rating by its Speed 
+Factor. With a Maximum Thrust of 8, its Speed Factor is 1.37.
+
+915 x 1.37 = 1,253.55
+
+Offensive Battle Rating = 1,253.55
+CALCULATE FINAL BATTLE VALUE
+
+Defensive Battle Rating + Offensive Battle Rating = BV
+
+678 + 1,253.55 = 1,931.55
+
+TRB-D36 Thunderbird BV = 1,932
+Calculate Offensive Battle Rating
+Determine Unit’s Speed Factor: A unit’s Speed Factor 
+reflects its ability to maneuver on the battlefield. To find the 
+Speed Factor of any aerospace unit, cross-reference its Maxi-
+mum Thrust Value with the Speed Factor Table (p. 316). 
+Multiply the Total Battle Rating by the Speed Factor to find 
+the unit’s Offensive Battle Rating.
+Airships: Use the Maximum Thrust rating for airships, but 
+round up to the next whole number for vehicles with frac-
+tional thrust ratings.
+STEP 3: CALCULATE FINAL BATTLE VALUE
+An aerospace unit’s final BV is calculated by adding its 
+Defensive and Offensive Battle Ratings. Round any remaining 
+fractions to the nearest whole number (.5 rounds up).
+CALCULATING THE BV OF: 
+A TRB-D36 THUNDERBIRD 
+AEROSPACE FIGHTER
+CALCULATE DEFENSIVE BATTLE RATING
+Total Armor Factor x 2.5:
+224 x 2.5 = 560
+Structural Integrity x 2:
+10 x 2 = 20
+Total BV of all Defensive Equipment:
+0
+
+580
+SUBTRACT
+15 points per type of explosive ammo 
+	
+LRM Ammunition:
+15
+
+580
+
+- 15
+
+565
+
+565
+Multiply by the Unit Type Modifier:
+x 1.2
+
+678
+	 Defensive Battle Rating = 678
+CALCULATE OFFENSIVE BATTLE RATING
+1. Calculate Each Weapon’s Modified BV
+The Thunderbird is armed with 3 Large Lasers, 2 LRM 20s and 
+5 Medium Lasers. It has no special equipment that modifies 
+the BV of its weapons, but two of its Medium Lasers are rear-
+firing. Its LRM ammo does not exceed the BV of the launchers, 
+and so does not have to be modified.
+4 tons LRM 20 ammunition (at full value):
+92
+2 LRM 20s:
+181 each 
+3 Large Lasers:
+123 each
+3 Medium Lasers:
+46 each
+2 Medium Lasers (aft-mounted):
+(46 ÷ 2) = 23 each
+
+
+--- PAGE 316 ---
+Base “Front” Battle Value
+2,594
+8 tons of Heavy Gauss ammo (8 x 43)
+344
+	
+Running Heat Total: 0 + 94 = 94
+
+“Nose” BV = 2,938
+Because the two adjacent arcs are identical Wing arcs, the left 
+one is chosen as the “Left Side” arc. As the Dragau’s “Front Side” 
+does not exceed its Heat Efficiency, this “Side” is calculated at 
+100% of its total BV. Had the Heat Efficiency been exceeded, the 
+“Left Side” would have been calculated at 50% of its BV.
+Base “Left Side” Battle Value
+1,030.4
+6 tons of LRM ammo (6 x 17)
+102
+	
+Running Heat Total: 94 + 60 = 154
+
+“Left Side” BV = 1,132.4
+The right wing becomes the “Right Side” arc. As the Dragau has 
+still not exceeded its Heat Efficiency, the “Right Side” is calculated 
+at 50% of its total BV. Had the Heat Efficiency been exceeded, the 
+“Right Side” would have been calculated at 25% of its BV.
+Base “Right Side” Battle Value
+1,030.4 
+6 tons of LRM ammo (6 x 17)
+102
+
+1,132.4
+
+“Right Side” BV (1,132.4 ÷ 2) = 566.2 
+All remaining arcs are now considered the “Rear” and are calcu-
+lated at 25% of their total BV.
+Base Left Aft Wing:
+246 x .25 = 61.5
+No Ammo	
+0
+
+61.5
+Base Right Aft Wing:	
+246 x .25 = 61.5
+No ammo	
+0
+
+61.5
+Base Aft: 
+370 x .25 = 92.5
+No ammo	
+0
+
+92.5
+
+“Rear” BV = 215.5
+	
+Add the BV for the “Front”, “Right Side”, “Left Side” and “Rear” to 
+determine the Weapon Battle Rating.
+“Nose” BV	
+2,938
+“Left Side” BV
+1,132.4
+“Right Side” BV
+566.2
+“Rear” BV
+215.5
+
+Weapon Battle Rating = 4,852.1
+3. Calculate Offensive Battle Rating
+Multiply the unit’s Weapon Battle Rating by its Speed Factor. 
+With a Maximum Thrust of 14, its Speed Factor is 2.16.
+ 
+
+4,852.1 x 2.16 = 10,480.54
+
+Offensive Battle Rating = 10,480.54
+CALCULATE FINAL BATTLE VALUE
+
+Defensive Battle Rating + Offensive Battle Rating = BV
+
+3,762 + 10,480.54 = 14,242.54
+
+Dragau II-class DropShip BV = 14,243
+CALCULATING THE BV OF: A 
+DRAGAU II-CLASS DROPSHIP
+CALCULATE DEFENSIVE BATTLE RATING
+Total Armor Factor x 2.5:
+1,372 x 2.5 = 3,430
+Structural Integrity x 2:
+15 x 2 = 30
+Total BV of Defensive Equipment
+	
+6 Anti-Missile Systems:
+6 x 32 = 192
+	
+10 tons Ammo (AMS) 120 rounds:
+10 x 11 = 110 (max. 192)
+
+302
+
+3,762
+
+3,762
+Multiply by the Unit Type Modifier:
+x 1.0
+
+3,762
+
+Defensive Battle Rating = 3,762
+CALCULATE OFFENSIVE BATTLE RATING
+Due to space restrictions, the steps below deviate in terms of 
+presentation from the explanation above.
+1. Determine Unit Heat Efficiency and Total Weapon Heat
+Find the DropShip’s Heat Efficiency and the total heat gener-
+ated by firing all weapons.
+
+DropShip Heat Efficiency = 244
+2. Calculate Weapon Battle Rating and Arc Heat for each firing arc
+Add up the Modified BV of all weapons in a given firing arc. Do 
+not calculate ammo or equipment at this time.
+ARC/WEAPON	
+Total Heat	
+BV
+Nose:
+	
+2 Heavy Gauss Rifles (2 heat)	
+2 x 2 = 4	
+2 x 346 = 692
+	
+6 Heavy PPCs (15 heat)	
+6 x 15 = 90 	
+6 x 317 = 1,902
+	
+	
+94	
+2,594
+Wing:
+	
+2 LRM 15s + Artemis (5 heat)	
+2 x 5 = 10	 2 x (136 x 1.2) = 326.4
+	
+2 ER PPCs (15 heat)	
+2 x 15 = 30	
+2 x 229 = 458
+	
+2 Large VSP Lasers (10 heat)	
+2 x 10 = 20	
+2 x 123 = 246
+	
+	
+60	
+1,030.4
+Aft Wing:
+	
+2 Large VSP Lasers (10 heat)	
+2 x 10 = 20	
+2 x 123 = 246
+	
+	
+20	
+246
+Aft: 
+	
+2 Large VSP Lasers (10 heat)	
+2 x 10 = 20	
+2 x 123 = 246
+	
+2 ER Medium Lasers (5 heat)	
+2 x 5 = 10	
+2 x 62 = 124
+	
+	
+30	
+370
+The Dragau’s Nose arc generates the greatest BV. This makes 
+the Nose the “Front” of the DropShip. Now that this has been 
+determined, add the BV of ammunition in that arc and calculate 
+the Nose Weapon Battle Rating. The “Front” is always calculated 
+at 100% BV, even if it exceeds the Heat Efficiency (244) of 
+the DropShip.
+
+
+--- PAGE 317 ---
+315
+315
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+SKILL RATINGS
+When assembling a battle force, a player can elect to use 
+different skill ratings for selected units. However, selecting 
+better skill ratings correspondingly increases the BV of that 
+unit. Conversely, selecting worse skill ratings will reduce the 
+units’ overall BV.
+ProtoMechs: Because ProtoMech pilots have no Piloting 
+Skill, use the 5 column of the BV Skill Multiplier Table when 
+determining skill modifiers for non-standard troops.
+Mechanized Infantry: Because they cannot perform anti-
+’Mech attacks, mechanized infantry can only adjust their 
+Gunnery Skill Rating (use the 5 column of the BV Skill Multi-
+plier Table for this purpose).
+Anti-’Mech Default Skill: Unless the unit has an Anti-’Mech 
+Infantry Kit (see p. 155), all non-mechanized conventional 
+infantry have a default Anti-’Mech Skill Rating of 8, which can-
+not be improved.
+CONSTRUCTING A BATTLE FORCE
+A battle force is a collection of units (including but not lim-
+ited to BattleMechs, Combat Vehicles, ProtoMechs, infantry, 
+battle armor and aerospace fighters). The methods presented 
+previously can provide the base Battle Value for any unit with 
+a standard skill/experience level.
+This BV is adjusted to reflect the effectiveness of the battle 
+force’s target acquisition gear; command, control and com-
+munications systems; and skill rating. Apply these modifiers 
+in the order listed.
+TARGET ACQUISITION GEAR (TAG)
+Any unit in the battle force equipped with TAG, Light TAG or a 
+C3 Master Computer adds BV equal to the BV of each ton of semi-
+guided LRM ammunition carried in the force (use the ammo BV 
+for the appropriate-size LRM launcher). Units whose only such 
+piece of equipment is rear-mounted add half the BV instead.
+COMMAND, CONTROL AND COMMUNICATIONS (C3)
+Two or more units in a battle force equipped with C3 systems 
+can be designated as part of a C3 network (see Total Warfare, p. 
+131). Add 5 percent of the total BV of all units in a C3 network 
+to each of the units linked by each network.
+EXTERNAL STORES
+Aerospace fighters, conventional aircraft and some Sup-
+port Vehicles may carry additional weapons and equipment 
+on external hard points (see the Aerospace Weapons and 
+Equipment BV Table, p. 318). The BV of any external stores is 
+added to the base BV of a unit before the base BV is modified 
+for skill rating.
+Aerospace fighters can carry a maximum of one bomb per 5 
+tons of mass. Support Vehicles can carry one bomb per hard-
+point added during design.
+BV SKILL MULTIPLIER TABLE 
+Gunnery
+Skill
+Piloting/Driving/Anti-‘Mech Skill
+0
+1
+2
+3
+4
+5
+6
+7
+8
+0
+2.42
+2.31
+2.21
+2.1
+1.93
+1.75
+1.68
+1.59
+1.5
+1
+2.21
+2.11
+2.02
+1.92
+1.76
+1.6
+1.54
+1.46
+1.38
+2
+1.93
+1.85
+1.76
+1.68
+1.54
+1.4
+1.35
+1.28
+1.21
+3
+1.66
+1.58
+1.51
+1.44
+1.32
+1.2
+1.16
+1.1
+1.04
+4
+1.38
+1.32
+1.26
+1.2
+1.1
+1.00
+0.95
+0.9
+0.85
+5
+1.31
+1.19
+1.13
+1.08
+0.99
+0.9
+0.86
+0.81
+0.77
+6
+1.24
+1.12
+1.07
+1.02
+0.94
+0.85
+0.81
+0.77
+0.72
+7
+1.17
+1.06
+1.01
+0.96
+0.88
+0.8
+0.76
+0.72
+0.68
+8
+1.1
+0.99
+0.95
+0.9
+0.83
+0.75
+0.71
+0.68
+0.64
+BATTLE VALUE CHARTS AND TABLES
+’MECH ARMOR TYPE MODIFIER TABLE 
+Armor Type
+Modifier
+Standard
+1.0
+Ferro-Fibrous (All)
+1.0
+Industrial
+1.0
+Heavy Industrial
+1.0
+Commercial
+0.5
+Stealth
+1.0
+’MECH INTERNAL STRUCTURE  
+MODIFIER TABLE 
+Internal Structure Type
+Modifier
+Standard
+1.0
+Endo-Steel
+1.0
+Industrial
+0.5
+’MECH ENGINE TYPE MODIFIER TABLE 
+Engine Type
+Modifier
+Standard*
+1.0
+Light
+0.75
+Compact
+1.0
+Inner Sphere XL
+0.5
+Clan XL
+0.75
+*Includes ICE, Fuel Cell, and Fission
+’MECH GYRO TYPE MODIFIER TABLE 
+Gyro Type
+Modifier
+Standard
+0.5
+Compact
+0.5
+Extralight (XL)
+0.5
+Heavy Duty
+1.0
+*Includes ICE, Fuel Cell, and Fission
+
+
+--- PAGE 318 ---
+UNIT TYPE MODIFIERS TABLE 
+Type
+Modifier
+Tracked
+0.9
+Wheeled
+0.8
+Hover
+0.7
+Naval
+0.6
+VTOL
+0.7
+Airship
+0.7
+Fixed-Wing
+1.0
+WiGE
+0.7
+Aerospace Fighter
+1.2
+Conventional Fighter
+1.1
+Small Craft
+1.0
+DropShip
+1.0
+OFFENSIVE BV ADJUSTMENT TABLE
+Fire Control
+OBV Adjustment
+None
+0.8
+Basic
+0.9
+Advanced
+1.0
+BATTLE ARMOR UNIT SIZE  
+MODIFIER TABLE
+Troopers in Unit
+BV Modifier
+1
+1.0
+2
+2.2
+3
+3.6
+4
+5.2
+5
+7.0
+6
+9.0
+SPEED FACTOR TABLE 
+Result of Speed Factor Calculation
+Speed Factor
+0
+0.44
+1
+0.54
+2
+0.65
+3
+0.77
+4
+0.88
+5
+1.00
+6
+1.12
+7
+1.24
+8
+1.37
+9
+1.50
+10
+1.63
+11
+1.76
+12
+1.89
+13
+2.02
+14
+2.16
+15
+2.30
+16
+2.44
+17
+2.58
+18
+2.72
+19
+2.86
+20
+3.00
+21
+3.15
+22
+3.29
+23
+3.44
+24
+3.59
+25
+3.74
+To calculate the Speed Factors for movement not shown on the table, use the following formula: 
+Speed Factor = (1 + ((Running MP + (Jump MP ÷ 2) – 5) ÷10))1.2
+If the unit has MASC or triple-strength myomer (but not industrial triple-strength myomer), 
+use the maximum MP it can generate utilizing that equipment. Round off the result to two 
+decimal places.
+DEFENSIVE FACTORS TABLE 
+* Including bonuses for jump capability, enhanced movement capability from MASC or triple-strength 
+myomer, and any VTOL movement modifier. Do not add the +1 to-hit penalty used in attacks against 
+battle armor units. For units with detachable missile packs, use the best modifier for movement.
+DEFENSIVE FACTOR MODIFIER TABLE 
+Special Case
+Defensive Factor Modifier
+ProtoMech
++0.1
+Battle Armor
++0.1
+Battle Armor Armor and Equipment
+Camo
++0.2
+Basic Stealth
++0.2
+Prototype Stealth
++0.2
+Standard Stealth
++0.2
+Improved Stealth
++0.3
+Mimetic
++0.3
+Target 
+Modifier*
+Defensive 
+Factor
++0
+1.0
++1
+1.1
++2
+1.2
++3
+1.3
++4
+1.4
+Target 
+Modifier*
+Defensive 
+Factor
++5
+1.5
++6
+1.6
++7
+1.7
++8
+1.8
++9 and above
+1 + (modifier ÷ 10)
+BATTLE VALUE CHARTS AND TABLES (CONTINUED)
+
+
+--- PAGE 319 ---
+317
+317
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+WEAPONS AND EQUIPMENT BATTLE VALUE
+The following tables list the BV for Inner Sphere and Clan standard rules equipment. The BV for single-shot (OS) versions of 
+missile launchers is listed as the second BV figure for the launcher, after the slash mark (/).
+Item
+Item 
+BV
+Ammo 
+BV*
+Energy Weapons 
+ER Laser (Large)
+163
+—
+ER Laser (Medium)
+62
+—
+ER Laser (Small)
+17
+—
+Flamer (’Mech)
+6
+—
+Laser (Large)
+123
+—
+Laser (Medium)
+46
+—
+Laser (Small)
+9
+—
+PPC (Heavy)
+317
+—
+PPC
+176
+—
+PPC (Light)
+88
+—
+PPC (Snub-Nose)
+165
+—
+PPC (Support)
+14
+—
+ER PPC
+229
+—
+Plasma Rifle
+210
+26§
+Plasma Rifle (Man-Portable)
+12
+0
+Pulse Laser (Large)
+119
+—
+Pulse Laser (Medium)
+48
+—
+Pulse Laser (Small)
+12
+—
+Ballistic Weapons 
+AC/2
+37
+5
+AC/5
+70
+9 
+AC/10
+123
+15
+AC/20
+178
+22
+“Firedrake” Support Needler
+2
+0
+Flamer (Vehicle)
+5
+1
+Gauss Rifle (Heavy)
+346
+43§
+Gauss Rifle
+320
+40§
+Gauss Rifle (Light)
+159
+20§
+Gauss Rifle (David)
+7
+0
+Gauss Rifle (“King David”)
+7
+0
+Gauss (Magshot)
+15
+0
+LB 2-X AC
+42
+5
+LB 5-X AC
+83
+10
+LB 10-X AC
+148
+19
+LB 20-X AC
+237
+30
+Light AC/2
+30
+4
+Light AC/5
+62
+8
+Machine Gun (Heavy)
+6
+1
+Machine Gun
+5
+1
+Machine Gun (Light)
+5
+1
+Mortar (Light)
+9
+0
+Mortar (Heavy)
+17
+0
+Nail/Rivet Gun
+1
+0§
+Rotary AC/2
+118
+15 
+Rotary AC/5
+ 247
+31
+Ultra AC/2
+56
+7
+Ultra AC/5
+112
+14
+Ultra AC/10
+210
+26 
+Ultra AC/20
+281
+35
+Missile Weapons 
+LRM-5
+45/9
+6 
+LRM-10
+90/18
+11 
+LRM-15
+136/27
+17 
+LRM-20
+181/36
+23
+MML-3
+29/—
+4
+Item
+Item 
+BV
+Ammo 
+BV*
+MML-5
+45/—
+6
+MML-7
+67/—
+8
+MML-9
+86/—
+11
+MRM-10
+56/11
+7
+MRM-20
+112/22
+14 
+MRM-30
+168/34
+21 
+MRM-40
+224/45
+28 
+Rocket Launcher 10
+18
+—
+Rocket Launcher 15
+23
+— 
+Rocket Launcher 20
+24
+—
+SRM-2
+21/4
+3
+SRM-4
+39/8
+5 
+SRM-5
+47/9
+6
+SRM-6
+59/12
+7 
+Streak SRM-2
+30/6
+4
+Streak SRM-4
+59/12
+7
+Streak SRM-6
+89/18
+11 
+Other Equipment 
+Anti-Missile System
+32†
+11†
+Anti-Personnel Pod (A-Pod)
+1†
+—
+Anti-Battle Armor Pod (B-Pod)‡
+2†
+—
+Artemis IV FCS
+B
+—
+Backhoe
+8
+—
+Bridge-Layer (Light)
+5†
+—
+Bridge-Layer (Medium)
+10†
+—
+Bridge-Layer (Heavy)
+20†
+—
+Beagle Active Probe
+10†
+—
+Bulldozer
+10†
+—
+CASE
+C
+—
+C3 Computer (Master)
+D
+—
+C3 Slave
+D
+—
+Chainsaw
+7
+—
+Combine
+5
+—
+Dual Saw
+9
+—
+Guardian ECM Suite
+61†
+— 
+Hatchet
+(Damage 
+x 1.5)**
+— 
+Heavy-Duty Pile Driver
+5
+—
+Improved C3 Computer
+D
+—
+Improved Narc Launcher
+75/15
+0
+Machine Gun Array
+F
+—
+MASC
+C
+— 
+Mining Drill
+6
+—
+Narc Missile Beacon
+30/6
+0
+Retractable Blade
+(Damage 
+x 1.725)**
+—
+Rock Cutter
+6
+—
+Spot Welder
+5
+—
+Sword
+(Damage 
+x 1.725)**
+—
+TAG
+A
+— 
+Targeting Computer
+E
+—
+Triple-Strength Myomer
+C
+—
+Industrial Triple-Strength Myomer
+C
+—
+Wrecking Ball
+8
+—
+Item
+Item 
+BV
+Ammo 
+BV*
+Battle Armor Equipment
+Flamer (BA)
+5
+—
+Gauss (Grand Mauler)
+6
+0
+Gauss (Tsunami)
+6
+0
+Grenade Launcher (Heavy)
+2
+0
+Grenade Launcher (Micro)
+1
+0
+Recoilless Rifle (Light)
+12
+0
+Recoilless Rifle (Medium)
+19
+0
+Recoilless Rifle (Heavy)
+22
+0
+LRM-1
+14/3
+2
+LRM-2
+20/4
+3
+LRM-3
+29/6
+4
+LRM-4
+38/8
+5
+MRM-1
+9/2
+1
+MRM-2
+13/3
+2
+MRM-3
+18/4
+2
+MRM-4
+23/5
+3
+MRM-5
+28/6
+4
+Rocket Launcher 1
+2
+—
+Rocket Launcher 2
+3
+—
+Rocket Launcher 3
+4
+—
+Rocket Launcher 4
+5
+—
+Rocket Launcher 5
+6
+—
+SRM-1
+15/3
+2
+SRM-3
+30/6
+4
+Battle Claw (w/Magnets)
+3/pair
+—
+Battle Claw (w/Vibro-Claws)
+1 each
+—
+Heavy Battle Claw (w/Magnets)
+3/pair
+—
+Heavy Battle Claw (w/Vibro-Claws)
+1 each
+—
+Magnetic Clamps
+1
+—
+Narc (Compact)
+16/4
+0
+Popup Mine
+6
+—
+* Per ton
+**The damage used to calculate the item’s BV is based on the final 
+damage the item can deal after all possible modifications (such 
+as TSM) are applied.
+† Defensive Battle Rating
+§ Ammunition for these weapons is not counted as explosive.
+‡ Treat as Gauss weapon when calculating defensive battle rating.
+NOTES 
+A 	 TAG: Only affects a unit’s BV if it or other friendly units carry 
+equipment that can be used in conjunction with it. See Con-
+structing a Battle Force, p. 315.
+B 	 Artemis IV FCS: Increase by 20 percent the BV of any missile 
+launcher equipped with Artemis IV. This increase does not apply 
+to the launcher’s ammunition. 
+C 	 CASE/MASC/Triple-Strength Myomer, Industrial Triple-
+Strength Myomer: Though these items are used when 
+calculating Battle Ratings, they have no individual BV. 
+D 	 C3 Computers/Slaves and Improved C3 Computers: C3 
+Computers and Slaves (or Improved C3Computers) only affect 
+a unit’s BV if the unit is designated as part of a complete C3 
+network (at least one C3 Master and one Slave, or two Improved 
+C3 Computers). See Constructing a Battle Force, p. 315.
+E 	 Targeting Computer: The BV of a targeting computer equals 
+25 percent of the total BV of all weapons linked to the computer. 
+Do not include the BV of ammo when calculating this sum, and 
+use half the BV ratings of rear-mounted weapons.
+F 	 BV is the total BV of all weapons in a machine gun array multi-
+plied by 0.67.
+INNER SPHERE WEAPONS AND EQUIPMENT BV TABLE
+
+
+--- PAGE 320 ---
+AEROSPACE WEAPONS AND EQUIPMENT BV TABLE
+Item
+Item BV
+Ammo BV*
+Capital Missile Weapons 
+Killer Whale
+769
+96 each
+White Shark
+577
+72 each
+Barracuda
+522
+65 each
+AR-10
+961
+—
+Kraken-T
+2,306
+288 each
+Killer Whale-T
+923
+115 each
+White Shark-T
+692
+86 each
+Barracuda-T
+461
+58 each
+Item
+Item BV
+Ammo BV*
+External Stores
+High Explosive (HE)
+—
+12 each
+Cluster
+—
+13 each
+Laser Guided (LG)
+—
+20 each
+Inferno
+—
+16 each
+Rocket Launcher
+18
+—
+TAG
+A
+—
+Equipment
+Screen Launcher
+160†
+20† each
+* The Ammo Battle Values for capital missiles and equipment are per missile, not per ton of ammo.
+† Defensive Battle Rating
+NOTES
+A	 TAG: Only affects a unit’s BV if it or other friendly units carry equipment that can be used in conjunction with 
+it. See Constructing a Battle Force, p. 315.
+Item
+Item 
+BV
+Ammo 
+BV*
+Energy Weapons 
+ER Laser (Large)
+248
+—
+ER Laser (Medium)
+108
+—
+ER Laser (Small)
+31
+—
+ER Laser (Micro)
+7
+—
+Flamer (‘Mech)
+6
+—
+Heavy Laser (Large)
+244
+—
+Heavy Laser (Medium)
+76
+—
+Heavy Laser (Small)
+15
+—
+ER PPC
+412
+—
+Plasma Cannon
+170
+21§
+Pulse Laser (Large)
+265
+—
+Pulse Laser (Medium)
+111
+—
+Pulse Laser (Small)
+24
+—
+Pulse Laser (Micro)
+12
+—
+Ballistic Weapons 
+Flamer (Vehicle)
+5
+1
+Gauss (AP)
+21
+3§
+Gauss Rifle
+320
+40§
+HAG 20
+267
+33§
+HAG 30
+401
+50§
+HAG 40
+535
+67§
+LB 2-X AC
+47
+6
+LB 5-X AC
+93
+12
+LB 10-X AC
+148
+19
+LB 20-X AC
+237
+30
+Machine Gun (Heavy)
+6
+1
+Machine Gun
+5
+1 
+Machine Gun (Light)
+5
+1
+Nail/Rivet Gun
+1
+0§
+Ultra AC/2
+62
+8
+Ultra AC/5
+122
+15
+Ultra AC/10
+210
+26
+Ultra AC/20
+335
+42
+Missile Weapons 
+ATM-3
+53/—
+14 
+ATM-6
+105/—
+26
+ATM-9
+147/—
+36
+ATM-12
+212/—
+52
+LRM-1
+17/3
+2
+LRM-2
+24/5
+3
+LRM-3
+34/7
+4
+LRM-4
+46/9
+6
+LRM-5
+55/11
+7
+Item
+Item 
+BV
+Ammo 
+BV*
+LRM-6
+69/14
+9
+LRM-7
+76/15
+10
+LRM-8
+88/18
+11
+LRM-9
+94/19
+12
+LRM-10
+109/22
+14
+LRM-11
+126/25
+16
+LRM-12
+141/28
+18
+LRM-13
+145/29
+19
+LRM-14
+159/32
+20
+LRM-15
+164/33
+21
+LRM-16
+180/36
+23
+LRM-17
+185/37
+24
+LRM-18
+199/40
+25
+LRM-19
+203/41
+26
+LRM-20
+220/44
+27
+SRM-1
+15/3
+2 
+SRM-2
+21/4
+3 
+SRM-3
+30/6
+4 
+SRM-4
+39/8
+5 
+SRM-5
+47/9
+6 
+SRM-6
+59/12
+7
+Streak SRM-1
+20/4
+3 
+Streak SRM-2
+40/8
+5 
+Streak SRM-3
+59/12
+7
+Streak SRM-4
+79/16
+10 
+Streak SRM-5
+99/20
+13
+Streak SRM-6
+118/24
+15 
+Other Equipment 
+Active Probe
+12†
+—
+Active Probe (Light)
+7†
+— 
+Anti-Missile System
+32†
+22†
+Anti-Personnel Pod (A-Pod)
+1†
+— 
+Anti-Battle Armor Pod (B-Pod)‡
+2†
+—
+Artemis IV FCS
+B
+— 
+Backhoe
+8
+—
+Bridge-Layer (Light)
+5†
+—
+Bridge-Layer (Medium)
+10†
+—
+Bridge-Layer (Heavy)
+20†
+—
+Bomb Rack
+11
+—
+Bulldozer
+10†
+—
+CASE
+C
+— 
+Chainsaw
+7
+—
+Combine
+5
+—
+Dual Saw
+9
+—
+ECM Suite
+61†
+— 
+Item
+Item 
+BV
+Ammo 
+BV*
+Heavy-Duty Pile Driver
+5
+—
+Machine Gun Array
+F
+—
+MASC
+C
+— 
+Mining Drill
+6
+—
+Narc Missile Beacon
+30/6
+0
+Rock Cutter
+6
+—
+Spot Welder
+5
+—
+TAG
+A
+—
+Light TAG
+A
+— 
+Targeting Computer
+D
+—
+Wrecking Ball
+8
+—
+Battle Armor Equipment
+Flamer (BA)
+5
+—
+Laser (Small)
+9
+—
+PPC (Support)
+14
+—
+“Bearhunter” Superheavy AC
+4
+0
+Grenade Launcher (Heavy)
+2
+0
+Recoilless Rifle (Light)
+12
+0
+Recoilless Rifle (Medium)
+19
+0
+Recoilless Rifle (Heavy)
+22
+0
+Advanced SRM-1
+15/3
+2
+Advanced SRM-2
+30/6
+4
+Advanced SRM-3
+45/9
+6
+Advanced SRM-4
+60/12
+8
+Advanced SRM-5
+75/15
+10
+Advanced SRM-6
+90/18
+12
+Battle Claw (w/Vibro-Claws)
+1 each
+—
+Narc (Compact)
+16/4
+0
+* Per ton
+† Defensive Battle Rating
+§ Ammunition for these weapons is not counted as explosive.
+‡ Treat as Gauss weapon when calculating defensive battle rating.
+NOTES 
+A	 TAG: Only affects a unit’s BV if it or other friendly units carry equip-
+ment that can be used in conjunction with it. See Constructing a 
+Battle Force, p. 315.
+B	 Artemis IV: Increase by 20 percent the BV of any missile launcher 
+equipped with Artemis IV. This increase does not apply to the 
+launcher’s ammunition. 
+C	 CASE/MASC: Though these items are used when calculating the 
+Defensive Battle Rating, they have no individual BV. 
+D	 Targeting Computer: The BV of a targeting computer equals 25 
+percent of the total BV of all weapons linked to the computer. Do not 
+include the BV of ammo when calculating this sum, and use half the 
+BV ratings of rear-mounted weapons.
+CLAN WEAPONS AND EQUIPMENT BV TABLE
+
+
+--- PAGE 321 ---
+319
+319
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+INDEX
+INDEX
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+BATTLE VALUE
+BATTLE VALUE
+Weapon
+BV
+Archaic Weapons
+Bow (Compound)
+0.01
+Bow (Daikyu)
+0.01
+Bow (Longbow)
+0.01
+Bow (Shortbow)
+0
+Bow (Hankyu)
+0
+Club (Blackjack/Sap)
+0.05
+Club (Club/Improvised)
+0.02
+Club (Vibro-Mace)
+0.24
+Crossbow (Basic)
+0.01
+Crossbow (Heavy)
+0.02
+Blade (Axe)
+0.10
+Blade (Bokken)
+0.04
+Blade (Dao)
+0.04
+Blade (Carbon-Reinforced Nails)
+0.02
+Blade (Hatchet/Tomahawk)
+0.04
+Blade (Katana/Scimitar)
+0.06
+Blade (Knife/Dagger/Bayonet)
+0.02
+Blade (No-Dachi)
+0.05
+Blade (Sword)
+0.06
+Blade (Wakizashi)
+0.02
+Blade (Vibro-axe)
+0.39
+Blade (Vibro-blade)
+0.19
+Blade (Vibro-katana)
+0.29
+Blade (Vibro-sword, IS)
+0.29
+Blade (Vibro-sword, Clan)
+0.34
+Nunchaku
+0.02
+Staff
+0.04
+Staff (Pole Arm)
+0.04
+Staff (Stun Staff, Single-End)
+0.06
+Staff (Stun Staff, Double-End)
+0.06
+Stunstick
+0.06
+Stunstick (Mini)
+0.05
+Thrown (Dart)
+0
+Thrown (Hatchet/Tomahawk)
+0.01
+Thrown (Knife)
+0
+Thrown (Spear)
+0.01
+Thrown (Shuriken)
+0
+Whip
+0.05
+Whip (Monowire)
+0.32
+Whip (Medusa)
+0.15
+Whip (Neural Lash)
+0.08
+Whip (Neural Whip)
+0.08
+Pistols
+Auto-Pistol
+0.19
+Auto-Pistol (Hawk Eagle)
+0.25
+Auto-Pistol (Magnum)
+0.19
+Auto-Pistol (M&G)
+0.16
+Auto-Pistol (Nambu)
+0.19
+Auto-Pistol (Serrek 7875D)
+0.15
+Auto-Pistol (Sternsnacht Python)
+0.26
+Dart Gun
+0.01
+Flare Pistol
+0.08
+Gauss Pistol
+0.13
+Gauss Pistol (Hold-Out [Mandrake])
+0.02
+Gyrojet Pistol
+0.04
+Gyrojet Pistol (Coventry Handrocket)
+0.43
+Gyrojet Pistol (Hold-Out)
+0.04
+Harpoon Gun (Pequod Mk. I)
+0.02
+Laser Pistol
+0.64
+Laser Pistol (Blazer)
+0.79
+Laser Pistol (ER)
+0.61
+Laser Pistol (Hold-Out)
+0.13
+Laser Pistol (Hold-Out [White Dwarf])
+0.02
+Laser Pistol (Nakjima)
+0.55
+Laser Pistol (Sunbeam)
+0.86
+Laser Pistol (Sunbeam Nova)
+0.24
+Weapon
+BV
+Needler Pistol
+0.21
+Needler Pistol (Hold-Out)
+0.10
+Needler Pistol (M&G Flechette)
+0.10
+Needler Pistol (Sea Eagle)
+0.10
+Paint Gun (LGB-46R)
+0
+Pistol (Flamer)
+0.31
+Pistol (Hold-Out)
+0.03
+Pistol (Makeshift)
+0.02
+Pistol (TK Enforcer Semi-Automatic)
+0.18
+Pistol (Spitball Gas Weapon)
+0
+Pistol (Sternsnacht Heavy [Claymore])
+0.08
+Pulse Laser Pistol (Clan)
+0.61
+Pulse Laser Pistol (IS)
+0.13
+Revolver
+0.16
+Revolver (Magnum)
+0.17
+Sonic Stunner
+0.06
+Tranq Gun
+0.13
+Rifles
+Auto-Rifle
+1.59
+Elephant Gun
+0.34
+Gauss Rifle (Thunderstroke)
+0.79
+Gauss Rifle (Thunderstroke II)
+2.71
+Gyroslug Carbine
+0.86
+Gyroslug Carbine (Star King)
+1.07
+Gyroslug Rifle
+1.07
+Gyrojet Gun (Heavy)
+1.07
+Gyrojet Rifle
+1.07
+Harpoon (Pequod Mk. 2)
+0.18
+Laser Rifle 
+1.43
+Laser Rifle (Blazer)
+1.79
+Laser Rifle (Ebony Assault)
+1.07
+Laser Rifle (ER)
+2.01
+Laser Rifle (ER, Starfire)
+2.01
+Laser Rifle (Federated-Barrett M61A)
+3.83
+Laser Rifle (Intek)
+1.51
+Laser Rifle (Magna)
+1.33
+Laser Rifle (Marx XX)
+1.86
+Laser Rifle (Mauser 960 Assault Sys.)
+4.75
+Laser Rifle (Mauser 1200 LSS)
+5.32
+Laser Rifle (Mauser IIC)
+(Non-Inferno)
+9.82
+(Inferno)
+6.45
+Laser Rifle (Maxell PL-10)
+1.33
+Needler Rifle
+0.21
+Needler Rifle (Shredder Heavy)
+0.31
+Needler Rifle (M&G Flechette)
+0.10
+Pulse Laser Rifle (Clan)
+1.69
+Pulse Laser Rifle (IS)
+0.76
+Rifle (Bolt-Action)
+0.43
+Rifle (Federated-Barrett M42B)
+3.12
+Rifle (Federated Long)
+1.07
+Rifle (Imperator AX-22 Assault)
+1.59
+Rifle (M&G G-150)
+1.64
+Rifle (Makeshift)
+0.09
+Rifle (Minolta 9000 Adv. Sniper Sys.)
+1.79
+Rifle (Radium Sniper)
+2.58
+Rifle (Sniper)
+0.92
+Rifle (TK Assault)
+1.34
+Rifle (Zeus Heavy)
+0.67
+Shotguns
+Auto-Shotgun
+0.21
+Ceres Arms Crowdbuster
+0.10
+Gel Gun (Buccaneer)
+0.06
+Shotgun (Avenger CCW)
+0.30
+Shotgun (Combat)
+0.25
+Shotgun (Double-Barrel)
+0.03
+Weapon
+BV
+Shotgun (Double-Barrel, Sawed-Off)
+0.03
+Shotgun (Pump-Action)
+0.07
+Shotgun (Pump-Action, Sawed-Off)
+0.07
+Submachine Guns
+Auto-Pistol (Mydron)
+0.13
+Auto-Pistol (Stetta)
+0.16
+Gauss Submachine Gun
+1.38
+Machine Pistol (Martial Eagle)
+0.23
+Submachine Gun
+0.23
+SMG (Gunther MP-20)
+0.30
+SMG (Imperator 2894A1)
+0.20
+SMG (KA-23 Subgun)
+0.20
+SMG (Rorynex RM-3/XXI)
+0.18
+SMG (Rugan)
+0.18
+Grenades (Thrown)
+Grenade
+(Non-Inferno)
+0.44
+(Inferno)
+0.17
+Grenade (Micro)
+0.15
+Grenade (Mini)
+(Non-Inferno)
+0.25
+(Inferno)
+0.10
+Grenade (Rocket-Assisted)
+0.92
+Support Weapons
+AA Weapon (Mk. 1 Light AA)
+0.70
+AA Weapon (Mk. 2 Man-Portable AA)
+4.14
+Autocannon (Bearhunter Super-Heavy)
+2.13
+Autocannon (Semi-Portable)
+2.35
+Flamer (Heavy)
+0.72
+Flamer (Man-Portable)
+0.50
+Gauss Cannon (Grand Mauler)
+3.22
+Gauss Rifle (Magshot)
+3.78
+Gauss Rifle (Tsunami Heavy)
+3.22
+Gauss Rifle, Light (David)
+4.01
+Gauss Rifle, Light (King David)
+4.87
+Grenade Launcher
+(Non-Inferno Ammo)
+2.48
+(Inferno Ammo)
+1.04
+Grenade Launcher (Automatic)
+(Non-Inferno Ammo)
+4.55
+(Inferno Ammo)
+1.25
+Grenade Launcher (Compact)
+0.49
+Grenade Launcher (Heavy)
+(Non-Inferno Ammo)
+5.38
+(Inferno Ammo)
+2.11
+Grenade Launcher (Heavy Auto)
+(Non-Inferno Ammo)
+5.90
+(Inferno Ammo)
+2.93
+Laser (Hellbore Assault)
+3.22
+LRM Launcher (Corean FarShot)
+(Non-Inferno Ammo)
+3.44
+(Inferno Ammo)
+1.36
+Machine Gun (Light)
+1.50
+Machine Gun (Portable)
+1.99
+Machine Gun (Semi-Portable)
+2.29
+Machine Gun (Support)
+4.80
+Mortar (Heavy)
+(Non-Inferno Ammo)
+4.09
+(Inferno Ammo)
+2.44
+Mortar (Light)
+(Non-Inferno Ammo)
+1.62
+(Inferno Ammo)
+0.79
+MRM Launcher 
+(Non-Inferno Ammo)
+2.71
+(Inferno Ammo)
+1.33
+Weapon
+BV
+Needler, Support (Firedrake)
+6.13
+Particle Cannon (Semi-Portable)
+3.68
+Particle Cannon (Support)*
+11.32
+Plasma Rifle, Man-Portable
+8.08
+Pulse Laser (Dragonsbane Disp.)
+0.82
+Recoilless Rifle (Heavy)
+(Non-Inferno Ammo)
+2.91
+(Inferno Ammo)
+1.74
+Recoilless Rifle (Light)
+(Non-Inferno Ammo)
+2.45
+(Inferno Ammo)
+0.97
+Recoilless Rifle (Medium)
+(Non-Inferno Ammo)
+2.71
+(Inferno Ammo)
+1.33
+Rocket Launcher (LAW)
+2.71
+Rocket Launcher (V-LAW)
+1.47
+SRM Launcher (Standard, Two-Shot)
+(Non-Inferno Ammo)
+5.83
+(Inferno Ammo)
+3.48
+SRM Launcher (Heavy) 
+(Non-Inferno Ammo)
+2.91
+(Inferno Ammo)
+1.74
+SRM Launcher (Light)
+(Non-Inferno Ammo)
+2.91
+(Inferno Ammo)
+1.74
+Support Laser
+6.02
+Support Laser (ER, IS)
+8.21
+Support Laser (ER, Clan)
+10.27
+Support Laser (ER Heavy, IS)
+13.88
+Support Laser (ER Heavy, Clan)
+18.52
+Support Laser (ER, Semi-Portable)
+5.02
+Support Laser (Heavy)
+17.35
+Support Laser (Heavy, Semi-Portable)
+7.53
+Support Laser (Semi-Portable)
+4.37
+Support Laser (Ultra-Heavy)
+20.31
+Support Pulse Laser
+5.81
+Support Pulse Laser (Heavy)
+9.58
+Support Pulse Laser (Semi-Portable)
+2.81
+CONVENTIONAL INFANTRY WEAPONS BV TABLE
+
+
+--- PAGE 322 ---
+• A •
+Active probe, 204, 252
+Actuators, 32
+Advanced fire control, 217–18
+Advanced short range missile launcher, 261
+Advanced tactical missile (ATM) system, 229
+Aerospace 
+	
+armor points per ton, 192
+	
+armor weapon space, 192
+	
+Battle Value, 311–13
+	
+cockpit, 211–12
+	
+engines, fusion/turbine, 215
+	
+fighters, 13, 180. See also Fighters
+	
+structure, 224
+	
+weapon classes, 331
+	
+weapons, equipment BV, 318
+Aerospace unit, 9, 19 
+	
+armor table, 191
+	
+heat sinks table, 193
+	
+record sheet, 28–29, 182
+	
+structural costs, availability, 283, 285
+AeroTech 2, 8
+Aerotechnology, 174–75
+Affiliation, 145, 146
+Affiliation key, 290
+Airships, 111, 116, 129
+	
+fixed-wing, 112
+	
+structural integrity, 130–31
+	
+support vehicles, 11
+	
+support vehicles fuel table, 126
+Amaris, Stefan, 14
+Ammunition, 21, 57
+	
+autocannon, 208
+	
+battle armor, 170–72
+	
+combat vehicles, 107
+	
+heavy weapon, 294–96, 324–25
+	
+IndustrialMech, 74–75
+	
+missile, 171, 230–31, 261–62
+	
+NARC, 232–33
+	
+non-missile, 170–71
+	
+ProtoMech, 88–89
+	
+support vehicles, 136–37
+	
+weight of, 149
+Anti-aircraft weapon, 148
+Anti-BattleMech attacks, 310
+Anti-‘Mech battle armor, 167
+Anti-missile system, 204
+Anti-personnel 
+	
+Gauss rifle, 218, 255
+	
+pods (A-pods), 204–5
+	
+weapon, 271, 310
+Archaic weapons, 272–73
+Armament, conventional infantry, 272–73
+Armor, 205–6 
+	
+battle. See Battle armor
+	
+BattleMechs, 33–34, 56
+	
+combat vehicles, 105–6
+	
+diagram, 23–26, 28, 54–55, 252–53
+	
+fighters, 190–93
+	
+IndustrialMech, 61–62, 72–73
+	
+Internal structure, rounding and, 22
+	
+ProtoMech, 82, 86–87
+	
+space, 55
+	
+support vehicle, 134–36
+	
+technology base, 55
+Armored gloves, 259
+Armor-piercing ammunition, 208
+Arresting hoists, 245–46
+Art, 9
+Artemis IV fire-control system, 206–7
+Autocannon, 207–8
+Autocannon munitions, 208
+Availability
+	
+codes table, 287
+	
+determining final, 288–89
+	
+introduction, extinction dates, 287–88
+	
+ratings, 286–87
+• B •
+Backhoe, 242
+Balance sensors, 34
+Ballistic weapon, 148
+Base range, 149
+Basic fire control, 217
+Battery packs, 42
+Battle armor, 9, 13, 19–20, 157–59
+	
+adding, 168–70
+	
+Battle Value, 310
+	
+chassis, 162–63
+	
+designing, 161
+	
+equipment, 250
+	
+equipment, Clan, 326–27
+	
+equipment, Inner Sphere, 325–26
+	
+fighters, 182
+	
+manipulators, 166–68
+	
+modular technology, 160
+	
+motive systems, 164–66
+	
+physical enhancements, 165–66
+	
+protection table, 169
+	
+record sheet, 27, 172–73
+	
+structural costs, availability, 281
+	
+structure weights table, 163
+	
+technology base, 160
+	
+unit size modifier, 316
+	
+weapon, 20–21
+	
+weapon, ammunition, 170–72
+	
+weapon/equipment cost, 
+	
+	
+availability, 296–98
+	
+weapon limits table, 170
+	
+weapon space, 161
+	
+weight, 161
+Battle claw, 259
+Battle force, 315
+BattleMech, 9, 18
+	
+actuators, 32
+	
+armor, 33–34, 54–55, 56–57
+	
+chassis design, 46–48
+	
+cockpit, 39–42 52
+	
+critical space table, 45
+	
+design process, 45–46
+	
+diagnostic interpretation (DI)
+	
+	
+computer, 42
+	
+emergence of, 14
+	
+endoskeleton of, 31–32
+	
+endo-steel, 32
+	
+engine, 35–37
+	
+engine installation, 48–50
+	
+ferro-fibrous armor, 34
+	
+frame, 31–32
+	
+gyroscope, 34–35, 50–51
+	
+heat sinks, 37–38, 53–54
+	
+intelligence of, 42–43
+	
+internal structure, 31–33, 46–48
+	
+jump capability, 51
+	
+jump jets, 38–39
+	
+myomers, 32–33
+	
+record sheet, 59
+	
+sensors, targeting systems, 39
+	
+space, 45
+	
+special physical enhancements, 52–53
+	
+stealth armor, 34
+	
+structural costs, availability, 277–78
+	
+technology base, 44, 47
+	
+technology rating, 44
+	
+weapons, ammunition, 57–59
+	
+weight, 45
+Battle tanks, 92–93
+Battle Value (BV), 21–22
+	
+aerospace weapons, 311–14, 318
+	
+battle armor, 310
+	
+battle armor unit size modifier, 316
+	
+CellCo Ranger APC, 308
+	
+Clan weapons, equipment, 318
+	
+conventional infantry weapons, 319
+	
+Delphyne-2, 306–7
+	
+DemolitionMech, 305
+	
+DropShip, 314
+	
+Grenadier [SRM/SL], 311
+	
+Hephaestus OmniVehicle, 308
+	
+infantry, 309
+	
+Inner Sphere weapons, equipment, 317
+	
+‘Mech, 302–4
+	
+‘Mech modifiers, 315
+	
+Mon-66 Mongoose calculation, 304
+	
+offensive adjustment, 316
+	
+ProtoMech, 306–7
+	
+Purifier, 310–11
+	
+skill multiplier table, 315
+	
+Thunderbird, 313
+	
+unit type modifier, 316
+	
+vehicle, 307–8
+BattleSpace, 8
+Battlesuit, 9
+Battlesuit armor types, 169
+Bay door, 209
+Blackstone BattleMechs, 114
+Blueprints, IndustrialMech, 61
+Blue-water combat vehicles, 93
+Body type, 162
+Bomb rack, 253
+Boot camp, diary, 141–43
+Bridgelayer, 242
+Brute force, 34–35
+Bulldozer, 243
+BV. See Battle Value
+• C •
+C3 computers, 209
+Cal-Boeing, 114
+Camo system, 253
+Capellan Confederation, 15
+Capital missile launchers, 210
+Capital weapons, 194
+Cargo 
+	
+bay, 239
+	
+DropShips, 177–78
+	
+lifter, 259
+	
+transportation, 154–55
+CASE. See Cellular ammunition storage 
+equipment
+Cavalry, 93
+CellCo Ranger UPU 3000, 114, 308
+Cellular ammunition storage equipment 
+(CASE), 210
+Chainsaw, 243
+Chassis
+	
+battle armor, 162–63
+	
+combat vehicles, 96–99
+	
+fighters, 182–84
+	
+IndustrialMech, 66–67
+	
+ProtoMech, 81–83
+	
+support vehicle, 118–25
+Chassis design
+	
+internal structure tonnage, 46–48
+	
+technology base, 46
+	
+weight (tonnage), 46
+Chassis modification, support vehicles, 
+117, 122–23
+Clan, 9, 10, 14 
+	
+battle armor equipment, 326–27
+	
+BattleMechs, 44
+	
+heavy weapons, equipment, 322
+	
+ratings, 286–87
+	
+tech base, 19
+	
+weapons, equipment BV, 318
+Clan Diamond Shark, 16
+Clan Jade Falcon, 15
+Clan Nova Cat, 17
+Clan Snow Raven, 17
+Clan Wolf, 15, 16
+Climate control, 41
+Close range combat, 93
+Coanda PSC, 115
+Cockpit, 39–40
+	
+BattleMechs, 39–42
+	
+controls, 40, 210–12
+	
+displays, 40–41
+	
+ejection seats, 41
+	
+IndustrialMech, 63, 69–70
+	
+life support, 41–42
+	
+ProtoMech, 85
+	
+space, 52
+	
+storage, passengers, 41
+	
+technology base, 52
+	
+waste systems, 41
+Combat Equipment, 8
+Combat Operations, 8
+Combat suits, 41–42
+Combat targeting computer, 303, 312
+Combat vehicle, 10–11, 19
+	
+armor, 90–91, 105–6
+	
+battlefield roles of, 92–93
+	
+chassis, 96–99
+	
+control systems, 100–103
+	
+costs, availability, 279
+	
+crews, 92
+	
+designing, 96
+	
+engines, 91–92, 100–103
+	
+equipment, 91
+	
+heat sinks, 104, 107
+	
+jump jets, 103
+	
+lift/dive equipment, 102
+	
+maneuverability, 91
+	
+movement (motive) type, 94–95, 96
+	
+record sheet, 96, 109
+	
+structure, 225
+	
+technology base, 95, 97
+	
+weapons, ammunition, 107–9
+	
+weight (tonnage), 95, 97–99
+Combine, 243
+Combustion engines, 214
+Command  bridges, 212
+Command, control and communications 
+(C3), 315
+Commercial armor, 205
+Communications equipment, 212
+Compact engines, 214
+Compact gyro, 219
+Components, 9–13
+ComStar, 14, 16
+Concealed weapon (modification), 213
+Construction, 200
+Control systems, 210–12
+	
+cockpit, 40
+
+
+--- PAGE 323 ---
+321
+321
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+BATTLE VALUE
+BATTLE VALUE
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+INDEX
+INDEX
+	
+combat vehicles, 103
+	
+DropShips, 175–76
+	
+fighters, 178–79, 188–90
+	
+support vehicles, 131–32
+Conventional fighters, 13, 180
+Conventional infantry, 12–13, 18–19 
+	
+armament, 272–73
+	
+cost calculations, 275, 282
+	
+equipment, 272
+	
+record sheet, 27
+	
+weapons, 21, 328–31
+	
+weapons cost, availability, 298–301
+	
+weapons BV, 319
+Costs, 21, 22
+	
+component formulas, 274
+	
+rounding, 274
+	
+structural, 274–82
+	
+weapons, equipment, 282–86
+Crew, 103
+	
+additional, 131
+	
+aerospace needs, 189
+	
+combat vehicle, 92 
+	
+data, 26, 28
+	
+fighters, 188
+	
+infantry weapon, 149, 150, 151
+	
+minimum, 131
+	
+quarters, 282
+	
+quarters, fighters, 195
+Critical damage, 26, 28
+Critical hits, 23, 24, 25
+Critical space, 18–19
+	
+BattleMech, 45
+	
+IndustrialMech, 65
+	
+‘Mech engine, 50
+Cutting torch, 254
+Cyclops, Incorporated, 113
+• D •
+Damage, 149
+Damage values, weaponry, 152–54
+Dedicated driver, 92
+Defensive battle rating, 302–3
+Defensive factors, 316
+Delphyne-2, 306–7
+DemolitionMech, 305
+Depth tracks, 26
+Detachable missile pack modification, 254
+Diagnostic interpretation (DI) computer, 42
+Direct fire weapons battle rating, 310
+Displacement hull, 94
+Displays, cockpit, 40–41
+Dive equipment, 102, 131
+Double heat sinks, 221
+Draconis Combine, 15
+Dragoon, 93
+DropShip, 13, 175
+	
+armor, 191
+	
+Battle Value, 314
+	
+cargo, 177–78
+	
+civilian vs. military, 183
+	
+control systems, 175–76
+	
+engineering, 176
+	
+marines, 177
+	
+space, 181
+	
+structural integrity, 187–88
+	
+technology base, 181
+	
+transport bays, doors, 196
+	
+unit type, shape, 181
+	
+weapon systems, 176–77
+Dual saw, 244
+Dumper, 244
+• E •
+Earthwerks-CC, 114
+Earthwerks-FWL, 115
+ECM suite, 213, 254
+Ejection seat, 41, 213–14
+Elevation, 26
+Endo-steel, 32, 224
+Energy weapon, 148
+Engine, 214–15
+	
+BattleMechs, 35–37, 48–50
+	
+combat vehicles, 91–92, 100–103
+	
+fighters, 179, 184–88
+	
+IndustrialMech, 62, 67–70
+	
+master table, 49
+	
+‘Mech critical space table, 50
+	
+OmniMechs, 48
+	
+oversized BattleMechs, 37
+	
+ProtoMech, 83–85
+	
+rating and mobility formulas, 48
+	
+support vehicle, 126–28
+Engineering, DropShips, 176
+Enhancements, special physical, 52–53
+Environmental sealing, 216
+Enviro-sealing, 70
+Equipment, 201
+	
+aerospace BV, 318
+	
+Clan, 318, 322
+	
+IndustrialMech, 63
+	
+Inner Sphere, 317, 320–21
+	
+key, 320
+Escape pod, 216
+Excessive ammunition, 303, 312
+Extended IndustrialMech fuel tanks, 245
+Extended life support, 254–55
+Extended-range (ER) 
+	
+laser, 226
+	
+PPC, 233–34
+External stores, 315 
+	
+blocks, 28
+	
+fighters, 196
+	
+hardpoints, 216–17
+Extinction date, 287–88
+Extra-light (XL) engines, 36–37, 38, 214
+Extralight gyro, 220
+• F •
+FedCom civil war, 14
+Federated-Boeing Interstellar, 111
+Federated Suns, 15
+Ferro-aluminum armor, 205
+Ferro-fibrous armor, 34, 205
+Fiction, 8–9
+Field kitchen, 217
+Fighter, 9, 28, 178
+	
+ammunition, 194–98
+	
+armor, 190–93
+	
+armor weapon space, 192
+	
+battle armor formations table, 182
+	
+bay, 240
+	
+chassis, 182–84
+	
+controls, 178–79, 188–90
+	
+engines, 179, 184–88
+	
+heat sinks, 193–94
+	
+record sheet, 198–99
+	
+space, 181
+	
+structural integrity, 187
+	
+technology base, 181
+	
+unit type, shape, 180
+	
+weapons, 179, 194–98
+Filtration systems, 41
+Fire control systems, 132, 206–7, 217–18
+	
+advanced, 69
+Firedrake, 266
+Fire resistant armor, 253
+Fire support, combat vehicles, 93
+Firing arcs, 194
+Fixed wing, 116, 128–29
+	
+aircraft, 112
+	
+structural integrity, 130–31 
+	
+support vehicle fuel table, 126
+	
+support vehicles, 12, 28
+Flame-based weapon, 148
+Flamer, 218, 255
+Flechette ammunition, 208
+Fluid suction system, 247, 248
+Foot infantry, 12, 144
+Foot motive, 272
+Formation, battle armor, 173
+Fragmentation missile, 230
+Free Rasalhague Republic, 17
+Free Worlds League, 14
+Fuel, 68 
+	
+capacity, aerospace fighters, 186–87
+	
+support vehicle, 127, 128–30
+	
+tank, 255
+	
+tank, extended IndustrialMech, 245
+Functionality, 111
+Fusion engine, 214 
+	
+explosions, 36–37
+Fusion, 35
+Fusion fuels, 35
+• G •
+Game rules, 200
+Gauss rifle, 218–19, 255
+Ghost Bear Dominion, 15
+Grenade launcher, 256
+Grenadier [SRM/SL], 311
+Ground movement, 164
+Gunners, 92
+Gyroscope, 34–35, 219–20
+	
+BattleMechs space, 50
+	
+BattleMechs technology base, 50
+	
+IndustrialMech, 63
+	
+master table, 50
+• H •
+Harjel, 256
+Harpoon SRM, 230
+Hatchet, 220
+Heat 
+	
+collection, 38
+	
+data, 23–24
+	
+dumping, 38
+	
+pumps, 38
+	
+scale, 25, 28
+	
+sensor, 256
+	
+sources, 38
+Heat sinks, 35, 37–38, 220–21
+	
+BattleMechs, 37–38
+	
+capacity, 303, 312
+	
+combat vehicles, 104, 107
+	
+fighters, 193–94, 195
+	
+IndustrialMech, 71
+	
+ProtoMech, 86
+	
+space, 53
+	
+support vehicles, 133
+	
+technology base, 53
+Heavy-burst weapon, 148
+Heavy-duty pile driver, 244
+Heavy equipment, 201
+Heavy ferro-fibrous armor, 205–6
+Heavy Gauss rifle, 218
+Heavy gyro, 219–20
+Heavy laser, 226
+Heavy machine gun, 228
+Heavy PPC, 234
+Heavy weapon, 20 
+	
+ammunition, 294–96, 324–25
+	
+Clan, 322
+	
+equipment, 290–92
+	
+Inner Sphere, 320–21
+	
+key, 320
+Hephaestus OmniVehicle, 308
+Hit locations, 25
+House Cameron, 14
+House Davion, 15
+House Kurita, 9, 15
+House Liao, 15
+House Marik, 14
+House Steiner, 15
+Hovercraft, 10, 91, 101, 113, 116
+	
+-based infantry, 145
+	
+movement, 94
+	
+support vehicles, 11
+Humanoid, 162
+Hydrofoil, 94
+Hyper-assault Gauss, 219
+• I •
+Ibex RV, 115
+Improved C3 computer, 209
+Improved jump jets, 225–26
+Improved sensors, 257
+iNARC, 232–33
+	
+ECM pods, 232
+	
+explosive pods, 232
+	
+haywire pods, 232–33
+	
+homing pods, 232
+	
+nemesis pods, 233
+Industrial combustion engines, 215
+Industrial drill, 259–60
+Industrial equipment, 292–94, 323–24
+Industrial fission/fusion engines, 215
+IndustrialMech, 9–10, 18
+	
+ammunition, 74–75
+	
+armor, 72–73
+	
+chassis, 66–67
+	
+cockpit, sensor systems, 63, 69–70
+	
+designing, 65
+	
+engines, propulsion, 62, 67–70
+	
+gyroscope, 63, 69
+	
+heat sinks, 71
+	
+jump jets, 62. 69
+	
+market, 60–61
+	
+myomers, 62–63
+	
+record sheet, 75
+	
+space, 65, 67
+	
+structural core, 61–62, 66–67
+	
+structural costs, availability, 277–78
+	
+structure, 224
+	
+targeting systems, 303
+	
+technology base, 64, 66
+	
+tools, equipment, 63
+	
+weapons, 63, 74–75
+	
+weight, 64–65. 66
+Industrial TSM, 240
+Infantry, 9
+	
+Battle Value, 309 
+	
+bays/compartments, 240. 282
+	
+deployment, 146
+	
+designing, 145
+	
+formations, 147
+	
+motive type, 144–46
+	
+organization, 145
+	
+platoon type, 145–47
+
+
+--- PAGE 324 ---
+	
+record sheet, 154–55
+	
+technology base, 145
+	
+weaponry, 148–54
+Inferno SRM, 231
+Inner Sphere, 9, 14
+	
+BattleMechs, 44 
+	
+battle armor equipment, 325–26
+	
+tech base, 19
+	
+weapons, equipment, 317, 320–21
+Internal space, combat vehicles, 95, 98
+Internal structure, 224–25
+	
+battle armor, 162
+	
+IndustrialMech, 61
+	
+support vehicle, 121, 122
+Introduced (affiliation) key, 290
+Introduction date, 287–88
+• J-K •
+Jihad, 14
+Jump 
+	
+booster, 165, 166, 257
+	
+capability, 51
+	
+infantry, 13, 144, 272, 309
+	
+packs, 257
+Jump jets, 38–39, 225–26, 257
+	
+battle armor, 164
+	
+combat vehicles, 103
+	
+IndustrialMech, 62, 69
+	
+ProtoMech, 84–85
+	
+space, 51
+	
+support vehicles, 131
+	
+table, 51
+	
+technology base, 51
+Kerensky, Aleksandr, 14
+• L •
+Ladder, 243
+Laser, 226–27, 258
+Laser microphone, 258
+Late-era units, 288
+LB-X autocannon, 207
+LB-X cluster ammunition, 208
+Life support, cockpit, 41–42
+Lifeboat, 227
+Lift equipment, 102, 131
+Lift hoists, 245–46
+Light autocannon, 207
+Light engines, 214
+Light ferro-fibrous armor, 205–6
+Light fluid suction system, 248–49
+Light Gauss rifle, 219
+Light machine gun, 228
+Light PPC, 234
+Light TAG, 238
+Light weapons, 20. 271
+Location restrictions, ProtoMech, 87
+Long-range missile (LRM), 229
+Long-range missile launcher, 261
+Look-down radar, 227
+Lyran Alliance, 15
+• M •
+Machine gun, 228, 258
+Machine gun arrays, 228
+Magistracy of Canopus, 16
+Magnetic clamps, 167, 259
+Magnetic claws, 260
+Magnetohydrodynamics, 35
+Main gun mount, ProtoMech, 82
+Malrite Company, 112
+Manipulator adaptations, 260
+Manipulator, 246, 259–60
+	
+adaptations, 260
+	
+battle armor, 166–68
+Marian Hegemony, 16
+Marines, 177
+MASC. See Myomer Acceleration Signal 
+Circuitry
+Mash equipment, 228
+Mastodon transport, 113
+‘Mech, 9 
+	
+armor, 33–34
+	
+armor modifier, 315
+	
+Battle Value calculation, 302–4
+	
+bay, 240
+	
+cockpit, 39–42, 211
+	
+data, 24
+	
+engine, 35–37
+	
+engine modifier, 315
+	
+gyroscope, 34–35
+	
+gyroscope modifier, 315
+	
+heat sinks, 37–38
+	
+internal structure, 31–33, 46–48
+	
+internal structure modifier, 315
+	
+jump jets, 38–39
+	
+record sheets, 24–25
+Mechanized battle armor, 167
+Mechanized infantry, 144–45, 272
+	
+skill levels, 315
+Medium range missile (MRM), 229
+Medium range missile launcher, 261
+Medium weapon, 20, 271
+Military-standard combustion engines, 214
+Military-standard fusion engines, 214
+Mimetic armor, 253
+Mine 
+	
+clearance equipment, 260
+Mining drill, 246
+Missile 
+	
+ammunition, 171, 230–31, 261–62
+	
+launchers, 171, 229–31, 261–62
+	
+launchers, ProtoMech, 88
+	
+weapon, 148
+	
+weapon battle rating, 310
+Mission equipment, 262
+Mobility limits, secondary weapons, 151
+Modular equipment adaptor, 260
+Modular mounts, 262, 263
+Modular technology, 160, 163, 164, 165, 
+168, 171, 173
+Mongoose, 304
+Monza light cruse liner, 111
+Mortar, 263
+Mosquito IX radar plane, 112
+Motive systems. See also Movement
+	
+battle armor, 164–66
+	
+conventional infantry, 272
+	
+infantry, 144–46
+Motorized infantry, 12–13, 144, 272
+Movement
+	
+combat vehicles, 94–95, 96
+	
+heat, 303
+	
+type, 118–19
+Multi-missile launcher (MML), 229
+Muskrat-379, 112
+Myomer Acceleration Signal Circuitry 
+(MASC), 52, 232
+Myomers, 32–33
+	
+IndustrialMech, 62–63
+	
+booster, ProtoMech, 85
+• N •
+Nail gun, 247
+NARC, 263 
+	
+explosive pods, 233
+	
+homing pods, 233
+	
+missile beacon, 232–33
+Naval, 116
+Naval vessels, 12, 113
+	
+movement, 94
+Needler, 266
+Neurohelmets, 43
+Non-airship fuel, 128–29
+Non-ground movement, 164–65
+Non-penetrating weapon, 148
+• O •
+Offensive 
+	
+adjustment, 316
+	
+battle rating, 303–4
+Omni 
+	
+technology, 19–20
+	
+units, weapons, equipment costs, 282
+OmniFighter, 183
+	
+armor, 191
+	
+control systems, 189
+	
+engine, 184
+	
+fuel capacity, 186
+	
+heat sinks, 193
+	
+record sheet, 199
+	
+structural integrity, 188
+	
+tech base, 181
+	
+weapons, equipment, 196
+OmniMech, ProtoMech and, 80
+OmniMech, WorkMechs and, 64
+OmniMech, 9
+	
+armor, 55
+	
+chassis design, 44
+	
+cockpit, 52
+	
+engine, 48
+	
+gyroscope, 50
+	
+heat sinks, 53–54
+	
+jump jets, 51
+	
+MASC and TSM, 53
+	
+ProtoMech and, 80
+	
+record sheet, 59
+	
+weapons, ammunition, 57
+	
+WorkMech and, 64
+OmniTech, 14, 47
+OmniVehicle
+	
+armor, 106, 134
+	
+Battle Value, 308
+	
+control systems, 103
+	
+crew, fire control, 132
+	
+engine, 101, 126
+	
+fuel capacity, 129
+	
+heat sinks, 104, 133
+	
+internal structure, 99, 124
+	
+lift/dive equipment, rotors, 102
+	
+record sheet, 109, 139
+	
+structural integrity, 130
+	
+support vehicles, 117
+	
+technology base, 95
+	
+weapons, ammunition, 107–8, 137
+Outworlds Alliance, 17
+Oversized platoon, 146, 153–54
+• P •
+Parafoil, 266
+Paramedic equipment, 233
+Partial wing, 165, 166, 266
+Particle projector cannon (PPC),  
+233–34, 267
+Passenger
+	
+cockpit, 41 
+	
+quarters, 282
+Pegasus Passenger VTOL, 114
+Percentages, 22
+Pilot 
+	
+data, 25, 28
+	
+crew accommodations, fighters, 
+188–89
+Pintle mount, 234
+Pintles, 137
+Pistols, 273
+Plasma cannon, 235
+Plasma rifle, 234–235, 267
+Plasma weapons, 234–235
+Platoon 
+	
+nomenclature, 154
+	
+oversized, 146, 153–54
+	
+type, 145–47
+	
+weaponry, 148–54
+Point-blank weapon, 148
+Pop-up mine, 267
+Power amplifiers, 74, 107, 235
+	
+support vehicles, 137
+	
+turbine-powered conventional 
+fighters, 195–96
+Power generation, BattleMechs, 35
+Power pack, 268
+Precision ammunition, 208
+Primary weapons, 150
+Propulsion, IndustrialMech, 62, 68
+ProtoMech, 10, 19 
+	
+armor, 86–87, 205
+	
+Battle Value, 306–7
+	
+bay, 240
+	
+chassis, 81–83
+	
+cockpit, 85, 211
+	
+data, 25
+	
+designing, 81
+	
+engines, 83–85, 214
+	
+heat sinks, 86, 221
+	
+internal structure, 82
+	
+jump jets, 84–85, 225
+	
+myomer booster, 85, 232
+	
+R&D, 77–79
+	
+record sheet, 89, 25
+	
+skill levels, 315
+	
+space, 81
+	
+structural costs, availability, 279
+	
+structure, 225
+	
+technology base, 80
+	
+weapons, ammunition, 87–89
+	
+weight, 80–81
+Pulse laser, 226
+Purifier, 310–11
+• Q •
+Quad, 47, 162, 166
+	
+IndustrialMech, 67
+	
+ProtoMech, 82
+	
+weapon mount options, 171
+Quality, 111
+Quarters, 236
+• R •
+Range
+	
+base, 149
+	
+final, 152–54
+Reaction wheels, 34–35
+
+
+--- PAGE 325 ---
+323
+323
+INTRODUCTION
+INTRODUCTION
+BATTLEMECH 
+BATTLEMECH 
+CONSTRUCTION
+CONSTRUCTION
+INDUSTRIALMECH 
+INDUSTRIALMECH 
+CONSTRUCTION
+CONSTRUCTION
+PROTOMECH 
+PROTOMECH 
+CONSTRUCTION
+CONSTRUCTION
+COMBAT VEHICLE 
+COMBAT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+SUPPORT VEHICLE 
+SUPPORT VEHICLE 
+CONSTRUCTION
+CONSTRUCTION
+CONV. INFANTRY  
+CONV. INFANTRY  
+CONSTRUCTION
+CONSTRUCTION
+BATTLE ARMOR 
+BATTLE ARMOR 
+CONSTRUCTION
+CONSTRUCTION
+AEROSPACE UNIT 
+AEROSPACE UNIT 
+CONSTRUCTION
+CONSTRUCTION
+COSTS AND 
+COSTS AND 
+AVAILABILITY
+AVAILABILITY
+BATTLE VALUE
+BATTLE VALUE
+RECORD SHEETS
+RECORD SHEETS
+WEAPONS AND 
+WEAPONS AND 
+HEAVY EQUIPMENT
+HEAVY EQUIPMENT
+INFANTRY WEAPONS 
+INFANTRY WEAPONS 
+AND EQUIPMENT
+AND EQUIPMENT
+CONSTRUCTION  
+CONSTRUCTION  
+BASICS
+BASICS
+INDEX
+INDEX
+Rear firing weapons, 303, 312
+Recoilless rifle, 268
+Reconnaissance combat vehicles, 92
+Record sheet, 22–29 
+	
+aerospace unit, 182
+	
+basics, 22–24
+	
+battle armor, 172–73
+	
+BattleMechs, 59
+	
+combat vehicles, 96, 109
+	
+fighters, 198–99
+	
+IndustrialMech, 75
+	
+nfantry, 154–55
+	
+OmniFighter, 199
+	
+OmniMech, 59
+	
+ProtoMech, 89
+	
+support vehicle, 119, 139
+	
+table, 23
+	
+types, 22
+Regenerative cooling, 35
+Remote sensor dispenser, 236, 268
+Retractable blade, 236–37
+Rifles, 273
+Rim Worlds Republic, 14
+Rivet gun, 247
+Rock cutter, 247
+Rocket launcher, 229, 261
+Rotary autocannon, 207–8
+Rotors, 98, 102, 124, 131
+Rounding 
+	
+Armor/internal structure and, 22
+	
+costs, Battle Value, 22 
+	
+down, 21–22
+	
+normally, 22
+	
+space and, 22
+	
+up, 21
+	
+weight and, 22
+RTC-215M Swiftran, 114
+Rules
+	
+art vs. 9
+	
+changes, 8
+	
+fiction vs., 8–9
+• S •
+Salvage arm, 248, 260
+Screen Launcher, 292, 318, 342 
+Searchlight, 237, 269
+Seating, 236
+Secondary weapons, 150–52
+Security, BattleMech, 42
+Semi-guided LRM, 231
+Sensor systems
+	
+BattleMech, 39
+	
+IndustrialMech, 63
+Shared technology, 19
+Sherpa Armored Truck, 114
+Shielding, fusion engines and, 36–37
+Short-range missile (SRM), 229
+Short-range missile launcher, 261
+Shotgun microphone, 269
+Silverfin coastal cutter, 113
+Single-shot (OS) launcher, 261
+Single-shot (OS) missile launcher, 230
+Skill levels, 315
+Skye Pleasure Craft, 115
+Small cockpit, 211
+Small craft, 13, 180
+Small craft
+	
+armor, 191
+	
+bay, 240
+	
+civilian vs. military, 183
+	
+structural integrity, 187–88
+	
+transport bays, doors, 196
+	
+weight, 181
+Smoke ultralight trike, 112
+Snub-nose PPC, 234
+Space, 18–19, 45, 47
+	
+combat vehicle, 98
+	
+DropShip, 181
+	
+fighter, 181
+	
+IndustrialMech, 65, 67
+	
+ProtoMech, 81
+	
+rounding and, 22
+	
+support vehicle, 132
+Space operations adaptation, 269
+Special purpose weaponry, 273
+Speed factor, 316
+Spotters, 92
+Spot welder, 248
+Sprayer, 248–49
+Squad support weapon, 270, 310
+Standard armor, 205, 252
+Standard autocannon, 208
+Standard Gauss rifle, 219
+Standard laser, 227
+Standard PPC, 234
+Standard structure, 225
+Star League, 9, 14
+StarCorps Industries, 112
+Stealth armor, 34, 206, 252
+Storage, cockpit, 41
+Streak short-range missile, 230
+Structural costs, 274–82, 283, 285
+Structural integrity, 224
+	
+fighter, 187–88
+Submarine vehicles, 11
+Succession Wars, 9, 14, 41
+Support vehicle, 11–12, 19, 111 
+	
+armor, 134–36, 206
+	
+base engine compatibilities table, 127
+	
+base movement formulae, 127
+	
+chassis, 118–25
+	
+chassis modifications, 117
+	
+control systems, 126–33
+	
+crew accommodations, 132
+	
+crew table, 131
+	
+engines, 126–33, 215
+	
+engine weight multipliers and fuel 
+weight percentage table, 127
+	
+fire control systems, 132
+	
+fuel capacity, 127, 128–30
+	
+heat sinks, 133, 137
+	
+internal locations table, 124
+	
+jump jets, 131
+	
+lift/dive equipment, 131
+	
+movement, 116–17
+	
+record sheet, 119, 139
+	
+rotors, 131
+	
+space, 120, 132
+	
+structural costs, availability, 280
+	
+structural integrity, 130–31
+	
+structure, 225
+	
+technology base, 117, 119
+	
+weapons, ammunition, 136–39
+	
+weight, size, 117–18, 119–21
+Support weapons, 273
+Surface naval vehicles, 11
+Swarm LRM, 231
+Swarm-I LRM, 231
+Sword, 237
+• T •
+Table reference, 200
+Target acquisition gear (TAG),  
+238, 270, 315
+Targeting computer, 238
+Targeting systems, BattleMechs, 39
+Taurian Concordat, 17
+Tear gas SRM, 231
+Tech Rating, 122
+Technology base, 19, 200
+	
+combat vehicle, 95, 97
+	
+DropShip, 181
+	
+fighter, 181
+	
+IndustrialMech, 64
+	
+ProtoMech, 80
+	
+support vehicle, 117
+Terran Hegemony, 14
+Tharkad, 14
+Thunder LRM, 231
+Thunderbird, 313
+Tools, IndustrialMech, 63
+Torpedoes, 262
+Torpedo launcher, 230
+Total Warfare (TW), 8, 9, 44, 64, 68
+Tracked-based infantry, 145
+Tracked vehicle, 10, 114, 116
+	
+movement, 94–95
+	
+support, 11
+Tracks, 249
+Tractor/trailer vehicle, 98–99, 101, 126
+Transport 
+	
+bays, 239–40
+	
+combat vehicles, 93
+Triple Strength Myomer (TSM), 52–53, 
+70, 240–41
+Tukayyid, 14
+Turret, 98, 107, 124, 137
+Turret mount, 240, 262, 263
+• U •
+Ultra autocannon, 208
+Underwater Maneuvering Units (UMUs), 
+165, 167, 270
+Unit, 9–13 
+	
+cost, Battle Value, 21
+	
+data, 22–23, 28
+	
+space (critical), 18–19
+	
+technology base, 19
+	
+type modifier, 316
+	
+weight, mass, 18
+Unused weight, 18
+Urban combat, 93
+UtilityMechs. See IndustrialMechs
+• V •
+Value, 111
+Vehicle, 9
+	
+Battle Value, 307–8 
+	
+bay, 240
+	
+commander, 92
+	
+control systems, 212
+	
+data, 26
+	
+flamer, 218
+	
+record sheets, 26
+Velocity record, 28
+Vertical takeoff and landing (VTOL) 
+vehicle, 10–11, 91, 114, 117
+	
+battle armor, 164–65
+	
+equipment, 271
+	
+movement, 95
+Very-Short Take-Off and Landing 
+(VSTOL), 190
+Vibro-claw, 260
+VSTOL. See Very-Short Take-Off and 
+Landing
+VTOL vehicle. See Vertical takeoff and 
+landing vehicles
+• W •
+Warrior data, 24
+WarShips, 14
+Waste systems, 41
+Weapons, 20–21, 58–59, 201
+	
+aerospace BV, 318
+	
+aerospace classes, 331
+	
+anti-personnel, 271
+	
+base range, 149
+	
+battle armor, 161, 170
+	
+bays, 194
+	
+Clan BV, 318
+	
+combat vehicles, 107–9
+	
+conventional infantry, 272–73,  
+	
+298–301, 328–31
+	
+DropShips, 176–77
+	
+fighters, 179, 194–98
+	
+fighter space, 192
+	
+IndustrialMech, 63, 74–75
+	
+infantry, 148–54
+	
+Inner Sphere BV, 317
+	
+inventory, 25
+	
+ProtoMech, 87–89
+	
+space, 57
+	
+support vehicles, 136–49
+	
+technology base, 57
+	
+weight, 149
+Weight (mass), 18
+	
+classes, 45, 46
+	
+combat vehicles, 97–99
+	
+DropShips, 181
+	
+fighters, 181
+	
+IndustrialMech, 64–65. 66
+	
+ProtoMech, 80–81
+	
+rounding and, 22
+	
+support vehicles, 117–18, 119–21
+Wheeled vehicles, 10, 91, 115, 117
+	
+movement, 95
+	
+support, 11
+WiGE vehicle. See Wing-in-Ground 
+Effect vehicle
+Windancer Marine Technologies, 113
+Wing-in-Ground Effect (WIGE) vehicle, 
+10, 11, 91, 95, 115, 117
+Word of Blake, 14, 17
+WorkMech, 43. See also IndustrialMech
+Wrecking ball, 249
+
+
+--- PAGE 326 ---
+’MECH RECORD SHEET
+© 2013 The Topps Company, Inc. Classic BattleTech, BattleTech, ’Mech and BattleMech are trademarks of The Topps Company, Inc. All rights reserved. 
+Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of InMediaRes Production, LLC. Permission to photocopy for personal use. 
+TM
+'MECH DATA
+WARRIOR DATA
+CRITICAL HIT TABLE
+HEAT DATA
+Heat
+Scale
+Overﬂow
+ 0
+ 1
+ 2
+ 3
+ 4
+ 5 *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+17
+18
+16
+INTERNAL STRUCTURE DIAGRAM
+ARMOR DIAGRAM
+30
+Shutdown
+Heat
+Level*
+Effects
+28
+Ammo Exp. avoid on 8+
+26
+Shutdown, avoid on 10+
+25
+–5 Movement Points
+24
++4 Modiﬁer to Fire
+23
+Ammo Exp. avoid on 6+
+22
+Shutdown, avoid on 8+
+20
+–4 Movement Points
+19
+Ammo Exp. avoid on 4+
+18
+Shutdown, avoid on 6+
+17
++3 Modiﬁer to Fire
+15
+–3 Movement Points
+14
+Shutdown, avoid on 4+
+13
++2 Modiﬁer to Fire
+10
+–2 Movement Points
+ 8
++1 Modiﬁer to Fire
+ 5
+–1 Movement Points
+Name:
+Gunnery Skill:
+Piloting Skill:
+ 1 
+ 3 
+ 2 
+ 5 
+ 3 
+ 7 
+ 4 
+ 10 
+ 5 
+ 11 
+ 6 
+Dead
+Consciousness#
+Hits Taken
+Type:
+Movement Points:
+Tech Base:
+Weapons & Equipment Inventory
+(hexes)
+Qty Type
+Loc Ht
+Dmg
+Min Sht Med Lng
+Tonnage:  
+Walking: 
+Running: 
+Jumping: 
+Damage Transfer
+Diagram
+Left Arm
+1-3
+1.
+Shoulder
+2.
+Upper Arm Actuator
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+Left Torso
+1-3
+1.
+2.
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+Left Leg
+1.
+Hip
+2.
+Upper Leg Actuator
+3.
+Lower Leg Actuator
+4.
+Foot Actuator
+5.
+6.
+1-3
+1.
+2.
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+1-3
+1.
+2.
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+1.
+2.
+3.
+4.
+5.
+6.
+Head
+1.
+2.
+3.
+4.
+5.
+6.
+1-3
+1.
+2.
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+Center Torso
+Right Arm
+Shoulder
+Upper Arm Actuator
+Right Torso
+Right Leg
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Life Support
+Sensor Hits
+Gyro Hits
+Engine Hits
+Era: 
+Head
+Center
+Torso
+(     )
+Right
+Leg
+(     )
+Left
+Arm
+(     )
+Right
+Arm
+ (     )
+Left Torso (     )
+Right Torso (     )
+Left
+Leg
+(     )
+Head (    )
+Center
+Torso
+(    )
+Right Torso
+(    )
+Left Torso
+(    )
+Right
+Leg
+(    )
+Left
+Leg
+(    )
+Center
+Torso
+Rear (    )
+Torso Rear
+(    )
+Right
+Left
+Torso Rear
+Left Arm
+(    )
+Right Arm
+(    )
+(    )
+Engine
+Engine
+Engine
+Engine
+Engine
+Engine
+Gyro
+Gyro
+Gyro
+Gyro
+Life Support
+Sensors
+Cockpit 
+Life Support
+Sensors
+(       )
+Single
+Double
+Heat Sinks:
+Lower Arm Actuator 
+Hand Actuator
+Lower Arm Actuator
+Hand Actuator
+Cost:
+Clan
+Inner Sphere
+BV:  
+2021
+
+
+--- PAGE 327 ---
+FOUR-LEGGED ’MECH RECORD SHEET
+TM
+© 2013 The Topps Company, Inc. Classic BattleTech, BattleTech, ’Mech and BattleMech are trademarks of The Topps Company, Inc. All rights reserved. 
+Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of InMediaRes Production, LLC. Permission to photocopy for personal use. 
+'MECH DATA
+WARRIOR DATA
+CRITICAL HIT TABLE
+HEAT DATA
+Heat
+Scale
+Overﬂow
+ 0
+ 1
+ 2
+ 3
+ 4
+ 5 *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+17
+18
+16
+INTERNAL STRUCTURE DIAGRAM
+ARMOR DIAGRAM
+30
+Shutdown
+Heat
+Level*
+Effects
+28
+Ammo Exp. avoid on 8+
+26
+Shutdown, avoid on 10+
+25
+–5 Movement Points
+24
++4 Modiﬁer to Fire
+23
+Ammo Exp. avoid on 6+
+22
+Shutdown, avoid on 8+
+20
+–4 Movement Points
+19
+Ammo Exp. avoid on 4+
+18
+Shutdown, avoid on 6+
+17
++3 Modiﬁer to Fire
+15
+–3 Movement Points
+14
+Shutdown, avoid on 4+
+13
++2 Modiﬁer to Fire
+10
+–2 Movement Points
+ 8
++1 Modiﬁer to Fire
+ 5
+–1 Movement Points
+Name:
+Gunnery Skill:
+Piloting Skill:
+ 1 
+ 3 
+ 2 
+ 5 
+ 3 
+ 7 
+ 4 
+ 10 
+ 5 
+ 11 
+ 6 
+Dead
+Consciousness#
+Hits Taken
+Type:
+Movement Points:
+Tech Base:
+Weapons & Equipment Inventory
+(hexes)
+Qty Type
+Loc Ht
+Dmg
+Min Sht Med Lng
+Tonnage:  
+Walking: 
+Running: 
+Jumping: 
+Damage Transfer
+Diagram
+Left Torso
+1-3
+1.
+2.
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+Left Rear Leg
+1.
+Hip
+2.
+Upper Leg Actuator
+3.
+Lower Leg Actuator
+4.
+Foot Actuator
+5.
+6.
+1-3
+1.
+2.
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+1.
+2.
+3.
+4.
+5.
+6.
+Head
+1.
+2.
+3.
+4.
+5.
+6.
+1-3
+1.
+2.
+3.
+4.
+5.
+6.
+4-6
+1.
+2.
+3.
+4.
+5.
+6.
+Center Torso
+Right Torso
+Right Rear Leg
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Life Support
+Sensor Hits
+Gyro Hits
+Engine Hits
+Left Front Leg
+1.
+Hip
+2.
+Upper Leg Actuator
+3.
+Lower Leg Actuator 
+4.
+Foot Actuator
+5.
+6.
+1.
+2.
+3.
+4.
+5.
+6.
+Right Front Leg
+Hip
+Upper Leg Actuator
+Lower Leg Actuator
+Foot Actuator
+Head
+Center
+Torso
+Left
+Front Leg
+Right
+Front Leg
+Left
+Rear Leg
+Right
+Rear Leg
+Left
+Torso
+Right
+Torso
+(     )
+(     )
+(     )
+(     )
+(     )
+(     )
+(     )
+Center Torso Rear (    ) 
+Torso Rear
+(    )
+Right
+Left
+Torso Rear
+(    )
+Right
+Rear Leg
+(    )
+Right
+Front Leg
+(    )
+Center
+Torso
+(    )
+Left
+Torso
+(    )
+Right
+Torso
+(    )
+Head (    )
+Left
+Rear Leg
+(    )
+Left
+Front Leg
+(    )
+Engine
+Engine
+Engine
+Engine
+Engine
+Engine
+Gyro
+Gyro
+Gyro
+Gyro
+Life Support
+Sensors
+Cockpit 
+Life Support
+Sensors
+(       )
+Single
+Double
+Heat Sinks:
+Cost:
+Clan
+Inner Sphere
+BV:  
+2021
+
+
+--- PAGE 328 ---
+PROTOMECH
+RECORD SHEET
+TM
+© 2013 The Topps Company, Inc. Classic BattleTech, BattleTech, ’Mech and BattleMech are trademarks of The Topps Company, Inc. All rights reserved. 
+Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of InMediaRes Production, LLC. Permission to photocopy for personal use. 
+ARMOR DIAGRAM
+BV:
+Cost:
+LOC. 
+TYPE 
+Dmg Min Sht Med Lng
+         /      /
+Type: 
+Tons:
+Movement Points:
+Walk/Run/Jump
+PILOT DATA
+Gunnery Skill:
+ 1 
+ 3 
+ 2 
+ 5 
+ 3 
+ 7 
+ 4 
+ 10 
+ 5 
+ 11 
+ 6 
+Dead
+Consciousness #
+Hits Taken
+Name:
+*Roll 1D6:
+  1–2, Torso Weapon A Destroyed; 3–4, Torso Weapon B Destroyed
+HIT LOCATIONS AND CRITICAL HITS
+ 2D6 LOCATION 
+1st HIT 
+2nd HIT 
+3rd HIT
+2
+Main Gun
+Main Gun Destroyed
+4
+Right Arm
++1 to Hit
+Right Arm Destroyed
+10
++1 to Hit
+Left Arm
+Left Arm Destroyed
+12
++1 to Hit
+Head
++2 to Hit
+no Long range shots
+5,9
+–1 Walk MP
+Legs
+1/2 Walk MP
+No Move
+6,7,8
+–1 Jump*
+Torso
+1/2 Jump*
+Proto
+Destroyed
+WEAPONS INVENTORY
+Left
+Arm
+Right
+Arm
+Torso
+Legs
+Main Gun
+Head
+ARMOR DIAGRAM
+BV:
+Cost:
+LOC. 
+TYPE 
+Dmg Min Sht Med Lng
+         /      /
+Type: 
+Tons:
+Movement Points:
+Walk/Run/Jump
+PILOT DATA
+Gunnery Skill:
+ 1 
+ 3 
+ 2 
+ 5 
+ 3 
+ 7 
+ 4 
+ 10 
+ 5 
+ 11 
+ 6 
+Dead
+Consciousness #
+Hits Taken
+Name:
+*Roll 1D6:
+  1–2, Torso Weapon A Destroyed; 3–4, Torso Weapon B Destroyed
+HIT LOCATIONS AND CRITICAL HITS
+ 2D6 LOCATION 
+1st HIT 
+2nd HIT 
+3rd HIT
+2
+Main Gun
+Main Gun Destroyed
+4
+Right Arm
++1 to Hit
+Right Arm Destroyed
+10
++1 to Hit
+Left Arm
+Left Arm Destroyed
+12
++1 to Hit
+Head
++2 to Hit
+no Long range shots
+5,9
+–1 Walk MP
+Legs
+1/2 Walk MP
+No Move
+6,7,8
+–1 Jump*
+Torso
+1/2 Jump*
+Proto
+Destroyed
+WEAPONS INVENTORY
+Left
+Arm
+Right
+Arm
+Torso
+Legs
+Main Gun
+Head
+ARMOR DIAGRAM
+BV:
+Cost:
+LOC. 
+TYPE 
+Dmg Min Sht Med Lng
+         /      /
+Type: 
+Tons:
+Movement Points:
+Walk/Run/Jump
+PILOT DATA
+Gunnery Skill:
+ 1 
+ 3 
+ 2 
+ 5 
+ 3 
+ 7 
+ 4 
+ 10 
+ 5 
+ 11 
+ 6 
+Dead
+Consciousness #
+Hits Taken
+Name:
+*Roll 1D6:
+  1–2, Torso Weapon A Destroyed; 3–4, Torso Weapon B Destroyed
+HIT LOCATIONS AND CRITICAL HITS
+ 2D6 LOCATION 
+1st HIT 
+2nd HIT 
+3rd HIT
+2
+Main Gun
+Main Gun Destroyed
+4
+Right Arm
++1 to Hit
+Right Arm Destroyed
+10
++1 to Hit
+Left Arm
+Left Arm Destroyed
+12
++1 to Hit
+Head
++2 to Hit
+no Long range shots
+5,9
+–1 Walk MP
+Legs
+1/2 Walk MP
+No Move
+6,7,8
+–1 Jump*
+Torso
+1/2 Jump*
+Proto
+Destroyed
+WEAPONS INVENTORY
+Left
+Arm
+Right
+Arm
+Torso
+Legs
+Main Gun
+Head
+ARMOR DIAGRAM
+BV:
+Cost:
+LOC. 
+TYPE 
+Dmg Min Sht Med Lng
+         /      /
+Type: 
+Tons:
+Movement Points:
+Walk/Run/Jump
+PILOT DATA
+Gunnery Skill:
+ 1 
+ 3 
+ 2 
+ 5 
+ 3 
+ 7 
+ 4 
+ 10 
+ 5 
+ 11 
+ 6 
+Dead
+Consciousness #
+Hits Taken
+Name:
+*Roll 1D6:
+  1–2, Torso Weapon A Destroyed; 3–4, Torso Weapon B Destroyed
+HIT LOCATIONS AND CRITICAL HITS
+ 2D6 LOCATION 
+1st HIT 
+2nd HIT 
+3rd HIT
+2
+Main Gun
+Main Gun Destroyed
+4
+Right Arm
++1 to Hit
+Right Arm Destroyed
+10
++1 to Hit
+Left Arm
+Left Arm Destroyed
+12
++1 to Hit
+Head
++2 to Hit
+no Long range shots
+5,9
+–1 Walk MP
+Legs
+1/2 Walk MP
+No Move
+6,7,8
+–1 Jump*
+Torso
+1/2 Jump*
+Proto
+Destroyed
+WEAPONS INVENTORY
+Left
+Arm
+Right
+Arm
+Torso
+Legs
+Main Gun
+Head
+ARMOR DIAGRAM
+BV:
+Cost:
+LOC. 
+TYPE 
+Dmg Min Sht Med Lng
+         /      /
+Type: 
+Tons:
+Movement Points:
+Walk/Run/Jump
+PILOT DATA
+Gunnery Skill:
+ 1 
+ 3 
+ 2 
+ 5 
+ 3 
+ 7 
+ 4 
+ 10 
+ 5 
+ 11 
+ 6 
+Dead
+Consciousness #
+Hits Taken
+Name:
+*Roll 1D6:
+  1–2, Torso Weapon A Destroyed; 3–4, Torso Weapon B Destroyed
+HIT LOCATIONS AND CRITICAL HITS
+ 2D6 LOCATION 
+1st HIT 
+2nd HIT 
+3rd HIT
+2
+Main Gun
+Main Gun Destroyed
+4
+Right Arm
++1 to Hit
+Right Arm Destroyed
+10
++1 to Hit
+Left Arm
+Left Arm Destroyed
+12
++1 to Hit
+Head
++2 to Hit
+no Long range shots
+5,9
+–1 Walk MP
+Legs
+1/2 Walk MP
+No Move
+6,7,8
+–1 Jump*
+Torso
+1/2 Jump*
+Proto
+Destroyed
+WEAPONS INVENTORY
+Left
+Arm
+Right
+Arm
+Torso
+Legs
+Main Gun
+Head
+PROTOMECH 2
+PROTOMECH 3
+PROTOMECH 4
+PROTOMECH 5
+PROTOMECH 1
+ Main Gun:
+ Right Arm:
+ Left Arm:
+ 
+Torso A:
+ 
+Torso B:
+ 
+Ammo:
+ Main Gun:
+ Right Arm:
+ Left Arm:
+ 
+Torso A:
+ 
+Torso B:
+ 
+Ammo:
+ Main Gun:
+ Right Arm:
+ Left Arm:
+ 
+Torso A:
+ 
+Torso B:
+ 
+Ammo:
+ Main Gun:
+ Right Arm:
+ Left Arm:
+ 
+Torso A:
+ 
+Torso B:
+ 
+Ammo:
+ Main Gun:
+ Right Arm:
+ Left Arm:
+ 
+Torso A:
+ 
+Torso B:
+ 
+Ammo:
+2021
+
+
+--- PAGE 329 ---
+VEHICLE DATA
+CREW DATA
+CRITICAL DAMAGE
+ARMOR DIAGRAM
+GROUND VEHICLE RECORD SHEET
+© 2013 The Topps Company, Inc. Classic BattleTech, BattleTech, ’Mech and BattleMech are trademarks of The Topps Company, Inc. All rights reserved. 
+Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of InMediaRes Production, LLC. Permission to photocopy for personal use. 
+GROUND COMBAT VEHICLE HIT LOCATION TABLE
+GROUND COMBAT VEHICLE CRITICAL HITS TABLE
+MOTIVE SYSTEM DAMAGE TABLE
+ 
+ 
+ 
+ATTACK DIRECTION 
+ 
+2D6 Roll  
+FRONT  
+REAR 
+ SIDE§ 
+ 
+2* 
+Front (critical)  
+Rear (critical)  
+Side (critical)  
+ 
+3  
+Front†  
+Rear†  
+Side†  
+ 
+4  
+Front†  
+Rear†  
+Side†  
+ 
+5  
+Right Side† 
+Left Side† 
+Front†  
+ 
+6  
+Front  
+Rear  
+Side  
+ 
+7  
+Front  
+Rear  
+Side  
+ 
+8  
+Front  
+Rear  
+Side (critical)* 
+ 
+9  
+Left Side†  
+Right Side†  
+Rear†  
+ 
+10  
+Turret  
+Turret 
+Turret 
+ 
+11  
+Turret  
+Turret 
+Turret  
+ 
+12*  
+Turret (critical) 
+ Turret (critical)  
+Turret (critical)  
+*A result of 2 or 12 (or an 8 if the attack strikes the side) may inﬂict a critical hit on the vehicle. For each result of 2 or
+12 (or 8 for side attacks), apply damage normally to the armor in that section. The attacking player then automatically rolls
+once on the Ground Combat Vehicle Critical Hits Table below (see Combat, p. 192 in Total Warfare for more information).
+A result of 12 on the Ground Combat Vehicles Hit Location Table may inﬂict critical hit against the turret; if the vehicle has 
+no turret, a 12 indicates the chance of a critical hit on the side corresponding to the attack direction.
+†The vehicle may suffer motive system damage even if its armor remains intact. Apply damage normally to the armor in 
+that section, but the attacking player also rolls once on the Motive System Damage Table at right (see Combat, p. 192 in 
+Total Warfare for more information). Apply damage at the end of the phase in which the damage takes effect.
+§Side hits strike the side as indicated by the attack direction. For example, if an attack hits the right side, all Side results 
+strike the right side armor. If the vehicle has no turret, a turret hit strikes the armor on the side attacked.
+ 
+2D6 Roll  
+EFFECT*
+ 
+2–5 
+No effect
+ 
+6–7 
+Minor damage; +1 modiﬁer to all Driving Skill Rolls
+ 
+8–9 
+Moderate damage; –1 Cruising MP, +2 modiﬁer to all 
+ 
+Driving Skill Rolls
+ 
+10–11 
+Heavy damage; only half Cruising MP (round fractions up), 
+ 
++3 modiﬁer to all Driving Skill Rolls
+ 
+12+ 
+Major damage; no movement for the rest of the game. 
+ 
+Vehicle is immobile.
+Attack Direction Modiﬁer: 
+ 
+Vehicle Type Modiﬁers:
+Hit from rear 
++1 
+Tracked, Naval 
++0
+Hit from the sides  
++2 
+Wheeled 
++2
+ 
+ 
+Hovercraft, Hydrofoil 
++3
+ 
+ 
+WiGE 
++4
+*All movement and Driving Skill Roll penalties are cumulative. However, each Driving Skill Roll
+modiﬁer can only be applied once. For example, if a roll of 6-7 is made for a vehicle, inﬂicting 
+a +1 modiﬁer, that is the only time that particular +1 can be applied; a subsequent roll of 6-7 
+has no additional effect. This means the maximum Driving Skill Roll modiﬁer that can be 
+inﬂicted from the Motive System Damage Table is +6. If a unit’s Cruising MP is reduced
+to 0, it cannot move for the rest of the game, but is not considered an immobile target. In 
+addition, all motive system damage takes effect at the end of the phase in which the damage 
+occurred. For example, if two units are attacking the same Combat Vehicle during the 
+Weapon Attack Phase and the ﬁrst unit inﬂicts motive system damage and rolls a 12, the –4 
+immobile target modiﬁer would not apply for the second unit. However, the –4 modiﬁer would 
+take effect during the Physical Attack Phase. If a hover vehicle is rendered immobile while 
+over a Depth 1 or deeper water hex, it sinks and is destroyed.
+ 
+LOCATION HIT
+ 
+2D6 Roll  
+FRONT  
+SIDE  
+REAR  
+TURRET
+ 
+2–5 
+No Critical Hit  
+No Critical Hit  
+No Critical Hit  
+No Critical Hit
+ 
+6 
+Driver Hit  
+Cargo/Infantry Hit  
+Weapon Malfunction  
+Stabilizer
+ 
+7 
+Weapon Malfunction  
+Weapon Malfunction  
+Cargo/Infantry Hit  
+Turret Jam
+ 
+8 
+Stabilizer  
+Crew Stunned  
+Stabilizer 
+ Weapon Malfunction
+ 
+9 
+ Sensors  
+Stabilizer  
+Weapon Destroyed  
+Turret Locks
+ 
+10 
+Commander Hit  
+Weapon Destroyed  
+Engine Hit  
+Weapon Destroyed
+ 
+11 
+Weapon Destroyed  
+Engine Hit  
+Ammunition**  
+Ammunition**
+ 
+12 
+Crew Killed  
+Fuel Tank*  
+Fuel Tank*  
+Turret Blown Off
+*If Combat Vehicle has ICE engine only. If Combat Vehicle has a fusion engine, treat this result as Engine Hit.
+** If Combat Vehicle carries no ammunition, treat this result as Weapon Destroyed.
+TM
+NOTES
+Crew:
+Gunnery Skill:
+Driving Skill:
+Type:
+Movement Points:
+Cost:
+Tech Base:
+Weapons & Equipment Inventory
+(hexes)
+Qty Type
+Loc
+Dmg
+Min Sht Med Lng
+Tonnage:
+BV:
+Movement Type:
+Engine Type: 
+Cruising: 
+Flank: 
+Engine Hit
+Stabilizers
+Front
+Left
+Right
+Motive System Hits
++1 +2 +3
+Sensor Hits
++1 +2 +3
+D
+Rear
+Driver Hit
+Commander Hit
+Modiﬁer to Driving 
+Skill rolls
+Modiﬁer to all Skill rolls
++1
++2
+Turret Locked
+Turret
+ Left Side Armor (      ) 
+ Right Side Armor (      ) 
+ Front Armor
+(      ) 
+Rear Armor
+(      ) 
+Turret Armor
+(      ) 
+BAR:
+Clan
+Inner Sphere
+2021
+
+
+--- PAGE 330 ---
+V.T.O.L. VEHICLE RECORD SHEET
+TM
+© 2013 The Topps Company, Inc. Classic BattleTech, BattleTech, ’Mech and BattleMech are trademarks of The Topps Company, Inc. All rights reserved. 
+Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of InMediaRes Production, LLC. Permission to photocopy for personal use. 
+NOTES
+ARMOR DIAGRAM
+VTOL COMBAT VEHICLE HIT LOCATION TABLE
+VTOL COMBAT VEHICLE CRITICAL HITS TABLE
+PHYSICAL ATTACKS AGAINST VTOL VEHICLES TABLE
+VTOL ELEVATION TRACK
+CREW DATA
+CRITICAL DAMAGE
+VEHICLE DATA
+Type:
+Movement Points:
+Cost:
+Tech Base:
+Clan
+Inner Sphere
+Weapons & Equipment Inventory
+(hexes)
+Qty Type
+Loc Dmg Min Sht Med Lng
+Tonnage:  
+BV:  
+Engine Type:
+Cruising: 
+Flank: 
+Crew:
+Gunnery Skill:
+Driving Skill:
+Pilot Hit
+Co-Pilot Hit
+Modiﬁer to Driving 
+Skill rolls
+Modiﬁer to all Skill rolls
++1
++2
+Stabilizers
+Front
+Left
+Right
+Rear
+Flight Stabilizer*
+*Move at Cruising speed only
++3
+Engine Hit
+Sensor Hits
++1 +2 +3
+D
+Turn
+1
+2
+5
+3
+4
+6
+7
+8
+9 10
+Elevation
+11 12
+15
+13 14
+Turn
+16 17
+20
+18 19
+21 22 23 2425
+Elevation
+26 27
+30
+28 29
+ 
+ATTACK DIRECTION 
+FRONT 
+REAR 
+ SIDE
+2* 
+Front (critical) 
+Rear (critical) 
+Side (critical)
+3 
+Rotors† 
+Rotors† 
+Rotors†
+4 
+Turret‡ 
+Turret‡ 
+Turret‡
+5 
+Right Side 
+Left Side 
+Front
+6 
+Front 
+Rear 
+Side
+7 
+Front 
+Rear 
+Side
+8 
+Front 
+Rear 
+Side (critical)*
+9 
+Left Side 
+Right Side 
+Rear
+10 
+Rotors† 
+Rotors† 
+Rotors†
+11 
+Rotors† 
+Rotors† 
+Rotors†
+12* 
+Rotors (critical)† 
+ Rotors (critical)†  
+Rotors (critical)†
+*A result of 2 or 12 (or an 8 if the attack strikes the side) may inﬂict a critical hit on the VTOL. For each such attack, appl
+y
+damage normally to the armor in that section. The attacking player then immediately rolls once on the VTOL Combat Vehicle
+Critical Hits Table, below.
+†Damage Value / 10 (round up); see Rotor Hits, p. 197, Total Warfare. Additionally, damage to rotors slows down the
+VTOL. Each hit reduces the VTOL’s Cruising MP by 1, meaning that the controlling player must also recalculate Flank MP; 
+multiply the new Cruising MP by 1.5 and round up. As with all damage, such movement penalties do not apply until the end 
+of the phase in which the damage occurred.
+‡ If the VTOL has no turret, a turret strike hits Rotors†
+ DIFFERENCE IN LEVELS  
+TYPES OF PHYSICAL ATTACK ALLOWED
+–1 or lower 
+None
+0 
+All except Punch
+1–2 
+All except Kick
+3 
+Club and Physical Weapons only
+4+ 
+None
+LOCATION HIT
+SIDE  
+REAR  
+ROTORS 
+TURRET
+2–5 
+No Critical Hit 
+No Critical Hit  
+No Critical Hit  
+No Critical Hit 
+No Critical Hit
+6 
+Co-Pilot Hit 
+Weapon Malfunction 
+Cargo/Infantry Hit  
+Rotor Damage 
+Stabilizer
+7 
+Weapon Malfunction 
+Cargo/Infantry Hit  
+Weapon Malfunction 
+Rotor Damage 
+Turret Jam
+8 
+Stabilizer 
+Stabilizer 
+Stabilizer 
+ Rotor Damage 
+Weapon Malfunction
+9 
+ Sensors 
+Weapon Destroyed 
+Weapon Destroyed 
+Flight Stabilizer Hit 
+Turret Lock
+10 
+Pilot Hit 
+Engine Hit 
+Sensors 
+Flight Stabilizer Hit 
+Weapon Destroyed 
+11 
+Weapon Destroyed 
+Ammunition** 
+Engine Hit 
+Rotors Destroyed 
+Ammunition**
+12 
+Crew Killed 
+Fuel Tank* 
+Fuel Tank* 
+Rotors Destroyed 
+Turret Blown Off
+*Only if the VTOL has an ICE engine. For VTOLs with fusion engines, treat this result as Engine Hit.
+** If the VTOL carries no ammunition, treat this result as Weapon Destroyed.
+BAR:
+ Left Side Armor (      ) 
+ Right Side Armor (      ) 
+ Front Armor
+(      ) 
+Rear Armor
+(      ) 
+ Rotor
+Armor
+(      ) 
+2021
+
+

@@ -2,9 +2,7 @@ module github.com/JustinWhittecar/slic
 
 go 1.22.0
 
-require (
-	github.com/jackc/pgx/v5 v5.7.2
-)
+require github.com/jackc/pgx/v5 v5.7.2
 
 require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
