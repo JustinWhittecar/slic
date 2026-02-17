@@ -16,8 +16,8 @@ const DEFAULT_VISIBILITY: VisibilityState = {
   name: true, tonnage: false, tech_base: true, bv: true, role: false, move: true, armor_total: false,
   game_damage: true, tmm: true, armor_coverage_pct: true,
   era: false, intro_year: true,
-  engine_type: false, engine_rating: false, heat_sinks: false, run_mp: false,
-  rules_level: false, source: false, config: false, intro_year: false,
+  engine_type: false, engine_rating: false, heat_sinks: false,
+  rules_level: false, source: false, config: false,
 }
 
 const COLUMN_DEFS_META = [
@@ -53,11 +53,13 @@ interface MechTableProps {
   onSelectMech: (id: number) => void
   selectedMechId: number | null
   onCountChange: (count: number) => void
+  compareIds?: number[]
+  onToggleCompare?: (id: number) => void
 }
 
 const columnHelper = createColumnHelper<MechListItem>()
 
-export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange }: MechTableProps) {
+export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange, compareIds = [], onToggleCompare }: MechTableProps) {
   const [mechs, setMechs] = useState<MechListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -92,6 +94,24 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
   }, [columnVisibility])
 
   const columns = useMemo(() => [
+    ...(onToggleCompare ? [columnHelper.display({
+      id: 'compare',
+      header: () => <span className="text-xs">⚔</span>,
+      cell: ({ row }) => {
+        const checked = compareIds.includes(row.original.id)
+        return (
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => { e.stopPropagation(); onToggleCompare(row.original.id) }}
+            onClick={(e) => e.stopPropagation()}
+            className="cursor-pointer accent-blue-600"
+          />
+        )
+      },
+      size: 32,
+      enableSorting: false,
+    })] : []),
     columnHelper.accessor(row => `${row.chassis} ${row.model_code}`, {
       id: 'name',
       header: 'Name',
@@ -187,7 +207,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
       header: 'Year',
       cell: info => <span className="tabular-nums">{info.getValue() ?? '—'}</span>,
     }),
-  ], [])
+  ], [compareIds, onToggleCompare])
 
   const table = useReactTable({
     data: mechs,
@@ -262,6 +282,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
                   {virtualizer.getVirtualItems().map(virtualRow => {
                     const row = rows[virtualRow.index]
                     const isSelected = row.original.id === selectedMechId
+                    const isComparing = compareIds.includes(row.original.id)
                     return (
                       <tr
                         key={row.id}
@@ -269,6 +290,8 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
                         className={`border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-colors ${
                           isSelected
                             ? 'bg-blue-50 dark:bg-gray-700'
+                            : isComparing
+                            ? 'bg-blue-50/50 dark:bg-blue-900/20'
                             : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
                         style={{ height: 36 }}
