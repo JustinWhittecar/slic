@@ -17,10 +17,20 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	query := `
-		SELECT v.id, v.model_code, v.name, c.name, c.tonnage, c.tech_base,
-		       v.battle_value, v.intro_year, v.era, v.role
+		SELECT v.id, v.model_code, v.name, c.name, COALESCE(vs.tonnage, c.tonnage), c.tech_base,
+		       v.battle_value, v.intro_year, COALESCE(v.era,''), COALESCE(v.role,''),
+		       COALESCE(vs.tmm,0), COALESCE(vs.armor_coverage_pct,0), COALESCE(vs.heat_neutral_damage,0),
+		       COALESCE(vs.walk_mp,0), COALESCE(vs.jump_mp,0), COALESCE(vs.armor_total,0),
+		       COALESCE(vs.max_damage,0),
+		       COALESCE(vs.effective_heat_neutral_damage,0), COALESCE(vs.heat_neutral_range,''),
+		       COALESCE(vs.game_damage,0),
+		       COALESCE(vs.engine_type,''), COALESCE(vs.engine_rating,0),
+		       COALESCE(vs.heat_sink_count,0), COALESCE(vs.heat_sink_type,''),
+		       COALESCE(vs.run_mp,0),
+		       COALESCE(v.rules_level,0), COALESCE(v.source,''), COALESCE(v.config,'')
 		FROM variants v
 		JOIN chassis c ON c.id = v.chassis_id
+		LEFT JOIN variant_stats vs ON vs.variant_id = v.id
 		WHERE 1=1`
 
 	args := []any{}
@@ -33,18 +43,19 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	if v := r.URL.Query().Get("tonnage_min"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
-			query += " AND c.tonnage >= " + nextArg()
+			query += " AND COALESCE(vs.tonnage, c.tonnage) >= " + nextArg()
 			args = append(args, n)
 		}
 	}
 	if v := r.URL.Query().Get("tonnage_max"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
-			query += " AND c.tonnage <= " + nextArg()
+			query += " AND COALESCE(vs.tonnage, c.tonnage) <= " + nextArg()
 			args = append(args, n)
 		}
 	}
 	if v := r.URL.Query().Get("era"); v != "" {
-		query += " AND v.era = " + nextArg()
+		// Show all mechs available in this era (introduced in or before it)
+		query += " AND v.intro_year <= COALESCE((SELECT end_year FROM eras WHERE name = " + nextArg() + "), 9999)"
 		args = append(args, v)
 	}
 	if v := r.URL.Query().Get("role"); v != "" {
@@ -56,6 +67,46 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 		args = append(args, "%"+v+"%", "%"+v+"%")
 		argN++ // extra arg
 	}
+	if v := r.URL.Query().Get("bv_min"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			query += " AND v.battle_value >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("bv_max"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			query += " AND v.battle_value <= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("tmm_min"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			query += " AND vs.tmm >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("armor_pct_min"); v != "" {
+		if n, err := strconv.ParseFloat(v, 64); err == nil {
+			query += " AND vs.armor_coverage_pct >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("heat_neutral_min"); v != "" {
+		if n, err := strconv.ParseFloat(v, 64); err == nil {
+			query += " AND vs.heat_neutral_damage >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("max_damage_min"); v != "" {
+		if n, err := strconv.ParseFloat(v, 64); err == nil {
+			query += " AND vs.max_damage >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("tech_base"); v != "" {
+		query += " AND c.tech_base = " + nextArg()
+		args = append(args, v)
+	}
 	if v := r.URL.Query().Get("faction"); v != "" {
 		query += ` AND EXISTS (
 			SELECT 1 FROM variant_era_factions vef
@@ -65,7 +116,7 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 		argN++
 	}
 
-	query += " ORDER BY c.tonnage, c.name, v.model_code LIMIT 200"
+	query += " ORDER BY COALESCE(vs.tonnage, c.tonnage), c.name, v.model_code LIMIT 5000"
 
 	rows, err := h.DB.Query(ctx, query, args...)
 	if err != nil {
@@ -78,7 +129,14 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var m models.MechListItem
 		if err := rows.Scan(&m.ID, &m.ModelCode, &m.Name, &m.Chassis, &m.Tonnage,
-			&m.TechBase, &m.BV, &m.IntroYear, &m.Era, &m.Role); err != nil {
+			&m.TechBase, &m.BV, &m.IntroYear, &m.Era, &m.Role,
+			&m.TMM, &m.ArmorCoveragePct, &m.HeatNeutralDamage,
+			&m.WalkMP, &m.JumpMP, &m.ArmorTotal, &m.MaxDamage,
+			&m.EffHeatNeutralDamage, &m.HeatNeutralRange,
+			&m.GameDamage,
+			&m.EngineType, &m.EngineRating,
+			&m.HeatSinkCount, &m.HeatSinkType,
+			&m.RunMP, &m.RulesLevel, &m.Source, &m.Config); err != nil {
 			http.Error(w, "scan error: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -100,10 +158,11 @@ func (h *MechHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	var m models.MechDetail
 	err = h.DB.QueryRow(ctx, `
-		SELECT v.id, v.model_code, v.name, c.name, c.tonnage, c.tech_base,
-		       v.battle_value, v.intro_year, v.era, v.role, c.sarna_url
+		SELECT v.id, v.model_code, v.name, c.name, COALESCE(vs2.tonnage, c.tonnage), c.tech_base,
+		       v.battle_value, v.intro_year, COALESCE(v.era,''), COALESCE(v.role,''), COALESCE(c.sarna_url,'')
 		FROM variants v
 		JOIN chassis c ON c.id = v.chassis_id
+		LEFT JOIN variant_stats vs2 ON vs2.variant_id = v.id
 		WHERE v.id = $1`, id).Scan(
 		&m.ID, &m.ModelCode, &m.Name, &m.Chassis, &m.Tonnage, &m.TechBase,
 		&m.BV, &m.IntroYear, &m.Era, &m.Role, &m.SarnaURL)
@@ -116,29 +175,49 @@ func (h *MechHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	var stats models.VariantStats
 	err = h.DB.QueryRow(ctx, `
 		SELECT walk_mp, run_mp, jump_mp, armor_total, internal_structure_total,
-		       heat_sink_count, heat_sink_type, engine_type, engine_rating
+		       heat_sink_count, heat_sink_type, engine_type, engine_rating,
+		       COALESCE(cockpit_type,''), COALESCE(gyro_type,''), COALESCE(myomer_type,''),
+		       COALESCE(structure_type,''), COALESCE(armor_type,''),
+		       COALESCE(tmm,0), COALESCE(armor_coverage_pct,0), COALESCE(heat_neutral_damage,0),
+		       COALESCE(heat_neutral_range,''), COALESCE(max_damage,0), COALESCE(effective_heat_neutral_damage,0)
 		FROM variant_stats WHERE variant_id = $1`, id).Scan(
 		&stats.WalkMP, &stats.RunMP, &stats.JumpMP, &stats.ArmorTotal, &stats.ISTotal,
-		&stats.HeatSinkCount, &stats.HeatSinkType, &stats.EngineType, &stats.EngineRating)
+		&stats.HeatSinkCount, &stats.HeatSinkType, &stats.EngineType, &stats.EngineRating,
+		&stats.CockpitType, &stats.GyroType, &stats.MyomerType,
+		&stats.StructureType, &stats.ArmorType,
+		&stats.TMM, &stats.ArmorCoveragePct, &stats.HeatNeutralDamage,
+		&stats.HeatNeutralRange, &stats.MaxDamage, &stats.EffHeatNeutralDamage)
 	if err == nil {
 		m.Stats = &stats
 	}
 
 	// Load equipment
-	rows, err := h.DB.Query(ctx, `
+	eqRows, err := h.DB.Query(ctx, `
 		SELECT e.id, e.name, e.type, e.damage, e.heat, e.min_range,
-		       e.short_range, e.medium_range, e.long_range, e.tonnage, e.slots,
+		       e.short_range, e.medium_range, e.long_range, COALESCE(e.extreme_range,0),
+		       e.tonnage, e.slots,
+		       COALESCE(e.internal_name,''), e.bv, COALESCE(e.rack_size,0),
+		       COALESCE(e.expected_damage,0), COALESCE(e.damage_per_ton,0), COALESCE(e.damage_per_heat,0),
+		       COALESCE(e.to_hit_modifier,0),
+		       COALESCE(e.effective_damage_short,0), COALESCE(e.effective_damage_medium,0), COALESCE(e.effective_damage_long,0),
+		       COALESCE(e.effective_dps_ton,0), COALESCE(e.effective_dps_heat,0),
 		       ve.location, ve.quantity
 		FROM variant_equipment ve
 		JOIN equipment e ON e.id = ve.equipment_id
 		WHERE ve.variant_id = $1
 		ORDER BY ve.location, e.name`, id)
 	if err == nil {
-		defer rows.Close()
-		for rows.Next() {
+		defer eqRows.Close()
+		for eqRows.Next() {
 			var eq models.VariantEquipment
-			rows.Scan(&eq.ID, &eq.Name, &eq.Type, &eq.Damage, &eq.Heat, &eq.MinRange,
-				&eq.ShortRange, &eq.MediumRange, &eq.LongRange, &eq.Tonnage, &eq.Slots,
+			eqRows.Scan(&eq.ID, &eq.Name, &eq.Type, &eq.Damage, &eq.Heat, &eq.MinRange,
+				&eq.ShortRange, &eq.MediumRange, &eq.LongRange, &eq.ExtremeRange,
+				&eq.Tonnage, &eq.Slots,
+				&eq.InternalName, &eq.BV, &eq.RackSize,
+				&eq.ExpectedDamage, &eq.DamagePerTon, &eq.DamagePerHeat,
+				&eq.ToHitModifier,
+				&eq.EffDamageShort, &eq.EffDamageMedium, &eq.EffDamageLong,
+				&eq.EffDPSTon, &eq.EffDPSHeat,
 				&eq.Location, &eq.Quantity)
 			m.Equipment = append(m.Equipment, eq)
 		}

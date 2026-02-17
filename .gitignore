@@ -5,3 +5,15 @@ bin/
 *.log
 frontend/node_modules/
 backend/bin/
+
+# MegaMek sparse clones (large, re-cloneable)
+data/megamek-data/
+data/megamek-src/
+
+# Compiled Go binaries in cmd dirs
+backend/fetch-bv
+backend/link-equipment
+backend/calc-stats
+backend/seed-equipment
+backend/extract-weapons
+backend/ingest

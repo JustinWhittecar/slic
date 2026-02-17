@@ -1,7 +1,7 @@
 CREATE TABLE chassis (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    tonnage INTEGER NOT NULL CHECK (tonnage >= 20 AND tonnage <= 100),
+    tonnage INTEGER NOT NULL,
     tech_base TEXT NOT NULL CHECK (tech_base IN ('Inner Sphere', 'Clan', 'Mixed')),
     sarna_url TEXT
 );
@@ -41,12 +41,17 @@ CREATE TABLE variants (
     battle_value INTEGER,
     intro_year INTEGER,
     era TEXT,
-    role TEXT
+    role TEXT,
+    mul_id INTEGER,
+    config TEXT,
+    source TEXT,
+    rules_level INTEGER
 );
 
 CREATE INDEX idx_variants_chassis ON variants(chassis_id);
 CREATE INDEX idx_variants_intro_year ON variants(intro_year);
 CREATE INDEX idx_variants_role ON variants(role);
+CREATE INDEX idx_variants_mul_id ON variants(mul_id);
 
 CREATE TABLE variant_equipment (
     id SERIAL PRIMARY KEY,
@@ -66,7 +71,12 @@ CREATE TABLE variant_stats (
     heat_sink_count INTEGER NOT NULL,
     heat_sink_type TEXT NOT NULL DEFAULT 'Single',
     engine_type TEXT NOT NULL,
-    engine_rating INTEGER NOT NULL
+    engine_rating INTEGER NOT NULL,
+    cockpit_type TEXT,
+    gyro_type TEXT,
+    myomer_type TEXT,
+    structure_type TEXT,
+    armor_type TEXT
 );
 
 CREATE TABLE variant_era_factions (

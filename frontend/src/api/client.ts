@@ -11,6 +11,24 @@ export interface MechListItem {
   intro_year?: number
   era?: string
   role?: string
+  walk_mp?: number
+  run_mp?: number
+  jump_mp?: number
+  armor_total?: number
+  engine_type?: string
+  engine_rating?: number
+  heat_sink_count?: number
+  heat_sink_type?: string
+  rules_level?: string
+  source?: string
+  config?: string
+  tmm?: number
+  armor_coverage_pct?: number
+  heat_neutral_damage?: number
+  max_damage?: number
+  effective_heat_neutral_damage?: number
+  heat_neutral_range?: string
+  game_damage?: number
 }
 
 export interface MechDetail extends MechListItem {
@@ -25,6 +43,10 @@ export interface MechDetail extends MechListItem {
     heat_sink_type: string
     engine_type: string
     engine_rating: number
+    tmm?: number
+    armor_coverage_pct?: number
+    heat_neutral_damage?: number
+    max_damage?: number
   }
   equipment?: {
     id: number
@@ -46,6 +68,13 @@ export interface MechFilters {
   era?: string
   faction?: string
   role?: string
+  tech_base?: string
+  bv_min?: number
+  bv_max?: number
+  tmm_min?: number
+  armor_pct_min?: number
+  heat_neutral_min?: number
+  max_damage_min?: number
 }
 
 export async function fetchMechs(filters: MechFilters = {}): Promise<MechListItem[]> {

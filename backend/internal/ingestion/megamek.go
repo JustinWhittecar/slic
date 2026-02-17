@@ -4,22 +4,68 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
-// MTFData holds raw parsed data from a MegaMek .mtf file.
+// MTFData holds all parsed data from a MegaMek .mtf file.
 type MTFData struct {
+	// Header
 	Chassis   string
 	Model     string
+	MulID     int
 	Config    string
 	TechBase  string
-	Era       string
-	Rules     string
-	Mass      string
-	Engine    string
-	Structure string
-	HeatSinks string
-	Equipment map[string][]string // location -> equipment names
+	Era       int
+	Source    string
+	RulesLevel int
+
+	// Quirks
+	Quirks []string
+
+	// Core
+	Mass          int
+	EngineRating  int
+	EngineType    string
+	Structure     string
+	Myomer        string
+	Cockpit       string
+	Gyro          string
+
+	// Heat sinks
+	HeatSinkCount int
+	HeatSinkType  string
+
+	// Movement
+	WalkMP int
+	JumpMP int
+
+	// Armor
+	ArmorType   string
+	ArmorValues map[string]int // location -> armor points
+
+	// Weapons summary
+	Weapons []WeaponEntry
+
+	// Per-location equipment slots
+	LocationEquipment map[string][]string
+
+	// Lore
+	Overview     string
+	Capabilities string
+	Deployment   string
+	History      string
+
+	// Manufacturer
+	Manufacturer      string
+	PrimaryFactory    string
+	SystemManufacturer map[string]string // system -> manufacturer line
+}
+
+// WeaponEntry is a weapon from the Weapons:N summary block.
+type WeaponEntry struct {
+	Name     string
+	Location string
 }
 
 // ParseMTF reads a MegaMek .mtf file and returns structured data.
@@ -31,61 +77,241 @@ func ParseMTF(path string) (*MTFData, error) {
 	defer f.Close()
 
 	data := &MTFData{
-		Equipment: make(map[string][]string),
+		ArmorValues:        make(map[string]int),
+		LocationEquipment:  make(map[string][]string),
+		SystemManufacturer: make(map[string]string),
 	}
 
 	scanner := bufio.NewScanner(f)
-	var currentSection string
+	// Increase buffer for files with long lore lines
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+
+	var currentLocation string
+	var inWeapons bool
 
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
+		line := scanner.Text()
+		trimmed := strings.TrimSpace(line)
+
+		// Skip empty lines and comments
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
 			continue
 		}
 
-		// Check for section headers
-		switch {
-		case strings.HasPrefix(line, "chassis:"):
-			data.Chassis = strings.TrimPrefix(line, "chassis:")
-			data.Chassis = strings.TrimSpace(data.Chassis)
-		case strings.HasPrefix(line, "model:"):
-			data.Model = strings.TrimPrefix(line, "model:")
-			data.Model = strings.TrimSpace(data.Model)
-		case strings.HasPrefix(line, "Config:"):
-			data.Config = strings.TrimPrefix(line, "Config:")
-			data.Config = strings.TrimSpace(data.Config)
-		case strings.HasPrefix(line, "TechBase:"):
-			data.TechBase = strings.TrimPrefix(line, "TechBase:")
-			data.TechBase = strings.TrimSpace(data.TechBase)
-		case strings.HasPrefix(line, "Era:"):
-			data.Era = strings.TrimPrefix(line, "Era:")
-			data.Era = strings.TrimSpace(data.Era)
-		case strings.HasPrefix(line, "Rules Level:"):
-			data.Rules = strings.TrimPrefix(line, "Rules Level:")
-			data.Rules = strings.TrimSpace(data.Rules)
-		case strings.HasPrefix(line, "Mass:"):
-			data.Mass = strings.TrimPrefix(line, "Mass:")
-			data.Mass = strings.TrimSpace(data.Mass)
-		case strings.HasPrefix(line, "Engine:"):
-			data.Engine = strings.TrimPrefix(line, "Engine:")
-			data.Engine = strings.TrimSpace(data.Engine)
-		case strings.HasPrefix(line, "Structure:"):
-			data.Structure = strings.TrimPrefix(line, "Structure:")
-			data.Structure = strings.TrimSpace(data.Structure)
-		case strings.HasPrefix(line, "Heat Sinks:"):
-			data.HeatSinks = strings.TrimPrefix(line, "Heat Sinks:")
-			data.HeatSinks = strings.TrimSpace(data.HeatSinks)
-		case line == "Left Arm:" || line == "Right Arm:" ||
-			line == "Left Torso:" || line == "Right Torso:" ||
-			line == "Center Torso:" || line == "Head:" ||
-			line == "Left Leg:" || line == "Right Leg:":
-			currentSection = strings.TrimSuffix(line, ":")
-		default:
-			if currentSection != "" && !strings.HasPrefix(line, "-Empty-") {
-				data.Equipment[currentSection] = append(data.Equipment[currentSection], line)
+		lower := strings.ToLower(trimmed)
+
+		// Check if we're entering a location block
+		if loc := matchLocationHeader(trimmed); loc != "" {
+			currentLocation = loc
+			inWeapons = false
+			continue
+		}
+
+		// Check for weapons section
+		if strings.HasPrefix(lower, "weapons:") {
+			inWeapons = true
+			currentLocation = ""
+			continue
+		}
+
+		// If in a location block, collect equipment
+		if currentLocation != "" {
+			data.LocationEquipment[currentLocation] = append(data.LocationEquipment[currentLocation], trimmed)
+			continue
+		}
+
+		// If in weapons section, parse weapon entries
+		if inWeapons {
+			if parts := strings.SplitN(trimmed, ",", 2); len(parts) == 2 {
+				data.Weapons = append(data.Weapons, WeaponEntry{
+					Name:     strings.TrimSpace(parts[0]),
+					Location: strings.TrimSpace(parts[1]),
+				})
+			}
+			continue
+		}
+
+		// Parse key:value fields
+		if idx := strings.Index(trimmed, ":"); idx >= 0 {
+			key := strings.ToLower(strings.TrimSpace(trimmed[:idx]))
+			val := strings.TrimSpace(trimmed[idx+1:])
+
+			switch key {
+			case "chassis":
+				data.Chassis = val
+			case "model":
+				data.Model = val
+			case "mul id":
+				data.MulID, _ = strconv.Atoi(val)
+			case "config":
+				data.Config = val
+			case "techbase":
+				data.TechBase = val
+			case "era":
+				data.Era, _ = strconv.Atoi(val)
+			case "source":
+				data.Source = val
+			case "rules level":
+				data.RulesLevel, _ = strconv.Atoi(val)
+			case "quirk":
+				if val != "" {
+					data.Quirks = append(data.Quirks, val)
+				}
+			case "mass":
+				data.Mass, _ = strconv.Atoi(val)
+			case "engine":
+				data.EngineRating, data.EngineType = parseEngine(val)
+			case "structure":
+				data.Structure = val
+			case "myomer":
+				data.Myomer = val
+			case "cockpit":
+				data.Cockpit = val
+			case "gyro":
+				data.Gyro = val
+			case "ejection":
+				// skip ejection type
+			case "heat sinks":
+				data.HeatSinkCount, data.HeatSinkType = parseHeatSinks(val)
+			case "base chassis heat sinks":
+				// skip, secondary heat sink info for omnimechs
+			case "walk mp":
+				data.WalkMP, _ = strconv.Atoi(val)
+			case "jump mp":
+				data.JumpMP, _ = strconv.Atoi(val)
+			case "armor":
+				data.ArmorType = val
+			case "la armor":
+				data.ArmorValues["LA"], _ = strconv.Atoi(val)
+			case "ra armor":
+				data.ArmorValues["RA"], _ = strconv.Atoi(val)
+			case "lt armor":
+				data.ArmorValues["LT"], _ = strconv.Atoi(val)
+			case "rt armor":
+				data.ArmorValues["RT"], _ = strconv.Atoi(val)
+			case "ct armor":
+				data.ArmorValues["CT"], _ = strconv.Atoi(val)
+			case "hd armor":
+				data.ArmorValues["HD"], _ = strconv.Atoi(val)
+			case "ll armor":
+				data.ArmorValues["LL"], _ = strconv.Atoi(val)
+			case "rl armor":
+				data.ArmorValues["RL"], _ = strconv.Atoi(val)
+			case "rtl armor":
+				data.ArmorValues["RTL"], _ = strconv.Atoi(val)
+			case "rtr armor":
+				data.ArmorValues["RTR"], _ = strconv.Atoi(val)
+			case "rtc armor":
+				data.ArmorValues["RTC"], _ = strconv.Atoi(val)
+			// Quad leg locations
+			case "fll armor":
+				data.ArmorValues["FLL"], _ = strconv.Atoi(val)
+			case "frl armor":
+				data.ArmorValues["FRL"], _ = strconv.Atoi(val)
+			case "rll armor":
+				data.ArmorValues["RLL"], _ = strconv.Atoi(val)
+			case "rrl armor":
+				data.ArmorValues["RRL"], _ = strconv.Atoi(val)
+			// Lore
+			case "overview":
+				data.Overview = val
+			case "capabilities":
+				data.Capabilities = val
+			case "deployment":
+				data.Deployment = val
+			case "history":
+				data.History = val
+			// Manufacturer
+			case "manufacturer":
+				data.Manufacturer = val
+			case "primaryfactory":
+				data.PrimaryFactory = val
+			case "systemmanufacturer":
+				if parts := strings.SplitN(val, ":", 2); len(parts) == 2 {
+					data.SystemManufacturer[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+				}
+			case "systemmode":
+				// skip
+			case "nocrit":
+				// skip
 			}
 		}
 	}
 
-	return data, scanner.Err()
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("scan mtf: %w", err)
+	}
+
+	// Validate minimum required fields
+	if data.Chassis == "" {
+		return nil, fmt.Errorf("missing chassis field")
+	}
+
+	return data, nil
+}
+
+// matchLocationHeader checks if a line is a location header like "Left Arm:" or "Front Left Leg:"
+func matchLocationHeader(line string) string {
+	locations := []string{
+		"Left Arm:",
+		"Right Arm:",
+		"Left Torso:",
+		"Right Torso:",
+		"Center Torso:",
+		"Head:",
+		"Left Leg:",
+		"Right Leg:",
+		// Quad mech locations
+		"Front Left Leg:",
+		"Front Right Leg:",
+		"Rear Left Leg:",
+		"Rear Right Leg:",
+		// LAM locations
+		"Center Leg:",
+	}
+	for _, loc := range locations {
+		if line == loc {
+			return strings.TrimSuffix(loc, ":")
+		}
+	}
+	return ""
+}
+
+// parseEngine parses "300 Fusion Engine(IS)" -> (300, "Fusion Engine(IS)")
+func parseEngine(val string) (int, string) {
+	parts := strings.SplitN(val, " ", 2)
+	if len(parts) < 2 {
+		rating, _ := strconv.Atoi(val)
+		return rating, ""
+	}
+	rating, _ := strconv.Atoi(parts[0])
+	return rating, parts[1]
+}
+
+// parseHeatSinks parses "14 IS Double" -> (14, "IS Double")
+func parseHeatSinks(val string) (int, string) {
+	parts := strings.SplitN(val, " ", 2)
+	if len(parts) < 2 {
+		count, _ := strconv.Atoi(val)
+		return count, "Single"
+	}
+	count, _ := strconv.Atoi(parts[0])
+	return count, parts[1]
+}
+
+// TotalArmor returns the sum of all armor values.
+func (d *MTFData) TotalArmor() int {
+	total := 0
+	for _, v := range d.ArmorValues {
+		total += v
+	}
+	return total
+}
+
+// FullName returns "Chassis Model" or just "Chassis" if model is empty.
+func (d *MTFData) FullName() string {
+	if d.Model == "" {
+		return d.Chassis
+	}
+	return d.Chassis + " " + d.Model
 }
