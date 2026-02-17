@@ -88,7 +88,7 @@ func main() {
 	defer pool.Close()
 
 	// Build equipment lookup: internal_name -> id, also lookup_names
-	equipMap := buildEquipmentMap(ctx, pool)
+	equipMap, equipSlots := buildEquipmentMap(ctx, pool)
 	fmt.Printf("Equipment map: %d entries\n", len(equipMap))
 
 	// Clear existing links
@@ -147,14 +147,25 @@ func main() {
 				continue
 			}
 
-			// Count unique weapons per location (multi-slot items appear multiple times)
+			// Count weapons per location, accounting for multi-slot items
+			// Multi-slot weapons appear N consecutive times in slots (e.g. AC/20 = 10 slots)
+			// We need to count: every N consecutive identical entries = 1 weapon
 			weaponCounts := map[string]int{}
-			weaponSeen := map[string]int{} // track consecutive occurrences
 			prevItem := ""
+			consecutiveCount := 0
 
 			for _, item := range items {
 				if shouldSkip(item) {
+					// Flush any pending weapon
+					if prevItem != "" && consecutiveCount > 0 {
+						sl := equipSlots[prevItem]
+						if sl <= 0 {
+							sl = 1
+						}
+						weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
+					}
 					prevItem = ""
+					consecutiveCount = 0
 					continue
 				}
 				// Strip suffixes: rear-mount (R), omnipod, etc.
@@ -166,24 +177,50 @@ func main() {
 				cleanItem = strings.TrimSuffix(cleanItem, " (fixed)")
 				cleanItem = strings.TrimSuffix(cleanItem, " (Fixed)")
 				if _, ok := equipMap[cleanItem]; !ok {
+					// Unrecognized item — flush pending
+					if prevItem != "" && consecutiveCount > 0 {
+						sl := equipSlots[prevItem]
+						if sl <= 0 {
+							sl = 1
+						}
+						weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
+					}
 					prevItem = ""
+					consecutiveCount = 0
 					continue
 				}
-				item = cleanItem
-				if item == prevItem {
-					// Same item consecutive = multi-slot, don't count again
-					continue
+
+				if cleanItem == prevItem {
+					consecutiveCount++
+				} else {
+					// New weapon type — flush previous
+					if prevItem != "" && consecutiveCount > 0 {
+						sl := equipSlots[prevItem]
+						if sl <= 0 {
+							sl = 1
+						}
+						weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
+					}
+					prevItem = cleanItem
+					consecutiveCount = 1
 				}
-				weaponCounts[item]++
-				weaponSeen[item]++
-				prevItem = item
+			}
+			// Flush last weapon
+			if prevItem != "" && consecutiveCount > 0 {
+				sl := equipSlots[prevItem]
+				if sl <= 0 {
+					sl = 1
+				}
+				weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
 			}
 
 			for itemName, qty := range weaponCounts {
 				equipID := equipMap[itemName]
 				_, err := pool.Exec(ctx, `
 					INSERT INTO variant_equipment (variant_id, equipment_id, location, quantity)
-					VALUES ($1, $2, $3, $4)`, variantID, equipID, locCode, qty)
+					VALUES ($1, $2, $3, $4)
+					ON CONFLICT (variant_id, equipment_id, location) DO UPDATE SET quantity = GREATEST(variant_equipment.quantity, $4)`,
+					variantID, equipID, locCode, qty)
 				if err != nil {
 					log.Printf("Link %s %s: %v", data.FullName(), itemName, err)
 					continue
@@ -199,22 +236,25 @@ func main() {
 		linked, totalEquipLinks, skippedVariants)
 }
 
-func buildEquipmentMap(ctx context.Context, pool *pgxpool.Pool) map[string]int {
+func buildEquipmentMap(ctx context.Context, pool *pgxpool.Pool) (map[string]int, map[string]int) {
 	m := map[string]int{}
+	slots := map[string]int{}
 
 	// Primary: internal_name and display name from equipment table
-	rows, err := pool.Query(ctx, "SELECT id, internal_name, name FROM equipment WHERE internal_name IS NOT NULL")
+	rows, err := pool.Query(ctx, "SELECT id, internal_name, name, COALESCE(slots,1) FROM equipment WHERE internal_name IS NOT NULL")
 	if err != nil {
 		log.Fatalf("Query equipment: %v", err)
 	}
 	for rows.Next() {
-		var id int
+		var id, sl int
 		var internalName, name string
-		rows.Scan(&id, &internalName, &name)
+		rows.Scan(&id, &internalName, &name, &sl)
 		m[internalName] = id
+		slots[internalName] = sl
 		if name != "" {
 			if _, exists := m[name]; !exists {
 				m[name] = id
+				slots[name] = sl
 			}
 		}
 	}
@@ -231,10 +271,14 @@ func buildEquipmentMap(ctx context.Context, pool *pgxpool.Pool) map[string]int {
 			rows2.Scan(&id, &ln)
 			if _, exists := m[ln]; !exists {
 				m[ln] = id
+				// Get slots for this equipment
+				var sl int
+				pool.QueryRow(ctx, "SELECT COALESCE(slots,1) FROM equipment WHERE id=$1", id).Scan(&sl)
+				slots[ln] = sl
 			}
 		}
 		rows2.Close()
 	}
 
-	return m
+	return m, slots
 }

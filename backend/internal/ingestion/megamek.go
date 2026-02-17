@@ -8,6 +8,21 @@ import (
 	"strings"
 )
 
+// parseArmorValue handles both standard "26" and patchwork "Reactive(Inner Sphere):26" formats
+func parseArmorValue(val string) int {
+	// Try direct parse first
+	if n, err := strconv.Atoi(val); err == nil {
+		return n
+	}
+	// Patchwork format: "ArmorType:value"
+	if idx := strings.LastIndex(val, ":"); idx >= 0 {
+		if n, err := strconv.Atoi(val[idx+1:]); err == nil {
+			return n
+		}
+	}
+	return 0
+}
+
 // MTFData holds all parsed data from a MegaMek .mtf file.
 type MTFData struct {
 	// Header
@@ -182,36 +197,36 @@ func ParseMTF(path string) (*MTFData, error) {
 			case "armor":
 				data.ArmorType = val
 			case "la armor":
-				data.ArmorValues["LA"], _ = strconv.Atoi(val)
+				data.ArmorValues["LA"] = parseArmorValue(val)
 			case "ra armor":
-				data.ArmorValues["RA"], _ = strconv.Atoi(val)
+				data.ArmorValues["RA"] = parseArmorValue(val)
 			case "lt armor":
-				data.ArmorValues["LT"], _ = strconv.Atoi(val)
+				data.ArmorValues["LT"] = parseArmorValue(val)
 			case "rt armor":
-				data.ArmorValues["RT"], _ = strconv.Atoi(val)
+				data.ArmorValues["RT"] = parseArmorValue(val)
 			case "ct armor":
-				data.ArmorValues["CT"], _ = strconv.Atoi(val)
+				data.ArmorValues["CT"] = parseArmorValue(val)
 			case "hd armor":
-				data.ArmorValues["HD"], _ = strconv.Atoi(val)
+				data.ArmorValues["HD"] = parseArmorValue(val)
 			case "ll armor":
-				data.ArmorValues["LL"], _ = strconv.Atoi(val)
+				data.ArmorValues["LL"] = parseArmorValue(val)
 			case "rl armor":
-				data.ArmorValues["RL"], _ = strconv.Atoi(val)
+				data.ArmorValues["RL"] = parseArmorValue(val)
 			case "rtl armor":
-				data.ArmorValues["RTL"], _ = strconv.Atoi(val)
+				data.ArmorValues["RTL"] = parseArmorValue(val)
 			case "rtr armor":
-				data.ArmorValues["RTR"], _ = strconv.Atoi(val)
+				data.ArmorValues["RTR"] = parseArmorValue(val)
 			case "rtc armor":
-				data.ArmorValues["RTC"], _ = strconv.Atoi(val)
+				data.ArmorValues["RTC"] = parseArmorValue(val)
 			// Quad leg locations
 			case "fll armor":
-				data.ArmorValues["FLL"], _ = strconv.Atoi(val)
+				data.ArmorValues["FLL"] = parseArmorValue(val)
 			case "frl armor":
-				data.ArmorValues["FRL"], _ = strconv.Atoi(val)
+				data.ArmorValues["FRL"] = parseArmorValue(val)
 			case "rll armor":
-				data.ArmorValues["RLL"], _ = strconv.Atoi(val)
+				data.ArmorValues["RLL"] = parseArmorValue(val)
 			case "rrl armor":
-				data.ArmorValues["RRL"], _ = strconv.Atoi(val)
+				data.ArmorValues["RRL"] = parseArmorValue(val)
 			// Lore
 			case "overview":
 				data.Overview = val

@@ -62,7 +62,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sorting, setSorting] = useState<SortingState>([
-    { id: 'tonnage', desc: false },
+    { id: 'intro_year', desc: false },
     { id: 'name', desc: false },
   ])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
