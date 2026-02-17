@@ -110,7 +110,10 @@ func main() {
 	for rows.Next() {
 		var vi variantInfo
 		rows.Scan(&vi.ID, &vi.Name, &vi.Model)
-		key := vi.Name + " " + vi.Model
+		key := vi.Name
+		if vi.Model != "" {
+			key += " " + vi.Model
+		}
 		variantMap[key] = vi.ID
 	}
 	rows.Close()

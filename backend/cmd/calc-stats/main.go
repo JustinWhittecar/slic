@@ -182,18 +182,16 @@ func main() {
 
 		// Heat dissipation
 		hsCapacity := v.HeatSinkCount
-		if strings.Contains(strings.ToLower(v.HeatSinkType), "double") {
+		hsLower := strings.ToLower(v.HeatSinkType)
+		if strings.Contains(hsLower, "double") || strings.Contains(hsLower, "laser") {
 			hsCapacity = v.HeatSinkCount * 2
+		} else if strings.Contains(hsLower, "compact") {
+			// Compact heat sinks dissipate 1 heat but weigh less
+			hsCapacity = v.HeatSinkCount
 		}
 
-		// Movement heat: use best TMM movement mode
-		moveHeat := 1 // walking
-		useJump := jumpTMM > runTMM && v.JumpMP > 0
-		if useJump {
-			moveHeat = v.JumpMP
-		} else {
-			moveHeat = 2 // running
-		}
+		// Movement heat: walking = 1 (matches game sim where both mechs walk)
+		moveHeat := 1
 
 		availableHeat := hsCapacity - moveHeat
 		if availableHeat < 0 {
