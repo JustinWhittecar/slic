@@ -154,9 +154,14 @@ func main() {
 					prevItem = ""
 					continue
 				}
-				// Strip rear-mount suffix
-				cleanItem := strings.TrimSuffix(item, " (R)")
+				// Strip suffixes: rear-mount (R), omnipod, etc.
+				cleanItem := item
+				cleanItem = strings.TrimSuffix(cleanItem, " (R)")
 				cleanItem = strings.TrimSuffix(cleanItem, "(R)")
+				cleanItem = strings.TrimSuffix(cleanItem, " (omnipod)")
+				cleanItem = strings.TrimSuffix(cleanItem, " (OMNIPOD)")
+				cleanItem = strings.TrimSuffix(cleanItem, " (fixed)")
+				cleanItem = strings.TrimSuffix(cleanItem, " (Fixed)")
 				if _, ok := equipMap[cleanItem]; !ok {
 					prevItem = ""
 					continue
