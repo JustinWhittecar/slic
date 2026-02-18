@@ -33,6 +33,7 @@ export function App() {
   const [showFeedback, setShowFeedback] = useState(false)
 
   const handleCountChange = useCallback((c: number) => setCount(c), [])
+  const clearFilters = useCallback(() => setFilters({ engine_types: ['Fusion', 'XL', 'XXL'] }), [])
 
   const toggleCompare = useCallback((id: number) => {
     setCompareIds(prev => {
@@ -80,9 +81,9 @@ export function App() {
         <header className="mb-4 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight">SLIC</h1>
-            <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>BattleTech Mech Database & List Builder</p>
+            <p className="text-xs hidden sm:block" style={{ color: 'var(--text-tertiary)' }}>BattleTech Mech Database & List Builder</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => setShowListBuilder(s => !s)}
               className="text-xs px-3 py-1.5 rounded cursor-pointer flex items-center gap-1.5"
@@ -165,10 +166,16 @@ export function App() {
           compareIds={compareIds}
           onToggleCompare={toggleCompare}
           onAddToList={addToList}
+          onClearFilters={clearFilters}
         />
 
-        <footer className="mt-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>
-          Showing {count} of {totalCount} variants
+        <footer className="mt-2 text-xs flex justify-between items-center" style={{ color: 'var(--text-tertiary)' }}>
+          <span>Showing {count} of {totalCount} variants</span>
+          <span className="flex gap-2">
+            <button onClick={() => setShowAbout(true)} className="cursor-pointer hover:underline">About</button>
+            <span>·</span>
+            <span>slic.dev</span>
+          </span>
         </footer>
       </div>
 

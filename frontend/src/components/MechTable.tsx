@@ -60,11 +60,12 @@ interface MechTableProps {
   compareIds?: number[]
   onToggleCompare?: (id: number) => void
   onAddToList?: (mech: MechListItem) => void
+  onClearFilters?: () => void
 }
 
 const columnHelper = createColumnHelper<MechListItem>()
 
-export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange, compareIds = [], onToggleCompare, onAddToList }: MechTableProps) {
+export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange, compareIds = [], onToggleCompare, onAddToList, onClearFilters }: MechTableProps) {
   const [mechs, setMechs] = useState<MechListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -294,7 +295,23 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     overscan: 20,
   })
 
-  if (error) return <div className="text-red-500 text-sm p-4">Error: {error}</div>
+  // Reset scroll when filters change
+  useEffect(() => {
+    if (parentRef.current) parentRef.current.scrollTop = 0
+  }, [filters])
+
+  if (error) return (
+    <div className="flex flex-col items-center justify-center p-12 gap-3" style={{ color: 'var(--text-secondary)' }}>
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--text-tertiary)' }}>
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+      </svg>
+      <div className="text-sm font-medium">Something went wrong</div>
+      <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{error}</div>
+      <button onClick={load} className="text-xs px-4 py-2 rounded cursor-pointer font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>
+        Retry
+      </button>
+    </div>
+  )
 
   return (
     <div>
@@ -312,9 +329,19 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
         style={{ height: 'calc(100vh - 200px)', border: '1px solid var(--border-default)' }}
       >
         {loading ? (
-          <div className="p-8 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
+          <div className="p-0">
+            {Array.from({ length: 15 }).map((_, i) => (
+              <div key={i} className="flex gap-3 px-3 py-2" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <div className="h-4 rounded animate-pulse" style={{ width: '30%', background: 'var(--bg-elevated)' }} />
+                <div className="h-4 rounded animate-pulse" style={{ width: '12%', background: 'var(--bg-elevated)' }} />
+                <div className="h-4 rounded animate-pulse" style={{ width: '10%', background: 'var(--bg-elevated)' }} />
+                <div className="h-4 rounded animate-pulse" style={{ width: '15%', background: 'var(--bg-elevated)' }} />
+                <div className="h-4 rounded animate-pulse" style={{ width: '10%', background: 'var(--bg-elevated)' }} />
+              </div>
+            ))}
+          </div>
         ) : (
-          <table className="w-full text-sm" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
+          <table className="w-full text-sm fade-in" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
             <thead className="sticky top-0 z-10" style={{ background: 'var(--bg-surface)' }}>
               {table.getHeaderGroups().map(hg => (
                 <tr key={hg.id} style={{ borderBottom: '1px solid var(--border-default)' }}>
@@ -337,8 +364,19 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
             <tbody>
               {virtualizer.getVirtualItems().length === 0 && (
                 <tr>
-                  <td colSpan={columns.length} className="p-8 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                    No mechs found.
+                  <td colSpan={columns.length} className="p-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ color: 'var(--text-tertiary)', opacity: 0.5 }}>
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                      </svg>
+                      <div className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>No mechs match your filters</div>
+                      <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Try broadening your search or adjusting filter criteria</div>
+                      {onClearFilters && (
+                        <button onClick={onClearFilters} className="text-xs px-4 py-2 rounded cursor-pointer font-medium mt-1" style={{ background: 'var(--accent)', color: '#fff' }}>
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               )}
@@ -359,6 +397,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
                         style={{
                           height: 36,
                           borderBottom: '1px solid var(--border-subtle)',
+                          borderLeft: isSelected ? '3px solid var(--accent)' : '3px solid transparent',
                           color: 'var(--text-primary)',
                           background: isSelected
                             ? 'var(--bg-elevated)'
@@ -366,8 +405,8 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
                             ? 'var(--bg-surface)'
                             : undefined,
                         }}
-                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--bg-hover)' }}
-                        onMouseLeave={e => { if (!isSelected && !isComparing) e.currentTarget.style.background = ''; else if (isComparing) e.currentTarget.style.background = 'var(--bg-surface)' }}
+                        onMouseEnter={e => { if (!isSelected) { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.borderLeft = '3px solid var(--accent)' } }}
+                        onMouseLeave={e => { if (!isSelected) { e.currentTarget.style.borderLeft = '3px solid transparent'; if (!isComparing) e.currentTarget.style.background = ''; else e.currentTarget.style.background = 'var(--bg-surface)' } }}
                       >
                         {row.getVisibleCells().map(cell => (
                           <td key={cell.id} className="px-3 py-1.5 whitespace-nowrap">

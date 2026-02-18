@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { fetchMech, type MechDetail as MechDetailType, type MechEquipment } from '../api/client'
 
 interface MechDetailProps {
@@ -203,10 +203,15 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   const [tooltip, setTooltip] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  const [error, setError] = useState(false)
+
+  const loadMech = useCallback(() => {
     setLoading(true)
-    fetchMech(mechId).then(d => { setMech(d); setLoading(false) }).catch(() => setLoading(false))
+    setError(false)
+    fetchMech(mechId).then(d => { setMech(d); setLoading(false) }).catch(() => { setError(true); setLoading(false) })
   }, [mechId])
+
+  useEffect(() => { loadMech() }, [loadMech])
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -257,12 +262,39 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
         }}
       >
         {loading && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
+          <div className="p-5 space-y-4">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2 flex-1">
+                <div className="h-6 w-48 rounded animate-pulse" style={{ background: 'var(--bg-elevated)' }} />
+                <div className="h-4 w-32 rounded animate-pulse" style={{ background: 'var(--bg-elevated)' }} />
+              </div>
+              <button onClick={onClose} className="text-lg cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>✕</button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 py-3" style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-1">
+                  <div className="h-3 w-12 rounded animate-pulse" style={{ background: 'var(--bg-elevated)' }} />
+                  <div className="h-5 w-16 rounded animate-pulse" style={{ background: 'var(--bg-elevated)' }} />
+                </div>
+              ))}
+            </div>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-4 rounded animate-pulse" style={{ width: `${70 - i * 10}%`, background: 'var(--bg-elevated)' }} />
+            ))}
           </div>
         )}
 
-        {mech && !loading && (
+        {error && !loading && (
+          <div className="flex flex-col items-center justify-center h-full gap-3">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--text-tertiary)' }}>
+              <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+            </svg>
+            <div className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Something went wrong</div>
+            <button onClick={loadMech} className="text-xs px-4 py-2 rounded cursor-pointer font-medium" style={{ background: 'var(--accent)', color: '#fff' }}>Retry</button>
+          </div>
+        )}
+
+        {mech && !loading && !error && (
           <div className="flex flex-col">
             {/* Header */}
             <div className="p-5 pb-3">

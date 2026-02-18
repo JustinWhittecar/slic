@@ -52,7 +52,7 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto" style={{ background: 'rgba(0,0,0,0.4)' }}>
-      <div className="rounded-lg shadow-2xl m-4 mt-8 max-w-[1200px] w-full max-h-[90vh] overflow-y-auto"
+      <div className="rounded-lg shadow-2xl m-4 mt-8 max-w-[1200px] w-full max-h-[90vh] overflow-auto"
         style={{ background: 'var(--bg-page)', border: '1px solid var(--border-default)' }}>
         {/* Header */}
         <div className="sticky top-0 px-5 py-3 flex items-center justify-between z-10"
@@ -64,9 +64,9 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
         {loading ? (
           <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
         ) : (
-          <div className="p-5">
+          <div className="p-5" style={{ minWidth: loaded.length > 2 ? `${loaded.length * 200 + 140}px` : undefined }}>
             {/* Mech Names */}
-            <div className="grid gap-3" style={{ gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)` }}>
+            <div className="grid gap-3" style={{ gridTemplateColumns: `100px repeat(${loaded.length}, minmax(120px, 1fr))` }}>
               <div />
               {loaded.map(m => (
                 <div key={m.id} className="text-center">
@@ -102,7 +102,7 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
                     key={stat.key}
                     className="grid gap-3 px-3 py-2"
                     style={{
-                      gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)`,
+                      gridTemplateColumns: `100px repeat(${loaded.length}, 1fr)`,
                       background: i % 2 === 0 ? 'var(--bg-surface)' : undefined,
                     }}
                   >
@@ -132,7 +132,7 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
             {/* Movement */}
             <div className="mt-4">
               <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Movement</h3>
-              <div className="grid gap-3" style={{ gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)` }}>
+              <div className="grid gap-3" style={{ gridTemplateColumns: `100px repeat(${loaded.length}, 1fr)` }}>
                 <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Walk/Run/Jump</div>
                 {loaded.map(m => {
                   const s = m.stats
@@ -157,7 +157,7 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
                     key={row.label}
                     className="grid gap-3 px-3 py-2"
                     style={{
-                      gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)`,
+                      gridTemplateColumns: `100px repeat(${loaded.length}, 1fr)`,
                       background: i % 2 === 0 ? 'var(--bg-surface)' : undefined,
                     }}
                   >
