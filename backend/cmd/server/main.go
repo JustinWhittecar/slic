@@ -30,6 +30,7 @@ func main() {
 	defer sqlDB.Close()
 
 	mechHandler := &handlers.MechHandlerSQLite{DB: sqlDB}
+	feedbackHandler := handlers.NewFeedbackHandler()
 
 	mux := http.NewServeMux()
 
@@ -42,6 +43,9 @@ func main() {
 	// Mech API
 	mux.HandleFunc("GET /api/mechs", mechHandler.List)
 	mux.HandleFunc("GET /api/mechs/{id}", mechHandler.GetByID)
+
+	// Feedback
+	mux.HandleFunc("POST /api/feedback", feedbackHandler.Submit)
 
 	// Embedded frontend (SPA fallback)
 	distFS, err := fs.Sub(frontendFS, "dist")
@@ -97,7 +101,7 @@ func main() {
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
