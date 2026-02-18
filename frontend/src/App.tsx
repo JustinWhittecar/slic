@@ -93,6 +93,20 @@ export function App() {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
               List{listMechs.length > 0 ? ` (${listMechs.length})` : ''}
             </button>
+            <a
+              href="https://github.com/JustinWhittecar/slic/issues/new?template=feedback.md&labels=feedback"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs px-3 py-1.5 rounded cursor-pointer flex items-center gap-1.5 no-underline"
+              style={{
+                background: 'var(--bg-elevated)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-default)',
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              Feedback
+            </a>
             <button
               onClick={() => setShowAbout(true)}
               className="text-xs px-3 py-1.5 rounded cursor-pointer"
