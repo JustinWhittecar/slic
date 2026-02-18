@@ -336,7 +336,7 @@ func simulateReplay(board *Board, attackerTemplate, defenderTemplate *MechState,
 
 			defTMM := tmmFromHexesMoved(defChoice.HexesMoved, defChoice.Mode)
 			heatThisMod := heatToHitMod(attacker.Heat)
-			baseTarget := gunnerySkill + attacker.SensorHits + heatThisMod
+			baseTarget := gunnerySkill + attacker.SensorHits*2 + heatThisMod
 
 			switch atkChoice.Mode {
 			case ModeWalk:
@@ -351,7 +351,7 @@ func simulateReplay(board *Board, attackerTemplate, defenderTemplate *MechState,
 			baseTarget += los.TargetCover
 			baseTarget += los.ElevationMod
 
-			if attacker.Prone { baseTarget += 1 }
+			if attacker.Prone { baseTarget += 2 }
 			if defender.Prone {
 				if dist <= 1 { baseTarget += 1 } else { baseTarget -= 2 }
 			}

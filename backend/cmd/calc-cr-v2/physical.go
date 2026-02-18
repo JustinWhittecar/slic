@@ -14,7 +14,7 @@ func resolvePhysical(attacker, defender *MechState, rng *rand.Rand) {
 	// Kick: damage = tonnage/5, target = piloting skill + move mods
 	kickDmg := attacker.Tonnage / 5
 	kickTarget := pilotingSkill - 2
-	// Add movement modifier
+	// Add attacker movement modifier
 	switch attacker.LastMoveMode {
 	case ModeWalk:
 		kickTarget += 1
@@ -23,6 +23,8 @@ func resolvePhysical(attacker, defender *MechState, rng *rand.Rand) {
 	case ModeJump:
 		kickTarget += 3
 	}
+	// Add target TMM (BMM: physical attacks include TMM)
+	kickTarget += tmmFromHexesMoved(defender.LastHexMoved, defender.LastMoveMode)
 	if kickTarget < 2 {
 		kickTarget = 2
 	}

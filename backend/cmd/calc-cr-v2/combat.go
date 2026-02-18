@@ -347,12 +347,12 @@ func resolveLBX(w *SimWeapon, target int, isRear bool, defender *MechState, rng 
 func resolveLRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		// AMS reduces incoming missiles before cluster roll
-		effectiveRack := amsIntercept(w.RackSize, defender, rng)
-		if effectiveRack <= 0 {
+		// Cluster roll first, then AMS reduces hits (BMM p.117)
+		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
+		hits = amsIntercept(hits, defender, rng)
+		if hits <= 0 {
 			return 0
 		}
-		hits := clusterHitsWithBonus(effectiveRack, artemisBonus(attacker), rng)
 		for hits > 0 {
 			grp := 5
 			if hits < 5 {

@@ -27,9 +27,9 @@ var frontHitTable = [11]int{
 	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocHD,
 }
 
-// Rear hit table
+// Rear hit table — roll 12 = CT(rear), NOT head (BMM p.53)
 var rearHitTable = [11]int{
-	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocHD,
+	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocCT,
 }
 
 // ─── IS table by tonnage ────────────────────────────────────────────────────
@@ -149,6 +149,10 @@ type MechState struct {
 }
 
 func (m *MechState) effectiveWalkMP() int {
+	// One leg destroyed = immobile (BMM)
+	if m.IS[LocLL] <= 0 || m.IS[LocRL] <= 0 {
+		return 0
+	}
 	mp := m.WalkMP - m.LegActuatorHit - heatMPReduction(m.Heat)
 	if mp < 0 {
 		mp = 0
@@ -178,7 +182,8 @@ func (m *MechState) isDestroyed() bool {
 			return true
 		}
 	}
-	if m.IS[LocLL] <= 0 || m.IS[LocRL] <= 0 {
+	// Both legs destroyed = dead (BMM: one leg = fall + immobilize, not death)
+	if m.IS[LocLL] <= 0 && m.IS[LocRL] <= 0 {
 		return true
 	}
 	exposed := 0
@@ -348,7 +353,10 @@ func (m *MechState) rollCrits(loc int, rng *rand.Rand) {
 			m.CockpitHit = true
 			return
 		}
-		if critRoll >= 8 {
+		switch {
+		case critRoll >= 10:
+			numCrits = 2
+		case critRoll >= 8:
 			numCrits = 1
 		}
 	} else {
