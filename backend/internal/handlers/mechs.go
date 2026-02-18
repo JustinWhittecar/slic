@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/JustinWhittecar/slic/internal/models"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,7 +18,7 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	query := `
-		SELECT v.id, v.model_code, v.name, c.name, COALESCE(vs.tonnage, c.tonnage), c.tech_base,
+		SELECT v.id, v.model_code, v.name, c.name, COALESCE(c.alternate_name,''), COALESCE(vs.tonnage, c.tonnage), c.tech_base,
 		       v.battle_value, v.intro_year, COALESCE(v.era,''), COALESCE(v.role,''),
 		       COALESCE(vs.tmm,0), COALESCE(vs.armor_coverage_pct,0), COALESCE(vs.heat_neutral_damage,0),
 		       COALESCE(vs.walk_mp,0), COALESCE(vs.jump_mp,0), COALESCE(vs.armor_total,0),
@@ -27,11 +28,12 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 		       COALESCE(vs.engine_type,''), COALESCE(vs.engine_rating,0),
 		       COALESCE(vs.heat_sink_count,0), COALESCE(vs.heat_sink_type,''),
 		       COALESCE(vs.run_mp,0),
-		       COALESCE(v.rules_level,0), COALESCE(v.source,''), COALESCE(v.config,'')
+		       COALESCE(v.rules_level,0), COALESCE(v.source,''), COALESCE(v.config,''),
+		       COALESCE(vs.combat_rating,0)
 		FROM variants v
 		JOIN chassis c ON c.id = v.chassis_id
 		LEFT JOIN variant_stats vs ON vs.variant_id = v.id
-		WHERE 1=1`
+		WHERE v.mul_id IS NOT NULL AND v.mul_id > 0 AND v.battle_value > 0`
 
 	args := []any{}
 	argN := 0
@@ -63,9 +65,9 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 		args = append(args, v)
 	}
 	if v := r.URL.Query().Get("name"); v != "" {
-		query += " AND (v.name ILIKE " + nextArg() + " OR c.name ILIKE " + nextArg() + ")"
-		args = append(args, "%"+v+"%", "%"+v+"%")
-		argN++ // extra arg
+		query += " AND (v.name ILIKE " + nextArg() + " OR c.name ILIKE " + nextArg() + " OR c.alternate_name ILIKE " + nextArg() + ")"
+		args = append(args, "%"+v+"%", "%"+v+"%", "%"+v+"%")
+		argN += 2 // extra args
 	}
 	if v := r.URL.Query().Get("bv_min"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
@@ -103,6 +105,81 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 			args = append(args, n)
 		}
 	}
+	if v := r.URL.Query().Get("game_damage_min"); v != "" {
+		if n, err := strconv.ParseFloat(v, 64); err == nil {
+			query += " AND vs.game_damage >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("combat_rating_min"); v != "" {
+		if n, err := strconv.ParseFloat(v, 64); err == nil {
+			query += " AND vs.combat_rating >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("combat_rating_max"); v != "" {
+		if n, err := strconv.ParseFloat(v, 64); err == nil {
+			query += " AND vs.combat_rating <= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("intro_year_min"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			query += " AND v.intro_year >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("intro_year_max"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			query += " AND v.intro_year <= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("walk_mp_min"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			query += " AND vs.walk_mp >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("jump_mp_min"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			query += " AND vs.jump_mp >= " + nextArg()
+			args = append(args, n)
+		}
+	}
+	if v := r.URL.Query().Get("heat_sink_type"); v != "" {
+		query += " AND vs.heat_sink_type = " + nextArg()
+		args = append(args, v)
+	}
+	if v := r.URL.Query().Get("engine_types"); v != "" {
+		types := strings.Split(v, ",")
+		clauses := []string{}
+		for _, t := range types {
+			t = strings.TrimSpace(t)
+			if t != "" {
+				switch t {
+				case "ICE":
+					clauses = append(clauses, "(vs.engine_type ILIKE "+nextArg()+" OR vs.engine_type ILIKE "+nextArg()+")")
+					args = append(args, "%ICE%", "%I.C.E%")
+				case "Fuel Cell":
+					clauses = append(clauses, "(vs.engine_type ILIKE "+nextArg()+" OR vs.engine_type ILIKE "+nextArg()+")")
+					args = append(args, "%Fuel Cell%", "%Fuel-Cell%")
+				case "Fusion":
+					clauses = append(clauses, "(vs.engine_type ILIKE "+nextArg()+" AND vs.engine_type NOT ILIKE "+nextArg()+" AND vs.engine_type NOT ILIKE "+nextArg()+" AND vs.engine_type NOT ILIKE "+nextArg()+" AND vs.engine_type NOT ILIKE "+nextArg()+" AND vs.engine_type NOT ILIKE "+nextArg()+")")
+					args = append(args, "%Fusion%", "%XL%", "%XXL%", "%Light%", "%Compact%", "%Primitive%")
+				case "XL":
+					clauses = append(clauses, "(vs.engine_type ILIKE "+nextArg()+" AND vs.engine_type NOT ILIKE "+nextArg()+")")
+					args = append(args, "%XL%", "%XXL%")
+				default:
+					clauses = append(clauses, "vs.engine_type ILIKE "+nextArg())
+					args = append(args, "%"+t+"%")
+				}
+			}
+		}
+		if len(clauses) > 0 {
+			query += " AND (" + strings.Join(clauses, " OR ") + ")"
+		}
+	}
 	if v := r.URL.Query().Get("tech_base"); v != "" {
 		query += " AND c.tech_base = " + nextArg()
 		args = append(args, v)
@@ -128,7 +205,7 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 	mechs := []models.MechListItem{}
 	for rows.Next() {
 		var m models.MechListItem
-		if err := rows.Scan(&m.ID, &m.ModelCode, &m.Name, &m.Chassis, &m.Tonnage,
+		if err := rows.Scan(&m.ID, &m.ModelCode, &m.Name, &m.Chassis, &m.AlternateName, &m.Tonnage,
 			&m.TechBase, &m.BV, &m.IntroYear, &m.Era, &m.Role,
 			&m.TMM, &m.ArmorCoveragePct, &m.HeatNeutralDamage,
 			&m.WalkMP, &m.JumpMP, &m.ArmorTotal, &m.MaxDamage,
@@ -136,7 +213,8 @@ func (h *MechHandler) List(w http.ResponseWriter, r *http.Request) {
 			&m.GameDamage,
 			&m.EngineType, &m.EngineRating,
 			&m.HeatSinkCount, &m.HeatSinkType,
-			&m.RunMP, &m.RulesLevel, &m.Source, &m.Config); err != nil {
+			&m.RunMP, &m.RulesLevel, &m.Source, &m.Config,
+			&m.CombatRating); err != nil {
 			http.Error(w, "scan error: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -158,14 +236,16 @@ func (h *MechHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	var m models.MechDetail
 	err = h.DB.QueryRow(ctx, `
-		SELECT v.id, v.model_code, v.name, c.name, COALESCE(vs2.tonnage, c.tonnage), c.tech_base,
-		       v.battle_value, v.intro_year, COALESCE(v.era,''), COALESCE(v.role,''), COALESCE(c.sarna_url,'')
+		SELECT v.id, v.model_code, v.name, c.name, COALESCE(c.alternate_name,''), COALESCE(vs2.tonnage, c.tonnage), c.tech_base,
+		       v.battle_value, v.intro_year, COALESCE(v.era,''), COALESCE(v.role,''), COALESCE(c.sarna_url,''),
+		       COALESCE(vs2.game_damage, 0), COALESCE(vs2.combat_rating, 0)
 		FROM variants v
 		JOIN chassis c ON c.id = v.chassis_id
 		LEFT JOIN variant_stats vs2 ON vs2.variant_id = v.id
 		WHERE v.id = $1`, id).Scan(
-		&m.ID, &m.ModelCode, &m.Name, &m.Chassis, &m.Tonnage, &m.TechBase,
-		&m.BV, &m.IntroYear, &m.Era, &m.Role, &m.SarnaURL)
+		&m.ID, &m.ModelCode, &m.Name, &m.Chassis, &m.AlternateName, &m.Tonnage, &m.TechBase,
+		&m.BV, &m.IntroYear, &m.Era, &m.Role, &m.SarnaURL,
+		&m.GameDamage, &m.CombatRating)
 	if err != nil {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
@@ -179,17 +259,32 @@ func (h *MechHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		       COALESCE(cockpit_type,''), COALESCE(gyro_type,''), COALESCE(myomer_type,''),
 		       COALESCE(structure_type,''), COALESCE(armor_type,''),
 		       COALESCE(tmm,0), COALESCE(armor_coverage_pct,0), COALESCE(heat_neutral_damage,0),
-		       COALESCE(heat_neutral_range,''), COALESCE(max_damage,0), COALESCE(effective_heat_neutral_damage,0)
+		       COALESCE(heat_neutral_range,''), COALESCE(max_damage,0), COALESCE(effective_heat_neutral_damage,0),
+		       COALESCE(has_targeting_computer, false),
+		       COALESCE(combat_rating, 0), COALESCE(offense_turns, 0), COALESCE(defense_turns, 0)
 		FROM variant_stats WHERE variant_id = $1`, id).Scan(
 		&stats.WalkMP, &stats.RunMP, &stats.JumpMP, &stats.ArmorTotal, &stats.ISTotal,
 		&stats.HeatSinkCount, &stats.HeatSinkType, &stats.EngineType, &stats.EngineRating,
 		&stats.CockpitType, &stats.GyroType, &stats.MyomerType,
 		&stats.StructureType, &stats.ArmorType,
 		&stats.TMM, &stats.ArmorCoveragePct, &stats.HeatNeutralDamage,
-		&stats.HeatNeutralRange, &stats.MaxDamage, &stats.EffHeatNeutralDamage)
+		&stats.HeatNeutralRange, &stats.MaxDamage, &stats.EffHeatNeutralDamage,
+		&stats.HasTargetingComputer,
+		&stats.CombatRating, &stats.OffenseTurns, &stats.DefenseTurns)
 	if err == nil {
 		m.Stats = &stats
 	}
+
+	// Generate sourcing links from chassis name
+	// Strip parentheticals for Sarna — "Pariah (Septicemia)" → "Pariah", which resolves on Sarna
+	sarnaName := m.Chassis
+	if idx := strings.Index(sarnaName, "("); idx > 0 {
+		sarnaName = strings.TrimSpace(sarnaName[:idx])
+	}
+	chassisURL := strings.ReplaceAll(sarnaName, " ", "_")
+	m.SarnaURL = "https://www.sarna.net/wiki/" + chassisURL
+	m.IWMUrl = "https://www.ironwindmetals.com/index.php/product-listing?cid=0&searchword=" + strings.ToLower(strings.ReplaceAll(m.Chassis, " ", "+"))
+	m.CatalystUrl = "https://store.catalystgamelabs.com/search?q=" + strings.ReplaceAll(m.Chassis, " ", "+")
 
 	// Load equipment
 	eqRows, err := h.DB.Query(ctx, `

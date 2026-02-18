@@ -14,7 +14,7 @@ import { ColumnSelector } from './ColumnSelector'
 
 const DEFAULT_VISIBILITY: VisibilityState = {
   name: true, tonnage: false, tech_base: true, bv: true, role: false, move: true, armor_total: false,
-  game_damage: true, tmm: true, armor_coverage_pct: true,
+  heat_neutral_damage: true, alpha_damage: false, optimal_range: true, combat_rating: true, bv_efficiency: false, tmm: true, armor_coverage_pct: true,
   era: false, intro_year: true,
   engine_type: false, engine_rating: false, heat_sinks: false,
   rules_level: false, source: false, config: false,
@@ -30,7 +30,11 @@ const COLUMN_DEFS_META = [
   { id: 'move', label: 'Move' },
   { id: 'armor_total', label: 'Armor Total' },
   { id: 'tmm', label: 'TMM' },
-  { id: 'game_damage', label: 'Game Damage' },
+  { id: 'heat_neutral_damage', label: 'Heat Neutral Dmg' },
+  { id: 'alpha_damage', label: 'Alpha Strike Dmg' },
+  { id: 'optimal_range', label: 'Optimal Range' },
+  { id: 'combat_rating', label: 'Combat Rating' },
+  { id: 'bv_efficiency', label: 'BV Efficiency' },
   { id: 'armor_coverage_pct', label: 'Armor %' },
   { id: 'engine_type', label: 'Engine Type' },
   { id: 'engine_rating', label: 'Engine Rating' },
@@ -55,11 +59,12 @@ interface MechTableProps {
   onCountChange: (count: number) => void
   compareIds?: number[]
   onToggleCompare?: (id: number) => void
+  onAddToList?: (mech: MechListItem) => void
 }
 
 const columnHelper = createColumnHelper<MechListItem>()
 
-export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange, compareIds = [], onToggleCompare }: MechTableProps) {
+export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange, compareIds = [], onToggleCompare, onAddToList }: MechTableProps) {
   const [mechs, setMechs] = useState<MechListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -96,7 +101,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
   const columns = useMemo(() => [
     ...(onToggleCompare ? [columnHelper.display({
       id: 'compare',
-      header: () => <span className="text-xs">⚔</span>,
+      header: () => <span className="text-xs tooltip-header" data-tip="Select 2-4 mechs to compare side by side"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{display:'inline'}}><path d="M12 3v18M3 12h18"/></svg></span>,
       cell: ({ row }) => {
         const checked = compareIds.includes(row.original.id)
         return (
@@ -105,17 +110,45 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
             checked={checked}
             onChange={(e) => { e.stopPropagation(); onToggleCompare(row.original.id) }}
             onClick={(e) => e.stopPropagation()}
-            className="cursor-pointer accent-blue-600"
+            className="cursor-pointer"
+            style={{ accentColor: 'var(--accent)' }}
           />
         )
       },
       size: 32,
       enableSorting: false,
     })] : []),
+    ...(onAddToList ? [columnHelper.display({
+      id: 'addToList',
+      header: () => <span className="text-xs tooltip-header" data-tip="Add mech to your list builder">+</span>,
+      cell: ({ row }) => (
+        <button
+          onClick={(e) => { e.stopPropagation(); onAddToList(row.original) }}
+          className="text-xs cursor-pointer px-1 rounded"
+          style={{ color: 'var(--accent)' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-elevated)')}
+          onMouseLeave={e => (e.currentTarget.style.background = '')}
+          title="Add to list"
+        >
+          +
+        </button>
+      ),
+      size: 32,
+      enableSorting: false,
+    })] : []),
     columnHelper.accessor(row => `${row.chassis} ${row.model_code}`, {
       id: 'name',
       header: 'Name',
-      cell: info => info.getValue(),
+      cell: ({ row }) => (
+        <div>
+          <span>{row.original.chassis} {row.original.model_code}</span>
+          {row.original.alternate_name && (
+            <span className="ml-1.5 text-xs italic" style={{ color: 'var(--text-tertiary)' }}>
+              ({row.original.alternate_name})
+            </span>
+          )}
+        </div>
+      ),
     }),
     columnHelper.accessor('tonnage', {
       id: 'tonnage',
@@ -162,10 +195,34 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
       header: () => <span className="tooltip-header" data-tip="Target Movement Modifier — penalty opponents take to hit this mech based on its speed">TMM</span>,
       cell: info => <span className="tabular-nums">{info.getValue() != null ? `+${info.getValue()}` : '—'}</span>,
     }),
-    columnHelper.accessor('game_damage', {
-      id: 'game_damage',
-      header: () => <span className="tooltip-header" data-tip="Expected total damage over a 12-turn game on 2 mapsheets. Simulates both mechs walking toward each other (ref opponent: 4/6 mover). Accounts for range brackets, min range penalties, 2d6 hit probability (Gunnery 4, walked, TMM +2), and heat-neutral weapon selection each turn.">Game Dmg</span>,
+    columnHelper.accessor('heat_neutral_damage', {
+      id: 'heat_neutral_damage',
+      header: () => <span className="tooltip-header" data-tip="Maximum damage output while staying heat-neutral (dissipating all heat generated). Uses optimal range band.">HN Damage</span>,
       cell: info => <span className="tabular-nums">{info.getValue() != null && info.getValue()! > 0 ? info.getValue()!.toFixed(1) : '—'}</span>,
+    }),
+    columnHelper.accessor('max_damage', {
+      id: 'alpha_damage',
+      header: () => <span className="tooltip-header" data-tip="Maximum possible damage firing all weapons simultaneously (alpha strike). Ignores heat.">Alpha Dmg</span>,
+      cell: info => <span className="tabular-nums">{info.getValue() != null && info.getValue()! > 0 ? info.getValue()!.toFixed(1) : '—'}</span>,
+    }),
+    columnHelper.accessor('heat_neutral_range', {
+      id: 'optimal_range',
+      header: () => <span className="tooltip-header" data-tip="Optimal range in hexes — where this mech deals maximum heat-neutral damage">Optimal Range</span>,
+      cell: info => {
+        const v = info.getValue()
+        return <span className="tabular-nums">{v && v !== '0' ? `${v} hex` : '—'}</span>
+      },
+      sortingFn: (a, b) => (parseInt(a.original.heat_neutral_range ?? '0') || 0) - (parseInt(b.original.heat_neutral_range ?? '0') || 0),
+    }),
+    columnHelper.accessor('combat_rating', {
+      id: 'combat_rating',
+      header: () => <span className="tooltip-header" data-tip="1-10 combat rating from 1,000 Monte Carlo simulations vs HBK-4P. Models damage spread, crits, ammo, heat, flanking, and physical attacks. 5 = HBK-4P baseline.">Combat Rating</span>,
+      cell: info => <span className="tabular-nums">{info.getValue() != null && info.getValue()! > 0 ? info.getValue()!.toFixed(1) : '—'}</span>,
+    }),
+    columnHelper.accessor('bv_efficiency', {
+      id: 'bv_efficiency',
+      header: () => <span className="tooltip-header" data-tip="Combat Rating² per 1,000 BV. Rewards mechs that are both strong AND cheap. Higher = more combat value per BV spent.">BV Efficiency</span>,
+      cell: info => <span className="tabular-nums">{info.getValue() != null ? info.getValue()!.toFixed(2) : '—'}</span>,
     }),
     columnHelper.accessor('armor_coverage_pct', {
       id: 'armor_coverage_pct',
@@ -207,7 +264,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
       header: 'Year',
       cell: info => <span className="tabular-nums">{info.getValue() ?? '—'}</span>,
     }),
-  ], [compareIds, onToggleCompare])
+  ], [compareIds, onToggleCompare, onAddToList])
 
   const table = useReactTable({
     data: mechs,
@@ -229,7 +286,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     overscan: 20,
   })
 
-  if (error) return <div className="text-red-600 dark:text-red-400 text-sm p-4">Error: {error}</div>
+  if (error) return <div className="text-red-500 text-sm p-4">Error: {error}</div>
 
   return (
     <div>
@@ -243,21 +300,24 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
       </div>
       <div
         ref={parentRef}
-        className="border border-gray-200 dark:border-gray-700 rounded overflow-auto"
-        style={{ height: 'calc(100vh - 240px)' }}
+        className="rounded overflow-auto"
+        style={{ height: 'calc(100vh - 240px)', border: '1px solid var(--border-default)' }}
       >
         {loading ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400 text-sm">Loading...</div>
+          <div className="p-8 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
         ) : (
-          <table className="w-full text-sm" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-            <thead className="sticky top-0 bg-white dark:bg-gray-900 z-10">
+          <table className="w-full text-sm" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
+            <thead className="sticky top-0 z-10" style={{ background: 'var(--bg-surface)' }}>
               {table.getHeaderGroups().map(hg => (
-                <tr key={hg.id} className="border-b-2 border-gray-200 dark:border-gray-700">
+                <tr key={hg.id} style={{ borderBottom: '1px solid var(--border-default)' }}>
                   {hg.headers.map(header => (
                     <th
                       key={header.id}
                       onClick={header.column.getToggleSortingHandler()}
-                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-gray-900 dark:hover:text-gray-100"
+                      className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide cursor-pointer select-none"
+                      style={{ color: 'var(--text-tertiary)' }}
+                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
                     >
                       {flexRender(header.column.columnDef.header, header.getContext())}
                       {{ asc: ' ↑', desc: ' ↓' }[header.column.getIsSorted() as string] ?? ''}
@@ -269,7 +329,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
             <tbody>
               {virtualizer.getVirtualItems().length === 0 && (
                 <tr>
-                  <td colSpan={columns.length} className="p-8 text-center text-gray-400 dark:text-gray-500">
+                  <td colSpan={columns.length} className="p-8 text-center" style={{ color: 'var(--text-tertiary)' }}>
                     No mechs found.
                   </td>
                 </tr>
@@ -287,14 +347,19 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
                       <tr
                         key={row.id}
                         onClick={() => onSelectMech(row.original.id)}
-                        className={`border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-colors ${
-                          isSelected
-                            ? 'bg-blue-50 dark:bg-gray-700'
+                        className="cursor-pointer transition-colors"
+                        style={{
+                          height: 36,
+                          borderBottom: '1px solid var(--border-subtle)',
+                          color: 'var(--text-primary)',
+                          background: isSelected
+                            ? 'var(--bg-elevated)'
                             : isComparing
-                            ? 'bg-blue-50/50 dark:bg-blue-900/20'
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                        }`}
-                        style={{ height: 36 }}
+                            ? 'var(--bg-surface)'
+                            : undefined,
+                        }}
+                        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'var(--bg-hover)' }}
+                        onMouseLeave={e => { if (!isSelected && !isComparing) e.currentTarget.style.background = ''; else if (isComparing) e.currentTarget.style.background = 'var(--bg-surface)' }}
                       >
                         {row.getVisibleCells().map(cell => (
                           <td key={cell.id} className="px-3 py-1.5 whitespace-nowrap">

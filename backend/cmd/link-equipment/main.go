@@ -13,55 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Structural items to skip when linking equipment
-var skipItems = map[string]bool{
-	"Shoulder": true, "Upper Arm Actuator": true, "Lower Arm Actuator": true,
-	"Hand Actuator": true, "Hip": true, "Upper Leg Actuator": true,
-	"Lower Leg Actuator": true, "Foot Actuator": true,
-	"-Empty-": true, "Engine": true, "Gyro": true,
-	"Life Support": true, "Sensors": true, "Cockpit": true,
-	"Fusion Engine": true, "Heat Sink": true,
-}
-
-// Prefixes/substrings indicating structural items
-var skipPrefixes = []string{
-	"Endo Steel", "Endo-Steel", "Ferro-Fibrous", "Ferro Fibrous",
-	"CASE", "IS Endo Steel", "IS Endo-Steel", "Clan Endo Steel",
-	"IS Ferro-Fibrous", "Clan Ferro-Fibrous", "IS Light Ferro-Fibrous",
-	"IS Heavy Ferro-Fibrous", "Reactive Armor", "Reflective Armor",
-	"IS Stealth", "Clan Stealth",
-}
-
-func shouldSkip(item string) bool {
-	if skipItems[item] {
-		return true
-	}
-	lower := strings.ToLower(item)
-	if strings.Contains(lower, "heat sink") || strings.Contains(lower, "heatsink") {
-		return true
-	}
-	if strings.Contains(lower, "jump jet") {
-		return true
-	}
-	if strings.Contains(lower, "actuator") {
-		return true
-	}
-	for _, p := range skipPrefixes {
-		if strings.EqualFold(item, p) || strings.HasPrefix(item, p) {
-			return true
-		}
-	}
-	// Ammo
-	if strings.Contains(lower, "ammo") {
-		return true
-	}
-	// MASC, TSM, etc
-	if item == "ISMASC" || item == "CLMASC" || item == "TSM" || item == "IS Endo-Composite" || item == "Clan Endo-Composite" {
-		return true
-	}
-	return false
-}
-
 var locationMap = map[string]string{
 	"Left Arm":        "LA",
 	"Right Arm":       "RA",
@@ -87,14 +38,14 @@ func main() {
 	}
 	defer pool.Close()
 
-	// Build equipment lookup: internal_name -> id, also lookup_names
-	equipMap, equipSlots := buildEquipmentMap(ctx, pool)
+	// Build equipment lookup: weapon display name -> equipment id
+	equipMap := buildEquipmentMap(ctx, pool)
 	fmt.Printf("Equipment map: %d entries\n", len(equipMap))
 
 	// Clear existing links
 	pool.Exec(ctx, "DELETE FROM variant_equipment")
 
-	// Get all variants with their names for matching
+	// Get all variants
 	type variantInfo struct {
 		ID    int
 		Name  string
@@ -106,7 +57,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Query variants: %v", err)
 	}
-	variantMap := map[string]int{} // "Chassis Model" -> id
+	variantMap := map[string]int{}
 	for rows.Next() {
 		var vi variantInfo
 		rows.Scan(&vi.ID, &vi.Name, &vi.Model)
@@ -119,10 +70,11 @@ func main() {
 	rows.Close()
 	fmt.Printf("Variants in DB: %d\n", len(variantMap))
 
-	// Walk MTF files
+	// Walk MTF files and use the Weapons: section as source of truth
 	linked := 0
 	skippedVariants := 0
 	totalEquipLinks := 0
+	unmatchedWeapons := map[string]int{}
 
 	filepath.Walk(mtfDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() || !strings.HasSuffix(path, ".mtf") {
@@ -140,93 +92,62 @@ func main() {
 			return nil
 		}
 
-		// Process location equipment
-		for locName, items := range data.LocationEquipment {
-			locCode, ok := locationMap[locName]
+		// Count weapons by (name, location) from the Weapons: section
+		type weaponKey struct {
+			name string
+			loc  string
+		}
+		counts := map[weaponKey]int{}
+		for _, w := range data.Weapons {
+			locCode, ok := locationMap[w.Location]
 			if !ok {
 				continue
 			}
+			name := w.Name
+			// Strip leading quantity number: "1 ISMediumLaser" -> "ISMediumLaser"
+			// Some entries have "N WeaponName" format where N is a digit
+			if len(name) > 2 && name[0] >= '0' && name[0] <= '9' && name[1] == ' ' {
+				name = name[2:]
+			} else if len(name) > 3 && name[0] >= '0' && name[0] <= '9' && name[1] >= '0' && name[1] <= '9' && name[2] == ' ' {
+				name = name[3:]
+			}
+			counts[weaponKey{name, locCode}]++
+		}
 
-			// Count weapons per location, accounting for multi-slot items
-			// Multi-slot weapons appear N consecutive times in slots (e.g. AC/20 = 10 slots)
-			// We need to count: every N consecutive identical entries = 1 weapon
-			weaponCounts := map[string]int{}
-			prevItem := ""
-			consecutiveCount := 0
-
+		// Detect targeting computer from crit slots
+		hasTC := false
+		for _, items := range data.LocationEquipment {
 			for _, item := range items {
-				if shouldSkip(item) {
-					// Flush any pending weapon
-					if prevItem != "" && consecutiveCount > 0 {
-						sl := equipSlots[prevItem]
-						if sl <= 0 {
-							sl = 1
-						}
-						weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
-					}
-					prevItem = ""
-					consecutiveCount = 0
-					continue
+				lower := strings.ToLower(item)
+				if strings.Contains(lower, "targeting computer") || strings.Contains(lower, "targetingcomputer") {
+					hasTC = true
+					break
 				}
-				// Strip suffixes: rear-mount (R), omnipod, etc.
-				cleanItem := item
-				cleanItem = strings.TrimSuffix(cleanItem, " (R)")
-				cleanItem = strings.TrimSuffix(cleanItem, "(R)")
-				cleanItem = strings.TrimSuffix(cleanItem, " (omnipod)")
-				cleanItem = strings.TrimSuffix(cleanItem, " (OMNIPOD)")
-				cleanItem = strings.TrimSuffix(cleanItem, " (fixed)")
-				cleanItem = strings.TrimSuffix(cleanItem, " (Fixed)")
-				if _, ok := equipMap[cleanItem]; !ok {
-					// Unrecognized item — flush pending
-					if prevItem != "" && consecutiveCount > 0 {
-						sl := equipSlots[prevItem]
-						if sl <= 0 {
-							sl = 1
-						}
-						weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
-					}
-					prevItem = ""
-					consecutiveCount = 0
-					continue
-				}
+			}
+			if hasTC {
+				break
+			}
+		}
+		if hasTC {
+			pool.Exec(ctx, `UPDATE variant_stats SET has_targeting_computer = TRUE WHERE variant_id = $1`, variantID)
+		}
 
-				if cleanItem == prevItem {
-					consecutiveCount++
-				} else {
-					// New weapon type — flush previous
-					if prevItem != "" && consecutiveCount > 0 {
-						sl := equipSlots[prevItem]
-						if sl <= 0 {
-							sl = 1
-						}
-						weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
-					}
-					prevItem = cleanItem
-					consecutiveCount = 1
-				}
+		for wk, qty := range counts {
+			equipID, ok := equipMap[wk.name]
+			if !ok {
+				unmatchedWeapons[wk.name]++
+				continue
 			}
-			// Flush last weapon
-			if prevItem != "" && consecutiveCount > 0 {
-				sl := equipSlots[prevItem]
-				if sl <= 0 {
-					sl = 1
-				}
-				weaponCounts[prevItem] += (consecutiveCount + sl - 1) / sl
+			_, err := pool.Exec(ctx, `
+				INSERT INTO variant_equipment (variant_id, equipment_id, location, quantity)
+				VALUES ($1, $2, $3, $4)
+				ON CONFLICT (variant_id, equipment_id, location) DO UPDATE SET quantity = GREATEST(variant_equipment.quantity, $4)`,
+				variantID, equipID, wk.loc, qty)
+			if err != nil {
+				log.Printf("Link %s %s@%s: %v", data.FullName(), wk.name, wk.loc, err)
+				continue
 			}
-
-			for itemName, qty := range weaponCounts {
-				equipID := equipMap[itemName]
-				_, err := pool.Exec(ctx, `
-					INSERT INTO variant_equipment (variant_id, equipment_id, location, quantity)
-					VALUES ($1, $2, $3, $4)
-					ON CONFLICT (variant_id, equipment_id, location) DO UPDATE SET quantity = GREATEST(variant_equipment.quantity, $4)`,
-					variantID, equipID, locCode, qty)
-				if err != nil {
-					log.Printf("Link %s %s: %v", data.FullName(), itemName, err)
-					continue
-				}
-				totalEquipLinks++
-			}
+			totalEquipLinks++
 		}
 		linked++
 		return nil
@@ -234,51 +155,64 @@ func main() {
 
 	fmt.Printf("Linked equipment for %d variants (%d links total, %d variants not found in DB)\n",
 		linked, totalEquipLinks, skippedVariants)
+
+	if len(unmatchedWeapons) > 0 {
+		fmt.Printf("\nUnmatched weapons (%d unique):\n", len(unmatchedWeapons))
+		// Sort by count descending
+		type kv struct {
+			name  string
+			count int
+		}
+		var sorted []kv
+		for k, v := range unmatchedWeapons {
+			sorted = append(sorted, kv{k, v})
+		}
+		for i := 0; i < len(sorted); i++ {
+			for j := i + 1; j < len(sorted); j++ {
+				if sorted[j].count > sorted[i].count {
+					sorted[i], sorted[j] = sorted[j], sorted[i]
+				}
+			}
+		}
+		for _, s := range sorted {
+			if s.count >= 3 {
+				fmt.Printf("  %4d  %s\n", s.count, s.name)
+			}
+		}
+	}
 }
 
-func buildEquipmentMap(ctx context.Context, pool *pgxpool.Pool) (map[string]int, map[string]int) {
+func buildEquipmentMap(ctx context.Context, pool *pgxpool.Pool) map[string]int {
 	m := map[string]int{}
-	slots := map[string]int{}
 
-	// Primary: internal_name and display name from equipment table
-	rows, err := pool.Query(ctx, "SELECT id, internal_name, name, COALESCE(slots,1) FROM equipment WHERE internal_name IS NOT NULL")
+	// Primary: display name from equipment table
+	rows, err := pool.Query(ctx, "SELECT id, name FROM equipment")
 	if err != nil {
 		log.Fatalf("Query equipment: %v", err)
 	}
 	for rows.Next() {
-		var id, sl int
-		var internalName, name string
-		rows.Scan(&id, &internalName, &name, &sl)
-		m[internalName] = id
-		slots[internalName] = sl
-		if name != "" {
-			if _, exists := m[name]; !exists {
-				m[name] = id
-				slots[name] = sl
-			}
-		}
+		var id int
+		var name string
+		rows.Scan(&id, &name)
+		m[name] = id
 	}
 	rows.Close()
 
 	// All lookup names from equipment_lookup table
 	rows2, err := pool.Query(ctx, "SELECT equipment_id, lookup_name FROM equipment_lookup")
 	if err != nil {
-		log.Printf("Warning: equipment_lookup table not found, skipping lookups")
-	} else {
-		for rows2.Next() {
-			var id int
-			var ln string
-			rows2.Scan(&id, &ln)
-			if _, exists := m[ln]; !exists {
-				m[ln] = id
-				// Get slots for this equipment
-				var sl int
-				pool.QueryRow(ctx, "SELECT COALESCE(slots,1) FROM equipment WHERE id=$1", id).Scan(&sl)
-				slots[ln] = sl
-			}
-		}
-		rows2.Close()
+		log.Printf("Warning: equipment_lookup table not found")
+		return m
 	}
+	for rows2.Next() {
+		var id int
+		var ln string
+		rows2.Scan(&id, &ln)
+		if _, exists := m[ln]; !exists {
+			m[ln] = id
+		}
+	}
+	rows2.Close()
 
-	return m, slots
+	return m
 }

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLIC Combat Replay Viewer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Courier New', monospace; background: #1a1a2e; color: #e0e0e0; display: flex; height: 100vh; }
+#sidebar { width: 400px; background: #16213e; padding: 16px; overflow-y: auto; border-right: 2px solid #0f3460; }
+#map-container { flex: 1; overflow: auto; position: relative; }
+canvas { display: block; }
+h1 { font-size: 18px; color: #e94560; margin-bottom: 8px; }
+h2 { font-size: 14px; color: #0f3460; background: #e94560; padding: 4px 8px; margin: 12px 0 6px; }
+.controls { display: flex; gap: 8px; margin: 12px 0; align-items: center; }
+.controls button { background: #0f3460; color: #e0e0e0; border: 1px solid #e94560; padding: 6px 14px; cursor: pointer; font-family: inherit; }
+.controls button:hover { background: #e94560; }
+.controls span { font-size: 14px; }
+#turn-slider { flex: 1; }
+.mech-panel { background: #0a1128; padding: 8px; margin: 4px 0; border: 1px solid #333; border-radius: 4px; }
+.mech-panel.attacker { border-color: #4aa3df; }
+.mech-panel.defender { border-color: #e94560; }
+.mech-name { font-weight: bold; font-size: 13px; }
+.mech-name.attacker { color: #4aa3df; }
+.mech-name.defender { color: #e94560; }
+.stat-row { font-size: 11px; margin: 2px 0; }
+.stat-label { color: #888; }
+.loc-bar { display: inline-block; height: 8px; margin: 1px 0; }
+.loc-armor { background: #4aa3df; }
+.loc-is { background: #e94560; }
+.loc-empty { background: #333; }
+.event { font-size: 11px; padding: 2px 4px; margin: 1px 0; border-left: 3px solid #333; }
+.event.fire { border-color: #ff6b35; }
+.event.move { border-color: #4aa3df; }
+.event.psr { border-color: #ffd700; }
+.event.heat { border-color: #ff4444; }
+.event.destroyed { border-color: #e94560; background: #3a0a0a; }
+.event.info { border-color: #666; color: #999; }
+.event.physical { border-color: #00cc66; }
+.event.fall { border-color: #ffa500; }
+#file-input { margin: 8px 0; }
+.legend { font-size: 10px; margin-top: 8px; }
+.legend span { margin-right: 8px; }
+.legend .swatch { display: inline-block; width: 10px; height: 10px; margin-right: 2px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <h1>⚡ SLIC Combat Replay</h1>
+  <div>
+    <label>Load replay: </label>
+    <input type="file" id="file-input" accept=".json" multiple>
+  </div>
+  <div>
+    <label>Select replay: </label>
+    <select id="replay-select" style="width:100%;margin:4px 0;background:#0a1128;color:#e0e0e0;border:1px solid #333;padding:4px;"></select>
+  </div>
+  <div class="controls">
+    <button id="btn-prev">◀</button>
+    <button id="btn-play">▶ Play</button>
+    <button id="btn-next">▶</button>
+    <span id="turn-label">Turn 0/0</span>
+  </div>
+  <input type="range" id="turn-slider" min="0" max="0" value="0" style="width:100%;">
+  
+  <div id="mech-attacker" class="mech-panel attacker"></div>
+  <div id="mech-defender" class="mech-panel defender"></div>
+  
+  <h2>EVENTS</h2>
+  <div id="events"></div>
+  
+  <div class="legend">
+    <span><span class="swatch" style="background:#2d5016;"></span>Woods</span>
+    <span><span class="swatch" style="background:#0a3d62;"></span>Water</span>
+    <span><span class="swatch" style="background:#8b7355;"></span>Rough</span>
+    <span><span class="swatch" style="background:#555;"></span>Building</span>
+    <span><span class="swatch" style="background:#4aa3df;"></span>Attacker</span>
+    <span><span class="swatch" style="background:#e94560;"></span>Defender</span>
+  </div>
+</div>
+<div id="map-container">
+  <canvas id="canvas"></canvas>
+</div>
+
+<script>
+const HEX_SIZE = 28;
+const SQRT3 = Math.sqrt(3);
+const locNames = ['HD','CT','LT','RT','LA','RA','LL','RL'];
+
+let replays = [];
+let currentReplay = null;
+let currentTurn = 0;
+let playInterval = null;
+
+// Hex math (odd-q offset, 1-indexed like MegaMek)
+function hexToPixel(col, row) {
+  const c = col - 1;
+  const r = row - 1;
+  const x = c * HEX_SIZE * 1.5 + HEX_SIZE + 40;
+  const y = r * HEX_SIZE * SQRT3 + (c % 2 === 1 ? HEX_SIZE * SQRT3 / 2 : 0) + HEX_SIZE + 20;
+  return { x, y };
+}
+
+function drawHex(ctx, cx, cy, size, fill, stroke) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI / 180 * (60 * i - 30);
+    const x = cx + size * Math.cos(angle);
+    const y = cy + size * Math.sin(angle);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  ctx.strokeStyle = stroke || '#333';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+}
+
+function terrainColor(hex) {
+  if (!hex.terrain) return '#1a2a1a';
+  if (hex.terrain.includes('heavy_woods')) return '#1a3a0a';
+  if (hex.terrain.includes('light_woods')) return '#2d5016';
+  if (hex.terrain.includes('water')) return '#0a3d62';
+  if (hex.terrain.includes('building')) return '#555';
+  if (hex.terrain.includes('rough')) return '#8b7355';
+  if (hex.terrain.includes('pavement') || hex.terrain.includes('road')) return '#444';
+  return '#1a2a1a';
+}
+
+function elevColor(elev) {
+  if (elev <= 0) return null;
+  const v = Math.min(elev * 15, 60);
+  return `rgb(${30+v},${40+v},${20+v})`;
+}
+
+function drawMech(ctx, col, row, facing, twist, color, name, isDestroyed) {
+  const { x, y } = hexToPixel(col, row);
+  
+  // Draw mech circle
+  ctx.beginPath();
+  ctx.arc(x, y, HEX_SIZE * 0.45, 0, Math.PI * 2);
+  ctx.fillStyle = isDestroyed ? '#444' : color;
+  ctx.globalAlpha = isDestroyed ? 0.4 : 0.8;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  // Draw facing arrow
+  const effFacing = ((facing + twist) % 6 + 6) % 6;
+  const fAngle = Math.PI / 180 * (60 * effFacing - 90);
+  const ax = x + HEX_SIZE * 0.4 * Math.cos(fAngle);
+  const ay = y + HEX_SIZE * 0.4 * Math.sin(fAngle);
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(ax, ay);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  
+  // Draw facing direction indicator (small triangle)
+  if (twist !== 0) {
+    const bAngle = Math.PI / 180 * (60 * facing - 90);
+    const bx = x + HEX_SIZE * 0.35 * Math.cos(bAngle);
+    const by = y + HEX_SIZE * 0.35 * Math.sin(bAngle);
+    ctx.beginPath();
+    ctx.arc(bx, by, 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#888';
+    ctx.fill();
+  }
+  
+  // Name label
+  ctx.fillStyle = '#fff';
+  ctx.font = '9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(name.split(' ')[0], x, y + HEX_SIZE * 0.75);
+}
+
+function drawBoard() {
+  if (!currentReplay) return;
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  const w = currentReplay.boardWidth;
+  const h = currentReplay.boardHeight;
+  canvas.width = w * HEX_SIZE * 1.5 + HEX_SIZE * 2 + 80;
+  canvas.height = h * HEX_SIZE * SQRT3 + HEX_SIZE * 2 + 40;
+  
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw hexes
+  const hexMap = {};
+  for (const hex of currentReplay.hexes) {
+    hexMap[`${hex.col},${hex.row}`] = hex;
+  }
+  
+  for (let c = 1; c <= w; c++) {
+    for (let r = 1; r <= h; r++) {
+      const { x, y } = hexToPixel(c, r);
+      const hex = hexMap[`${c},${r}`];
+      let fill = '#1a2a1a';
+      if (hex) {
+        fill = terrainColor(hex);
+        const ec = elevColor(hex.elevation);
+        if (ec) fill = ec;
+      }
+      drawHex(ctx, x, y, HEX_SIZE, fill, '#2a3a2a');
+      
+      // Elevation label
+      if (hex && hex.elevation !== 0) {
+        ctx.fillStyle = '#666';
+        ctx.font = '8px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(hex.elevation, x, y - HEX_SIZE * 0.4);
+      }
+      
+      // Coord label
+      ctx.fillStyle = '#333';
+      ctx.font = '7px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${c},${r}`, x, y + 3);
+    }
+  }
+  
+  // Draw mechs
+  if (currentTurn >= 0 && currentTurn < currentReplay.turns.length) {
+    const turn = currentReplay.turns[currentTurn];
+    const atk = turn.attacker;
+    const def = turn.defender;
+    
+    drawMech(ctx, def.col, def.row, def.facing, def.twist, '#e94560', def.name, def.destroyed);
+    drawMech(ctx, atk.col, atk.row, atk.facing, atk.twist, '#4aa3df', atk.name, atk.destroyed);
+    
+    // Draw LOS line
+    const ap = hexToPixel(atk.col, atk.row);
+    const dp = hexToPixel(def.col, def.row);
+    ctx.beginPath();
+    ctx.moveTo(ap.x, ap.y);
+    ctx.lineTo(dp.x, dp.y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function renderMechPanel(id, mech, color) {
+  const el = document.getElementById(id);
+  const maxArmor = Math.max(...mech.armor, 1);
+  
+  let armorBars = '';
+  for (let i = 0; i < 8; i++) {
+    const maxIS = mech.maxIS[i] || 1;
+    const aPct = (mech.armor[i] / (maxArmor * 1.2)) * 100;
+    const iPct = (mech.is[i] / maxIS) * 100;
+    let rearStr = '';
+    if (i >= 1 && i <= 3) {
+      rearStr = ` R:${mech.rearArmor[i-1]}`;
+    }
+    armorBars += `<div class="stat-row">${locNames[i].padEnd(3)} A:${String(mech.armor[i]).padStart(3)}${rearStr} IS:${mech.is[i]}/${maxIS}</div>`;
+  }
+  
+  const statusFlags = [];
+  if (mech.prone) statusFlags.push('PRONE');
+  if (mech.shutdown) statusFlags.push('SHUTDOWN');
+  if (mech.destroyed) statusFlags.push('DESTROYED');
+  if (mech.forcedWithdrawal) statusFlags.push('FORCED WD');
+  if (mech.engineHits) statusFlags.push(`ENG×${mech.engineHits}`);
+  if (mech.gyroHits) statusFlags.push(`GYRO×${mech.gyroHits}`);
+  if (mech.pilotDmg) statusFlags.push(`PILOT:${mech.pilotDmg}`);
+  
+  el.innerHTML = `
+    <div class="mech-name ${id.includes('attacker') ? 'attacker' : 'defender'}">${mech.name} ${statusFlags.length ? '— ' + statusFlags.join(' ') : ''}</div>
+    <div class="stat-row"><span class="stat-label">Move:</span> ${mech.walkMP}/${mech.runMP}/${mech.jumpMP} (${mech.moveMode}, ${mech.hexesMoved} hex)</div>
+    <div class="stat-row"><span class="stat-label">Heat:</span> ${'█'.repeat(Math.min(mech.heat, 30))}${'░'.repeat(Math.max(30 - mech.heat, 0))} ${mech.heat}</div>
+    <div style="font-size:10px;margin-top:4px;">${armorBars}</div>
+  `;
+}
+
+function renderEvents(events) {
+  const el = document.getElementById('events');
+  el.innerHTML = events.map(e => 
+    `<div class="event ${e.type}"><b>${e.actor}:</b> ${e.message}${e.detail ? ' <span style="color:#666">(' + e.detail + ')</span>' : ''}</div>`
+  ).join('');
+}
+
+function updateDisplay() {
+  if (!currentReplay || currentReplay.turns.length === 0) return;
+  const turn = currentReplay.turns[currentTurn];
+  
+  document.getElementById('turn-label').textContent = `Turn ${turn.turn}/${currentReplay.turns.length}`;
+  document.getElementById('turn-slider').value = currentTurn;
+  
+  renderMechPanel('mech-attacker', turn.attacker);
+  renderMechPanel('mech-defender', turn.defender);
+  renderEvents(turn.events);
+  drawBoard();
+}
+
+function loadReplay(data) {
+  replays.push(data);
+  const select = document.getElementById('replay-select');
+  const opt = document.createElement('option');
+  opt.value = replays.length - 1;
+  opt.textContent = `${data.attackerName} vs ${data.defenderName} (${data.turns.length}t, ${data.result})`;
+  select.appendChild(opt);
+  select.value = replays.length - 1;
+  selectReplay(replays.length - 1);
+}
+
+function selectReplay(idx) {
+  currentReplay = replays[idx];
+  currentTurn = 0;
+  const slider = document.getElementById('turn-slider');
+  slider.max = currentReplay.turns.length - 1;
+  slider.value = 0;
+  updateDisplay();
+}
+
+// Controls
+document.getElementById('btn-prev').onclick = () => {
+  if (currentTurn > 0) { currentTurn--; updateDisplay(); }
+};
+document.getElementById('btn-next').onclick = () => {
+  if (currentReplay && currentTurn < currentReplay.turns.length - 1) { currentTurn++; updateDisplay(); }
+};
+document.getElementById('btn-play').onclick = () => {
+  if (playInterval) { clearInterval(playInterval); playInterval = null; document.getElementById('btn-play').textContent = '▶ Play'; return; }
+  document.getElementById('btn-play').textContent = '⏸ Pause';
+  playInterval = setInterval(() => {
+    if (currentReplay && currentTurn < currentReplay.turns.length - 1) { currentTurn++; updateDisplay(); }
+    else { clearInterval(playInterval); playInterval = null; document.getElementById('btn-play').textContent = '▶ Play'; }
+  }, 1000);
+};
+document.getElementById('turn-slider').oninput = (e) => {
+  currentTurn = parseInt(e.target.value);
+  updateDisplay();
+};
+document.getElementById('replay-select').onchange = (e) => {
+  selectReplay(parseInt(e.target.value));
+};
+document.getElementById('file-input').onchange = (e) => {
+  for (const file of e.target.files) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try { loadReplay(JSON.parse(ev.target.result)); }
+      catch(err) { alert('Invalid JSON: ' + err.message); }
+    };
+    reader.readAsText(file);
+  }
+};
+
+// Keyboard
+document.onkeydown = (e) => {
+  if (e.key === 'ArrowLeft') { document.getElementById('btn-prev').click(); }
+  if (e.key === 'ArrowRight') { document.getElementById('btn-next').click(); }
+  if (e.key === ' ') { e.preventDefault(); document.getElementById('btn-play').click(); }
+};
+</script>
+</body>
+</html>

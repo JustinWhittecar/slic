@@ -16,6 +16,18 @@ const ERAS = [
   'Clan Invasion', 'Civil War', 'Jihad', 'Dark Age', 'ilClan',
 ]
 
+const ENGINE_TYPES = ['Fusion', 'XL', 'XXL', 'Light', 'Compact', 'Primitive', 'ICE', 'Fuel Cell', 'Fission'] as const
+const DEFAULT_ENGINES = ['Fusion', 'XL', 'XXL']
+const HEAT_SINK_TYPES = ['All', 'Single', 'Double'] as const
+
+const FILTER_KEYS: (keyof MechFilters)[] = [
+  'name', 'tonnage_min', 'tonnage_max', 'era', 'tech_base', 'role',
+  'bv_min', 'bv_max', 'tmm_min', 'armor_pct_min', 'heat_neutral_min', 'max_damage_min',
+  'game_damage_min', 'combat_rating_min', 'combat_rating_max',
+  'intro_year_min', 'intro_year_max', 'walk_mp_min', 'jump_mp_min',
+  'engine_types', 'heat_sink_type',
+]
+
 interface FilterBarProps {
   filters: MechFilters
   onFiltersChange: (filters: MechFilters) => void
@@ -25,10 +37,45 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   const [expanded, setExpanded] = useState(false)
   const [searchText, setSearchText] = useState(filters.name ?? '')
   const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+  const initialized = useRef(false)
 
   const activeWeight = WEIGHT_CLASSES.find(
     w => w.min === filters.tonnage_min && w.max === filters.tonnage_max
   )?.label ?? 'All'
+
+  const activeFilterCount = FILTER_KEYS.filter(k => {
+    if (k === 'name') return false
+    if (k === 'engine_types') {
+      const et = filters.engine_types
+      // Don't count as "active" if it's the default set
+      if (!et || et.length === 0) return false
+      if (et.length === DEFAULT_ENGINES.length && DEFAULT_ENGINES.every(e => et.includes(e))) return false
+      return true
+    }
+    return filters[k] !== undefined
+  }).length
+
+  const selectedEngines = filters.engine_types ?? DEFAULT_ENGINES
+
+  const toggleEngine = (eng: string) => {
+    const current = [...selectedEngines]
+    const idx = current.indexOf(eng)
+    if (idx >= 0) {
+      current.splice(idx, 1)
+    } else {
+      current.push(eng)
+    }
+    onFiltersChange({ ...filters, engine_types: current.length > 0 ? current : undefined })
+  }
+
+  const allEnginesSelected = selectedEngines.length === ENGINE_TYPES.length
+  const toggleAllEngines = () => {
+    if (allEnginesSelected) {
+      onFiltersChange({ ...filters, engine_types: DEFAULT_ENGINES })
+    } else {
+      onFiltersChange({ ...filters, engine_types: [...ENGINE_TYPES] })
+    }
+  }
 
   const handleSearch = useCallback((value: string) => {
     setSearchText(value)
@@ -42,58 +89,116 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
     return () => clearTimeout(debounceRef.current)
   }, [])
 
+  // Load from URL on mount, apply defaults
   useEffect(() => {
+    if (initialized.current) return
+    initialized.current = true
     const params = new URLSearchParams(window.location.search)
     const f: MechFilters = {}
-    if (params.get('name')) f.name = params.get('name')!
-    if (params.get('tonnage_min')) f.tonnage_min = Number(params.get('tonnage_min'))
-    if (params.get('tonnage_max')) f.tonnage_max = Number(params.get('tonnage_max'))
-    if (params.get('era')) f.era = params.get('era')!
-    if (params.get('tech_base')) f.tech_base = params.get('tech_base')!
-    if (params.get('bv_min')) f.bv_min = Number(params.get('bv_min'))
-    if (params.get('bv_max')) f.bv_max = Number(params.get('bv_max'))
-    if (params.get('tmm_min')) f.tmm_min = Number(params.get('tmm_min'))
-    if (params.get('armor_pct_min')) f.armor_pct_min = Number(params.get('armor_pct_min'))
-    if (params.get('heat_neutral_min')) f.heat_neutral_min = Number(params.get('heat_neutral_min'))
-    if (Object.keys(f).length > 0) {
-      setSearchText(f.name ?? '')
-      onFiltersChange(f)
+    const numKeys: (keyof MechFilters)[] = [
+      'tonnage_min', 'tonnage_max', 'bv_min', 'bv_max', 'tmm_min',
+      'armor_pct_min', 'heat_neutral_min', 'max_damage_min',
+      'game_damage_min', 'combat_rating_min', 'combat_rating_max',
+      'intro_year_min', 'intro_year_max', 'walk_mp_min', 'jump_mp_min',
+    ]
+    const strKeys: (keyof MechFilters)[] = ['name', 'era', 'tech_base', 'role', 'heat_sink_type']
+    for (const k of numKeys) {
+      const v = params.get(k)
+      if (v) (f as any)[k] = Number(v)
     }
+    for (const k of strKeys) {
+      const v = params.get(k)
+      if (v) (f as any)[k] = v
+    }
+    // Engine types from URL or default
+    const et = params.get('engine_types')
+    if (et) {
+      f.engine_types = et.split(',').map(s => s.trim()).filter(Boolean)
+    } else {
+      f.engine_types = DEFAULT_ENGINES
+    }
+    setSearchText(f.name ?? '')
+    onFiltersChange(f)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Sync to URL
   useEffect(() => {
     const params = new URLSearchParams()
-    if (filters.name) params.set('name', filters.name)
-    if (filters.tonnage_min) params.set('tonnage_min', String(filters.tonnage_min))
-    if (filters.tonnage_max) params.set('tonnage_max', String(filters.tonnage_max))
-    if (filters.era) params.set('era', filters.era)
-    if (filters.tech_base) params.set('tech_base', filters.tech_base)
-    if (filters.bv_min) params.set('bv_min', String(filters.bv_min))
-    if (filters.bv_max) params.set('bv_max', String(filters.bv_max))
-    if (filters.tmm_min) params.set('tmm_min', String(filters.tmm_min))
-    if (filters.armor_pct_min) params.set('armor_pct_min', String(filters.armor_pct_min))
-    if (filters.heat_neutral_min) params.set('heat_neutral_min', String(filters.heat_neutral_min))
+    for (const k of FILTER_KEYS) {
+      const v = filters[k]
+      if (v === undefined || v === '') continue
+      if (Array.isArray(v)) {
+        if (v.length > 0) params.set(k, v.join(','))
+      } else {
+        params.set(k, String(v))
+      }
+    }
     const search = params.toString()
     const newUrl = search ? `?${search}` : window.location.pathname
     window.history.replaceState(null, '', newUrl)
   }, [filters])
 
-  const numInput = (label: string, key: keyof MechFilters, placeholder: string) => (
+  const numInput = (label: string, key: keyof MechFilters, placeholder: string, width = 'w-24') => (
     <div>
-      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</div>
+      <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>{label}</div>
       <input
         type="number"
         placeholder={placeholder}
-        value={filters[key] ?? ''}
+        value={(filters[key] as number) ?? ''}
         onChange={e => {
           const val = e.target.value ? Number(e.target.value) : undefined
           onFiltersChange({ ...filters, [key]: val })
         }}
-        className="w-24 px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 tabular-nums"
+        className={`${width} px-2 py-1 text-xs rounded tabular-nums outline-none`}
+        style={{
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-default)',
+          color: 'var(--text-primary)',
+        }}
       />
     </div>
   )
+
+  const pillButton = (label: string, isActive: boolean, onClick: () => void) => (
+    <button
+      onClick={onClick}
+      className="px-2 py-1 text-xs rounded cursor-pointer transition-colors"
+      style={{
+        background: isActive ? 'var(--accent)' : 'transparent',
+        color: isActive ? '#ffffff' : 'var(--text-secondary)',
+        border: isActive ? '1px solid var(--accent)' : '1px solid var(--border-default)',
+      }}
+    >
+      {label}
+    </button>
+  )
+
+  const selectInput = (label: string, key: keyof MechFilters, options: readonly string[]) => (
+    <div>
+      <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>{label}</div>
+      <select
+        value={filters[key] as string ?? ''}
+        onChange={e => onFiltersChange({ ...filters, [key]: e.target.value || undefined })}
+        className="px-2 py-1 text-xs rounded"
+        style={{
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-default)',
+          color: 'var(--text-primary)',
+        }}
+      >
+        <option value="">All</option>
+        {options.filter(o => o !== 'All').map(o => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
+    </div>
+  )
+
+  const clearFilters = () => {
+    setSearchText('')
+    onFiltersChange({ engine_types: DEFAULT_ENGINES })
+  }
 
   return (
     <div className="mb-4 space-y-3">
@@ -103,85 +208,115 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
           value={searchText}
           onChange={e => handleSearch(e.target.value)}
           placeholder="Search mechs..."
-          className="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm outline-none focus:border-gray-400 dark:focus:border-gray-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+          className="flex-1 px-3 py-2 rounded text-sm outline-none"
+          style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-default)',
+            color: 'var(--text-primary)',
+          }}
         />
         <button
           onClick={() => setExpanded(!expanded)}
-          className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+          className="px-3 py-2 rounded text-sm cursor-pointer"
+          style={{
+            border: '1px solid var(--border-default)',
+            color: activeFilterCount > 0 ? 'var(--accent)' : 'var(--text-secondary)',
+            background: 'var(--bg-surface)',
+          }}
         >
-          Filters {expanded ? '▲' : '▼'}
+          Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''} {expanded ? '▲' : '▼'}
         </button>
       </div>
 
       {expanded && (
-        <div className="flex flex-wrap gap-4 items-start p-3 border border-gray-200 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800">
-          {/* Weight Class */}
+        <div className="p-3 rounded space-y-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
+          {/* Row 1: Weight, Tech Base */}
+          <div className="flex flex-wrap gap-4 items-start">
+            <div>
+              <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Weight Class</div>
+              <div className="flex gap-1">
+                {WEIGHT_CLASSES.map(w => {
+                  const isActive = activeWeight === w.label
+                  return pillButton(w.label, isActive, () => onFiltersChange({ ...filters, tonnage_min: w.min, tonnage_max: w.max }))
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Tech Base</div>
+              <div className="flex gap-1">
+                {TECH_BASES.map(tb => {
+                  const filterVal = tb === 'All' ? undefined : tb
+                  const isActive = filters.tech_base === filterVal || (tb === 'All' && !filters.tech_base)
+                  return pillButton(tb, isActive, () => onFiltersChange({ ...filters, tech_base: filterVal }))
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Era</div>
+              <select
+                value={filters.era ?? ''}
+                onChange={e => onFiltersChange({ ...filters, era: e.target.value || undefined })}
+                className="px-2 py-1 text-xs rounded"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-default)',
+                  color: 'var(--text-primary)',
+                }}
+              >
+                <option value="">All Eras</option>
+                {ERAS.map(era => (
+                  <option key={era} value={era}>{era}</option>
+                ))}
+              </select>
+            </div>
+
+            {selectInput('Heat Sinks', 'heat_sink_type', HEAT_SINK_TYPES)}
+          </div>
+
+          {/* Row 2: Engine types multi-select */}
           <div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Weight Class</div>
-            <div className="flex gap-1">
-              {WEIGHT_CLASSES.map(w => (
+            <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Engine Type</div>
+            <div className="flex gap-1 flex-wrap">
+              {pillButton('All', allEnginesSelected, toggleAllEngines)}
+              {ENGINE_TYPES.map(eng =>
+                pillButton(eng, selectedEngines.includes(eng), () => toggleEngine(eng))
+              )}
+            </div>
+          </div>
+
+          {/* Row 3: Numeric range filters */}
+          <div className="flex flex-wrap gap-4 items-start">
+            {numInput('BV Min', 'bv_min', '1000')}
+            {numInput('BV Max', 'bv_max', '2000')}
+            {numInput('Year Min', 'intro_year_min', '2750')}
+            {numInput('Year Max', 'intro_year_max', '3150')}
+            {numInput('TMM ≥', 'tmm_min', '2')}
+            {numInput('Walk MP ≥', 'walk_mp_min', '4')}
+            {numInput('Jump MP ≥', 'jump_mp_min', '3')}
+          </div>
+
+          {/* Row 4: Damage & rating filters */}
+          <div className="flex flex-wrap gap-4 items-start">
+            {numInput('HN Dmg ≥', 'heat_neutral_min', '20')}
+            {numInput('Alpha Dmg ≥', 'max_damage_min', '40')}
+            {numInput('Armor % ≥', 'armor_pct_min', '80')}
+            {numInput('Combat Rtg ≥', 'combat_rating_min', '5')}
+            {numInput('Combat Rtg ≤', 'combat_rating_max', '10')}
+
+            {activeFilterCount > 0 && (
+              <div className="flex items-end">
                 <button
-                  key={w.label}
-                  onClick={() => onFiltersChange({ ...filters, tonnage_min: w.min, tonnage_max: w.max })}
-                  className={`px-2 py-1 text-xs rounded border cursor-pointer ${
-                    activeWeight === w.label
-                      ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100'
-                      : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
+                  onClick={clearFilters}
+                  className="px-2 py-1 text-xs rounded cursor-pointer"
+                  style={{ color: 'var(--text-tertiary)', border: '1px solid var(--border-default)' }}
                 >
-                  {w.label}
+                  Clear All
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-
-          {/* Tech Base */}
-          <div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Tech Base</div>
-            <div className="flex gap-1">
-              {TECH_BASES.map(tb => {
-                const filterVal = tb === 'All' ? undefined : tb
-                const isActive = filters.tech_base === filterVal
-                  || (tb === 'All' && !filters.tech_base)
-                return (
-                  <button
-                    key={tb}
-                    onClick={() => onFiltersChange({ ...filters, tech_base: filterVal })}
-                    className={`px-2 py-1 text-xs rounded border cursor-pointer ${
-                      isActive
-                        ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-900 dark:border-gray-100'
-                        : 'border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    {tb}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Era */}
-          <div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Era</div>
-            <select
-              value={filters.era ?? ''}
-              onChange={e => onFiltersChange({ ...filters, era: e.target.value || undefined })}
-              className="px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            >
-              <option value="">All Eras</option>
-              {ERAS.map(era => (
-                <option key={era} value={era}>{era}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Stat Filters */}
-          {numInput('BV Min', 'bv_min', 'e.g. 1000')}
-          {numInput('BV Max', 'bv_max', 'e.g. 2000')}
-          {numInput('TMM ≥', 'tmm_min', 'e.g. 2')}
-          {numInput('Armor % ≥', 'armor_pct_min', 'e.g. 80')}
-          {numInput('Heat Neutral Dmg ≥', 'heat_neutral_min', 'e.g. 30')}
-          {numInput('Max Dmg ≥', 'max_damage_min', 'e.g. 40')}
         </div>
       )}
     </div>

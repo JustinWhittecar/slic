@@ -51,16 +51,18 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
   const loaded = mechs.filter((m): m is MechDetail => m !== null)
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-50 flex items-start justify-center overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl m-4 mt-8 max-w-[1200px] w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto" style={{ background: 'rgba(0,0,0,0.4)' }}>
+      <div className="rounded-lg shadow-2xl m-4 mt-8 max-w-[1200px] w-full max-h-[90vh] overflow-y-auto"
+        style={{ background: 'var(--bg-page)', border: '1px solid var(--border-default)' }}>
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-5 py-3 flex items-center justify-between z-10">
-          <h2 className="text-lg font-semibold">Compare Mechs</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-xl cursor-pointer">✕</button>
+        <div className="sticky top-0 px-5 py-3 flex items-center justify-between z-10"
+          style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-default)' }}>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Compare Mechs</h2>
+          <button onClick={onClose} className="text-xl cursor-pointer" style={{ color: 'var(--text-tertiary)' }}>✕</button>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">Loading...</div>
+          <div className="p-8 text-center" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
         ) : (
           <div className="p-5">
             {/* Mech Names */}
@@ -68,16 +70,17 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
               <div />
               {loaded.map(m => (
                 <div key={m.id} className="text-center">
-                  <div className="font-semibold text-sm">{m.chassis} {m.model_code}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{m.chassis} {m.model_code}</div>
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {m.tonnage}t · {m.tech_base}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                     {m.role || '—'} · {m.intro_year || '—'}
                   </div>
                   <button
                     onClick={() => onRemove(m.id)}
-                    className="text-xs text-red-400 hover:text-red-600 mt-1 cursor-pointer"
+                    className="text-xs mt-1 cursor-pointer"
+                    style={{ color: 'var(--text-tertiary)' }}
                   >
                     Remove
                   </button>
@@ -86,7 +89,7 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
             </div>
 
             {/* Stat Comparison */}
-            <div className="mt-4 border border-gray-200 dark:border-gray-700 rounded overflow-hidden">
+            <div className="mt-4 rounded overflow-hidden" style={{ border: '1px solid var(--border-default)' }}>
               {COMPARE_STATS.map((stat, i) => {
                 const values = loaded.map(m => getStatValue(m, stat.key))
                 const numericValues = values.filter((v): v is number => v != null && v > 0)
@@ -97,10 +100,13 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
                 return (
                   <div
                     key={stat.key}
-                    className={`grid gap-3 px-3 py-2 ${i % 2 === 0 ? 'bg-gray-50 dark:bg-gray-750' : ''}`}
-                    style={{ gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)` }}
+                    className="grid gap-3 px-3 py-2"
+                    style={{
+                      gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)`,
+                      background: i % 2 === 0 ? 'var(--bg-surface)' : undefined,
+                    }}
                   >
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 self-center">
+                    <div className="text-xs font-medium self-center" style={{ color: 'var(--text-secondary)' }}>
                       {stat.label}
                     </div>
                     {values.map((v, j) => {
@@ -108,7 +114,11 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
                       return (
                         <div
                           key={loaded[j].id}
-                          className={`text-center text-sm tabular-nums ${isBest ? 'font-bold text-green-600 dark:text-green-400' : ''}`}
+                          className="text-center text-sm tabular-nums"
+                          style={{
+                            color: isBest ? '#4ade80' : 'var(--text-primary)',
+                            fontWeight: isBest ? 700 : undefined,
+                          }}
                         >
                           {stat.format(v)}
                         </div>
@@ -121,13 +131,13 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
 
             {/* Movement */}
             <div className="mt-4">
-              <h3 className="text-sm font-semibold mb-2">Movement</h3>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Movement</h3>
               <div className="grid gap-3" style={{ gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)` }}>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Walk/Run/Jump</div>
+                <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Walk/Run/Jump</div>
                 {loaded.map(m => {
                   const s = m.stats
                   return (
-                    <div key={m.id} className="text-center text-sm tabular-nums">
+                    <div key={m.id} className="text-center text-sm tabular-nums" style={{ color: 'var(--text-primary)' }}>
                       {s ? `${s.walk_mp}/${s.run_mp}/${s.jump_mp}` : '—'}
                     </div>
                   )
@@ -137,20 +147,23 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
 
             {/* Engine & Heat */}
             <div className="mt-4">
-              <h3 className="text-sm font-semibold mb-2">Engine & Heat</h3>
-              <div className="border border-gray-200 dark:border-gray-700 rounded overflow-hidden">
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Engine & Heat</h3>
+              <div className="rounded overflow-hidden" style={{ border: '1px solid var(--border-default)' }}>
                 {[
                   { label: 'Engine', fn: (m: MechDetail) => m.stats ? `${m.stats.engine_rating} ${m.stats.engine_type}` : '—' },
                   { label: 'Heat Sinks', fn: (m: MechDetail) => m.stats ? `${m.stats.heat_sink_count} ${m.stats.heat_sink_type}` : '—' },
                 ].map((row, i) => (
                   <div
                     key={row.label}
-                    className={`grid gap-3 px-3 py-2 ${i % 2 === 0 ? 'bg-gray-50 dark:bg-gray-750' : ''}`}
-                    style={{ gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)` }}
+                    className="grid gap-3 px-3 py-2"
+                    style={{
+                      gridTemplateColumns: `140px repeat(${loaded.length}, 1fr)`,
+                      background: i % 2 === 0 ? 'var(--bg-surface)' : undefined,
+                    }}
                   >
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400">{row.label}</div>
+                    <div className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{row.label}</div>
                     {loaded.map(m => (
-                      <div key={m.id} className="text-center text-sm">{row.fn(m)}</div>
+                      <div key={m.id} className="text-center text-sm" style={{ color: 'var(--text-primary)' }}>{row.fn(m)}</div>
                     ))}
                   </div>
                 ))}
@@ -159,7 +172,7 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
 
             {/* Equipment Side by Side */}
             <div className="mt-4">
-              <h3 className="text-sm font-semibold mb-2">Weapons</h3>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Weapons</h3>
               <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${loaded.length}, 1fr)` }}>
                 {loaded.map(m => {
                   const eqByLoc = (m.equipment ?? []).reduce<Record<string, typeof m.equipment>>((acc, eq) => {
@@ -170,19 +183,20 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
                   }, {})
 
                   return (
-                    <div key={m.id} className="border border-gray-200 dark:border-gray-700 rounded p-2 text-xs">
-                      <div className="font-medium text-center mb-2 text-gray-600 dark:text-gray-300">
+                    <div key={m.id} className="rounded p-2 text-xs"
+                      style={{ border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}>
+                      <div className="font-medium text-center mb-2" style={{ color: 'var(--text-secondary)' }}>
                         {m.chassis} {m.model_code}
                       </div>
                       {LOC_ORDER.filter(l => eqByLoc[l]).map(loc => (
                         <div key={loc} className="mb-1.5">
-                          <div className="text-gray-400 dark:text-gray-500 uppercase" style={{ fontSize: '0.65rem' }}>
+                          <div className="uppercase" style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)' }}>
                             {LOC_NAMES[loc] || loc}
                           </div>
                           {eqByLoc[loc]!.map((eq, i) => (
                             <div key={i} className="pl-1 flex justify-between">
                               <span>{eq.quantity > 1 ? `${eq.quantity}× ` : ''}{eq.name}</span>
-                              <span className="text-gray-400 tabular-nums ml-2">
+                              <span className="tabular-nums ml-2" style={{ color: 'var(--text-tertiary)' }}>
                                 {eq.damage ? `${eq.damage}` : ''}
                                 {eq.heat ? `/${eq.heat}h` : ''}
                               </span>
@@ -191,7 +205,7 @@ export function CompareView({ mechIds, onClose, onRemove }: CompareViewProps) {
                         </div>
                       ))}
                       {Object.keys(eqByLoc).length === 0 && (
-                        <div className="text-gray-400 text-center">No weapons linked</div>
+                        <div className="text-center" style={{ color: 'var(--text-tertiary)' }}>No weapons linked</div>
                       )}
                     </div>
                   )

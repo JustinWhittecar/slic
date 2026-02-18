@@ -28,6 +28,7 @@ type MechListItem struct {
 	ModelCode         string  `json:"model_code"`
 	Name              string  `json:"name"`
 	Chassis           string  `json:"chassis"`
+	AlternateName     string  `json:"alternate_name,omitempty"`
 	Tonnage           int     `json:"tonnage"`
 	TechBase          string  `json:"tech_base"`
 	BV                *int    `json:"battle_value,omitempty"`
@@ -44,6 +45,7 @@ type MechListItem struct {
 	EffHeatNeutralDamage   float64 `json:"effective_heat_neutral_damage"`
 	HeatNeutralRange       string  `json:"heat_neutral_range,omitempty"`
 	GameDamage             float64 `json:"game_damage"`
+	CombatRating           float64 `json:"combat_rating"`
 	EngineType             string  `json:"engine_type,omitempty"`
 	EngineRating      int     `json:"engine_rating,omitempty"`
 	HeatSinkCount     int     `json:"heat_sink_count,omitempty"`
@@ -108,11 +110,17 @@ type VariantStats struct {
 	HeatNeutralRange         string  `json:"heat_neutral_range,omitempty"`
 	MaxDamage                float64 `json:"max_damage"`
 	EffHeatNeutralDamage     float64 `json:"effective_heat_neutral_damage"`
+	HasTargetingComputer     bool    `json:"has_targeting_computer"`
+	CombatRating             float64 `json:"combat_rating,omitempty"`
+	OffenseTurns             float64 `json:"offense_turns,omitempty"`
+	DefenseTurns             float64 `json:"defense_turns,omitempty"`
 }
 
 type MechDetail struct {
 	MechListItem
-	SarnaURL  string             `json:"sarna_url,omitempty"`
-	Stats     *VariantStats      `json:"stats,omitempty"`
-	Equipment []VariantEquipment `json:"equipment,omitempty"`
+	SarnaURL    string             `json:"sarna_url,omitempty"`
+	IWMUrl      string             `json:"iwm_url,omitempty"`
+	CatalystUrl string             `json:"catalyst_url,omitempty"`
+	Stats       *VariantStats      `json:"stats,omitempty"`
+	Equipment   []VariantEquipment `json:"equipment,omitempty"`
 }

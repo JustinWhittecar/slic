@@ -136,11 +136,15 @@ func ParseMTF(path string) (*MTFData, error) {
 		}
 
 		// If in weapons section, parse weapon entries
+		// Format variations: "Medium Laser, Left Arm" or "1 ISLRM10, Left Torso, Ammo:12"
 		if inWeapons {
-			if parts := strings.SplitN(trimmed, ",", 2); len(parts) == 2 {
+			parts := strings.Split(trimmed, ",")
+			if len(parts) >= 2 {
+				loc := strings.TrimSpace(parts[1])
+				// Strip trailing "Ammo:N" or other extra comma-separated fields
 				data.Weapons = append(data.Weapons, WeaponEntry{
 					Name:     strings.TrimSpace(parts[0]),
-					Location: strings.TrimSpace(parts[1]),
+					Location: loc,
 				})
 			}
 			continue

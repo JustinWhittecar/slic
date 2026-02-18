@@ -5,6 +5,7 @@ export interface MechListItem {
   model_code: string
   name: string
   chassis: string
+  alternate_name?: string
   tonnage: number
   tech_base: string
   battle_value?: number
@@ -29,6 +30,8 @@ export interface MechListItem {
   effective_heat_neutral_damage?: number
   heat_neutral_range?: string
   game_damage?: number
+  combat_rating?: number
+  bv_efficiency?: number
 }
 
 export interface MechEquipment {
@@ -61,6 +64,8 @@ export interface MechEquipment {
 
 export interface MechDetail extends MechListItem {
   sarna_url?: string
+  iwm_url?: string
+  catalyst_url?: string
   stats?: {
     walk_mp: number
     run_mp: number
@@ -82,6 +87,10 @@ export interface MechDetail extends MechListItem {
     heat_neutral_range?: string
     max_damage?: number
     effective_heat_neutral_damage?: number
+    has_targeting_computer?: boolean
+    combat_rating?: number
+    offense_turns?: number
+    defense_turns?: number
   }
   equipment?: MechEquipment[]
 }
@@ -100,19 +109,38 @@ export interface MechFilters {
   armor_pct_min?: number
   heat_neutral_min?: number
   max_damage_min?: number
+  game_damage_min?: number
+  combat_rating_min?: number
+  combat_rating_max?: number
+  intro_year_min?: number
+  intro_year_max?: number
+  walk_mp_min?: number
+  jump_mp_min?: number
+  engine_types?: string[]
+  heat_sink_type?: string
 }
 
 export async function fetchMechs(filters: MechFilters = {}): Promise<MechListItem[]> {
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(filters)) {
     if (value !== undefined && value !== '') {
-      params.set(key, String(value))
+      if (Array.isArray(value)) {
+        if (value.length > 0) params.set(key, value.join(','))
+      } else {
+        params.set(key, String(value))
+      }
     }
   }
   const url = `${BASE}/mechs${params.toString() ? '?' + params : ''}`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to fetch mechs: ${res.status}`)
-  return res.json()
+  const mechs: MechListItem[] = await res.json()
+  for (const m of mechs) {
+    if (m.combat_rating && m.combat_rating > 0 && m.battle_value && m.battle_value > 0) {
+      m.bv_efficiency = (m.combat_rating * m.combat_rating) / (m.battle_value / 1000)
+    }
+  }
+  return mechs
 }
 
 export async function fetchMech(id: number): Promise<MechDetail> {

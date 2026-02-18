@@ -4,6 +4,7 @@ import { fetchMech, type MechDetail as MechDetailType, type MechEquipment } from
 interface MechDetailProps {
   mechId: number
   onClose: () => void
+  onAddToList?: (mech: MechDetailType) => void
 }
 
 const LOCATION_ORDER = ['HD', 'CT', 'LT', 'RT', 'LA', 'RA', 'LL', 'RL']
@@ -12,72 +13,148 @@ const LOCATION_NAMES: Record<string, string> = {
   LA: 'Left Arm', RA: 'Right Arm', LL: 'Left Leg', RL: 'Right Leg',
 }
 
-function computeDamageByTurn(equipment: MechEquipment[], heatSinkCount: number, heatSinkType: string): number[] {
-  const dissipation = heatSinkCount * ((heatSinkType || '').toLowerCase().includes('double') || (heatSinkType || '').toLowerCase().includes('laser') ? 2 : 1)
-  const walkHeat = 1
-  const availableDissipation = dissipation - walkHeat
-
-  // Weapons only
-  const weapons = equipment.filter(e => e.type === 'energy' || e.type === 'ballistic' || e.type === 'missile' || (e.damage && e.damage > 0))
-
+function computeDamageByTurn(equipment: MechEquipment[], heatSinkCount: number, heatSinkType: string, walkMP: number, hasTC: boolean): number[] {
+  const hsLower = (heatSinkType || '').toLowerCase()
+  const dissipation = heatSinkCount * (hsLower.includes('double') || hsLower.includes('laser') ? 2 : 1)
+  const weapons = equipment.filter(e =>
+    e.type === 'energy' || e.type === 'ballistic' || e.type === 'missile' ||
+    (e.expected_damage && e.expected_damage > 0))
   const results: number[] = []
   const boardSize = 34
-  const myWalk = 4 // assume walk
-  const oppWalk = 4
+  const refOppWalk = 4
+  const refOptLow = 6
+  const refOptHigh = 8
+  const gunnery = 4
 
-  for (let turn = 1; turn <= 12; turn++) {
-    // Both walk toward each other
-    const closingSpeed = myWalk + oppWalk
-    const range = Math.max(1, boardSize - closingSpeed * turn)
-
-    // Select weapons greedily by effective damage per heat, heat-neutral
-    let heatBudget = availableDissipation
-    let totalDamage = 0
-
-    // Score each weapon for this range
-    const weaponScores = weapons.map(w => {
-      const sr = w.short_range ?? 3
-      const mr = w.medium_range ?? 6
-      const lr = w.long_range ?? 9
-      const minR = w.min_range ?? 0
-
-      let rangeMod = 0
-      let inRange = true
-      if (range > lr) { inRange = false }
-      else if (range > mr) { rangeMod = 4 }
-      else if (range > sr) { rangeMod = 2 }
-      else { rangeMod = 0 }
-
-      // Min range penalty
-      let minRangePenalty = 0
-      if (minR > 0 && range <= minR) {
-        minRangePenalty = minR - range + 1
-      }
-
-      const toHit = 7 + rangeMod + minRangePenalty + (w.to_hit_modifier ?? 0)
-      const hitProb = toHit >= 12 ? (toHit === 12 ? 1/36 : 0) : Math.max(0, (13 - toHit) * (14 - toHit) / 72)
-      // Simplified 2d6 probability
-      const hitChance = toHit > 12 ? 0 : toHit <= 2 ? 1 : hitProb
-
-      const dmg = (w.damage ?? 0) * (w.quantity ?? 1)
-      const expectedDmg = dmg * hitChance
-      const heat = (w.heat ?? 0) * (w.quantity ?? 1)
-      const effPerHeat = heat > 0 ? expectedDmg / heat : expectedDmg * 100
-
-      return { weapon: w, expectedDmg, heat, effPerHeat, inRange, hitChance }
-    }).filter(s => s.inRange && s.expectedDmg > 0)
-      .sort((a, b) => b.effPerHeat - a.effPerHeat)
-
-    for (const ws of weaponScores) {
-      if (ws.heat <= heatBudget || ws.heat === 0) {
-        totalDamage += ws.expectedDmg
-        heatBudget -= ws.heat
-      }
-    }
-
-    results.push(Math.round(totalDamage * 10) / 10)
+  const hp = (target: number) => {
+    if (target > 12) return 0
+    if (target <= 2) return 1
+    if (target === 12) return 1/36
+    return Math.max(0, (13 - target) * (14 - target) / 72)
   }
 
+  // Build sim weapons — MMLs get dual mode, TC applies -1 to energy/ballistic
+  const simWeapons = weapons.flatMap(w => {
+    let thm = w.to_hit_modifier ?? 0
+    // Targeting Computer: -1 for direct-fire weapons (energy, ballistic)
+    if (hasTC && (w.type === 'energy' || w.type === 'ballistic')) {
+      thm -= 1
+    }
+    const isArtillery = w.type === 'artillery'
+    const rackSize = (w.rack_size ?? 0) * (w.quantity ?? 1)
+    const base = {
+      expDmg: (w.expected_damage ?? 0) * (w.quantity ?? 1),
+      heat: (w.heat ?? 0) * (w.quantity ?? 1),
+      minR: w.min_range ?? 0,
+      sr: w.short_range ?? 3,
+      mr: w.medium_range ?? 6,
+      lr: w.long_range ?? 9,
+      thm,
+      isMML: false,
+      isArtillery,
+      rackSize,
+      srmDmg: 0, srmSR: 3, srmMR: 6, srmLR: 9,
+    }
+    if ((w.name || '').toUpperCase().includes('MML') && (w.rack_size ?? 0) > 0) {
+      base.isMML = true
+      base.srmDmg = (w.rack_size! * 2 * 0.58) * (w.quantity ?? 1)
+    }
+    return [base]
+  })
+
+  const calcDmg = (dist: number, baseTarget: number, heatAvail: number, rTMM: number = 0) => {
+    const scored = simWeapons.map(w => {
+      let bestED = 0
+
+      if (w.isArtillery) {
+        // Artillery direct fire (Tac Ops pp. 150-153):
+        // Hit: full damage, all 5-pt groups land (no cluster roll).
+        // Miss: scatters 1D6 hexes. 1-hex scatter = adjacent = rackSize-10 damage.
+        // Expected miss damage = (1/6) * (rackSize - 10)
+        if (dist <= w.lr && dist > w.minR) {
+          const pHit = hp(baseTarget - rTMM + w.thm)
+          const hitDmg = w.rackSize
+          const missDmg = (w.rackSize - 10) / 6
+          bestED = hitDmg * pHit + missDmg * (1 - pHit)
+        }
+      } else if (dist <= w.lr && w.lr > 0) {
+        // Normal/LRM mode
+        let rm = 0
+        if (dist > w.mr) rm = 4
+        else if (dist > w.sr) rm = 2
+        let mrp = 0
+        if (w.minR > 0 && dist <= w.minR) mrp = w.minR - dist + 1
+        bestED = w.expDmg * hp(baseTarget + rm + w.thm + mrp)
+      }
+
+      // MML SRM mode
+      if (w.isMML && dist <= w.srmLR) {
+        let rm = 0
+        if (dist > w.srmMR) rm = 4
+        else if (dist > w.srmSR) rm = 2
+        const srmED = w.srmDmg * hp(baseTarget + rm + w.thm)
+        if (srmED > bestED) bestED = srmED
+      }
+
+      if (bestED <= 0) return null
+      const dph = w.heat > 0 ? bestED / w.heat : bestED * 100
+      return { effDmg: bestED, heat: w.heat, dph }
+    }).filter((s): s is NonNullable<typeof s> => s !== null)
+      .sort((a, b) => b.dph - a.dph)
+
+    let hb = heatAvail, dmg = 0
+    for (const w of scored) {
+      if (w.heat === 0) { dmg += w.effDmg; continue }
+      if (hb >= w.heat) { dmg += w.effDmg; hb -= w.heat }
+    }
+    return dmg
+  }
+
+  const heatWalking = Math.max(0, dissipation - 1)
+  const heatStanding = dissipation
+
+  let mechPos = 0
+  let oppPos = boardSize
+  for (let turn = 1; turn <= 12; turn++) {
+    const curDist = oppPos - mechPos
+
+    // Ref moves first: tries to reach range 6-8
+    let refWalked = false
+    if (curDist > refOptHigh) {
+      oppPos -= refOppWalk
+      if (oppPos < mechPos) oppPos = mechPos
+      refWalked = true
+    } else if (curDist < refOptLow) {
+      oppPos += refOppWalk
+      if (oppPos > boardSize) oppPos = boardSize
+      refWalked = true
+    }
+
+    const refTMM = refWalked ? 1 : 0 // tmmFromMP(4) = +1
+    const baseWalked = gunnery + 1 + refTMM
+    const baseStood = gunnery + 0 + refTMM
+
+    const advPos = Math.min(mechPos + walkMP, oppPos)
+    const advDist = Math.max(1, oppPos - advPos)
+    const advDmg = calcDmg(advDist, baseWalked, heatWalking, refTMM)
+
+    const standDist = Math.max(1, oppPos - mechPos)
+    const standDmg = calcDmg(standDist, baseStood, heatStanding, refTMM)
+
+    const retPos = Math.max(0, mechPos - walkMP)
+    const retDist = Math.max(1, oppPos - retPos)
+    const retDmg = calcDmg(retDist, baseWalked, heatWalking, refTMM)
+
+    if (advDmg >= standDmg && advDmg >= retDmg) {
+      results.push(Math.round(advDmg * 10) / 10)
+      mechPos = advPos
+    } else if (standDmg >= retDmg) {
+      results.push(Math.round(standDmg * 10) / 10)
+    } else {
+      results.push(Math.round(retDmg * 10) / 10)
+      mechPos = retPos
+    }
+  }
   return results
 }
 
@@ -90,7 +167,7 @@ function DamageSparkline({ data }: { data: number[] }) {
 
   return (
     <div>
-      <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Damage by Turn</div>
+      <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Damage by Turn</div>
       <svg viewBox={`0 0 ${w} ${h + 16}`} className="w-full" style={{ maxHeight: 96 }}>
         {data.map((d, i) => {
           const barH = (d / max) * h
@@ -99,15 +176,15 @@ function DamageSparkline({ data }: { data: number[] }) {
           return (
             <g key={i}>
               <rect x={x} y={y} width={barW} height={barH} rx={2}
-                className="fill-blue-500 dark:fill-blue-400" opacity={0.85} />
+                fill="var(--accent)" opacity={0.75} />
               {d > 0 && (
                 <text x={x + barW / 2} y={y - 2} textAnchor="middle"
-                  className="fill-gray-500 dark:fill-gray-400" fontSize={8} fontFamily="monospace">
+                  fill="var(--text-secondary)" fontSize={8} fontFamily="monospace">
                   {d.toFixed(0)}
                 </text>
               )}
               <text x={x + barW / 2} y={h + 12} textAnchor="middle"
-                className="fill-gray-400 dark:fill-gray-500" fontSize={8} fontFamily="monospace">
+                fill="var(--text-tertiary)" fontSize={8} fontFamily="monospace">
                 {i + 1}
               </text>
             </g>
@@ -118,7 +195,7 @@ function DamageSparkline({ data }: { data: number[] }) {
   )
 }
 
-export function MechDetail({ mechId, onClose }: MechDetailProps) {
+export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   const [mech, setMech] = useState<MechDetailType | null>(null)
   const [loading, setLoading] = useState(true)
   const [visible, setVisible] = useState(false)
@@ -166,18 +243,22 @@ export function MechDetail({ mechId, onClose }: MechDetailProps) {
     return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
   })
 
-  const damageByTurn = stats ? computeDamageByTurn(equipment, stats.heat_sink_count, stats.heat_sink_type) : []
+  const damageByTurn = stats ? computeDamageByTurn(equipment, stats.heat_sink_count, stats.heat_sink_type, stats.walk_mp, stats.has_targeting_computer ?? false) : []
 
   return (
-    <div className="fixed inset-0 bg-black/20 dark:bg-black/50 z-50">
+    <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.4)' }}>
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-[420px] max-w-full bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto transition-transform duration-200 ease-out"
-        style={{ transform: visible ? 'translateX(0)' : 'translateX(100%)' }}
+        className="absolute right-0 top-0 h-full w-[420px] max-w-full shadow-2xl overflow-y-auto transition-transform duration-200 ease-out"
+        style={{
+          transform: visible ? 'translateX(0)' : 'translateX(100%)',
+          background: 'var(--bg-page)',
+          borderLeft: '1px solid var(--border-default)',
+        }}
       >
         {loading && (
           <div className="flex items-center justify-center h-full">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Loading...</div>
+            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
           </div>
         )}
 
@@ -187,10 +268,15 @@ export function MechDetail({ mechId, onClose }: MechDetailProps) {
             <div className="p-5 pb-3">
               <div className="flex justify-between items-start">
                 <div className="min-w-0 flex-1">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-50 leading-tight">
+                  <h2 className="text-xl font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
                     {mech.chassis} {mech.model_code}
                   </h2>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 flex flex-wrap gap-x-1.5">
+                  {mech.alternate_name && (
+                    <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
+                      aka {mech.alternate_name}
+                    </div>
+                  )}
+                  <div className="text-sm mt-0.5 flex flex-wrap gap-x-1.5" style={{ color: 'var(--text-secondary)' }}>
                     <span>{mech.tonnage}t</span>
                     <span>·</span>
                     <span>{mech.tech_base}</span>
@@ -202,70 +288,112 @@ export function MechDetail({ mechId, onClose }: MechDetailProps) {
                 <div className="flex items-start gap-2 ml-3 shrink-0">
                   {mech.battle_value && (
                     <div className="text-right">
-                      <div className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">BV</div>
-                      <div className="text-lg font-bold tabular-nums text-gray-900 dark:text-gray-50">{mech.battle_value.toLocaleString()}</div>
+                      <div className="text-xs uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>BV</div>
+                      <div className="text-lg font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>{mech.battle_value.toLocaleString()}</div>
                     </div>
                   )}
-                  <button onClick={onClose} className="text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-lg cursor-pointer mt-0.5">✕</button>
+                  {onAddToList && mech && (
+                    <button
+                      onClick={() => onAddToList(mech)}
+                      className="text-xs px-2 py-1 rounded cursor-pointer font-medium"
+                      style={{ background: 'var(--accent)', color: '#fff' }}
+                      title="Add to list"
+                    >+ List</button>
+                  )}
+                  <button onClick={onClose} className="text-lg cursor-pointer mt-0.5" style={{ color: 'var(--text-tertiary)' }}>✕</button>
                 </div>
               </div>
-              {mech.sarna_url && (
-                <a href={mech.sarna_url} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 mt-1">
-                  Sarna <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                </a>
-              )}
+              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                {mech.sarna_url && (
+                  <a href={mech.sarna_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors"
+                    style={{ border: '1px solid var(--border-default)', color: 'var(--text-secondary)', background: 'var(--bg-surface)' }}>
+                    Sarna <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
+                  </a>
+                )}
+                {mech.iwm_url && (
+                  <a href={mech.iwm_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors"
+                    style={{ border: '1px solid var(--border-default)', color: 'var(--text-secondary)', background: 'var(--bg-surface)' }}>
+                    IWM <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
+                  </a>
+                )}
+                {mech.catalyst_url && (
+                  <a href={mech.catalyst_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors"
+                    style={{ border: '1px solid var(--border-default)', color: 'var(--text-secondary)', background: 'var(--bg-surface)' }}>
+                    Catalyst <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* Core Stats Bar */}
             {stats && (
-              <div className="border-t border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 px-5 py-3">
-                <div className="grid grid-cols-4 gap-3 text-center">
+              <div className="px-5 py-3" style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)', background: 'var(--bg-surface)' }}>
+                <div className="grid grid-cols-5 gap-3 text-center">
                   <div>
-                    <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">Move</div>
-                    <div className="text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Move</div>
+                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
                       {stats.walk_mp}/{stats.run_mp}/{stats.jump_mp}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">TMM</div>
-                    <div className="text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>TMM</div>
+                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
                       +{stats.tmm ?? 0}
                     </div>
                   </div>
                   <div className="relative"
                     onMouseEnter={() => setTooltip(true)} onMouseLeave={() => setTooltip(false)}>
-                    <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">Game Dmg</div>
-                    <div className="text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Game Dmg</div>
+                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
                       {(mech.game_damage ?? stats.effective_heat_neutral_damage ?? 0).toFixed(1)}
                     </div>
                     {tooltip && (
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2 text-xs bg-gray-900 dark:bg-gray-700 text-white rounded shadow-lg z-10">
-                        Simulated avg damage/turn over 12 turns. 34-hex board, walk approach, heat-neutral weapon selection.
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2 text-xs rounded shadow-lg z-10"
+                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}>
+                        12-turn sim on 34-hex board vs smart 4/5 opponent (walk 4, medium lasers, seeks range 6-8). Subject moves to maximize damage. Heat-neutral weapon selection, MMLs switch modes.
                       </div>
                     )}
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">Armor</div>
-                    <div className="text-sm font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Armor</div>
+                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
                       {stats.armor_total}
                       {stats.armor_coverage_pct !== undefined && (
-                        <span className="text-[10px] font-normal text-gray-400 dark:text-gray-500 ml-0.5">
+                        <span className="text-[10px] font-normal ml-0.5" style={{ color: 'var(--text-tertiary)' }}>
                           {stats.armor_coverage_pct.toFixed(0)}%
                         </span>
                       )}
                     </div>
                   </div>
+                  <div title={`Offense: ${stats.offense_turns?.toFixed(1) ?? '—'} turns · Defense: ${stats.defense_turns?.toFixed(1) ?? '—'} turns\n1,000 Monte Carlo sims vs HBK-4P`}>
+                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Combat Rating</div>
+                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--accent)' }}>
+                      {stats.combat_rating != null && stats.combat_rating > 0 ? stats.combat_rating.toFixed(1) : '—'}
+                      <span className="text-[10px] font-normal" style={{ color: 'var(--text-tertiary)' }}>/10</span>
+                    </div>
+                  </div>
+                  {mech.battle_value && mech.battle_value > 0 && stats.combat_rating != null && stats.combat_rating > 0 && (
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>BV Efficiency</div>
+                      <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
+                        {((stats.combat_rating * stats.combat_rating) / (mech.battle_value / 1000)).toFixed(2)}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Technical Details - Collapsible */}
             {stats && (
-              <div className="border-b border-gray-100 dark:border-gray-800">
+              <div style={{ borderBottom: '1px solid var(--border-default)' }}>
                 <button
                   onClick={() => setTechOpen(!techOpen)}
-                  className="w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer"
+                  className="w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                  style={{ color: 'var(--text-secondary)' }}
                 >
                   <span>Technical Details</span>
                   <svg className={`w-3.5 h-3.5 transition-transform ${techOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -291,26 +419,26 @@ export function MechDetail({ mechId, onClose }: MechDetailProps) {
 
             {/* Equipment by Location */}
             {sortedLocs.length > 0 && (
-              <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-800">
-                <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Equipment</div>
+              <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-default)' }}>
+                <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>Equipment</div>
                 <div className="space-y-2.5">
                   {sortedLocs.map(loc => (
                     <div key={loc}>
-                      <div className="text-[11px] font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide mb-0.5">
+                      <div className="text-[11px] font-semibold uppercase tracking-wide mb-0.5" style={{ color: 'var(--text-primary)' }}>
                         {LOCATION_NAMES[loc] || loc}
                       </div>
                       <table className="w-full text-xs">
                         <tbody>
                           {equipByLoc[loc]!.map(eq => (
-                            <tr key={eq.id} className="text-gray-700 dark:text-gray-300">
+                            <tr key={eq.id} style={{ color: 'var(--text-primary)' }}>
                               <td className="pr-2 py-0.5">
-                                {eq.quantity > 1 ? <span className="text-gray-400">{eq.quantity}× </span> : ''}{eq.name}
+                                {eq.quantity > 1 ? <span style={{ color: 'var(--text-tertiary)' }}>{eq.quantity}× </span> : ''}{eq.name}
                               </td>
                               {eq.damage !== undefined && eq.damage > 0 && (
                                 <>
-                                  <td className="tabular-nums text-right px-1 text-gray-500 dark:text-gray-400 whitespace-nowrap">{eq.damage}d</td>
-                                  <td className="tabular-nums text-right px-1 text-gray-500 dark:text-gray-400 whitespace-nowrap">{eq.heat ?? 0}h</td>
-                                  <td className="tabular-nums text-right pl-1 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.damage}d</td>
+                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.heat ?? 0}h</td>
+                                  <td className="tabular-nums text-right pl-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
                                     {eq.short_range ?? '—'}/{eq.medium_range ?? '—'}/{eq.long_range ?? '—'}
                                   </td>
                                 </>
@@ -341,8 +469,8 @@ export function MechDetail({ mechId, onClose }: MechDetailProps) {
 function TechRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="col-span-2 flex justify-between">
-      <span className="text-gray-500 dark:text-gray-400">{label}</span>
-      <span className="text-gray-900 dark:text-gray-100 tabular-nums">{value}</span>
+      <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+      <span className="tabular-nums" style={{ color: 'var(--text-primary)' }}>{value}</span>
     </div>
   )
 }

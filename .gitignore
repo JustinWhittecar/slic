@@ -17,3 +17,8 @@ backend/calc-stats
 backend/seed-equipment
 backend/extract-weapons
 backend/ingest
+.DS_Store
+*.db
+backend/calc-cr-v2
+backend/calc-efficiency
+backend/cmd/calc-cr-v2/replay_output.json
