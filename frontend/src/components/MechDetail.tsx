@@ -249,7 +249,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
     <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.4)' }}>
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-[420px] max-w-full shadow-2xl overflow-y-auto transition-transform duration-200 ease-out"
+        className="absolute inset-0 sm:inset-auto sm:right-0 sm:top-0 sm:h-full sm:w-[420px] sm:max-w-full shadow-2xl overflow-y-auto transition-transform duration-200 ease-out"
         style={{
           transform: visible ? 'translateX(0)' : 'translateX(100%)',
           background: 'var(--bg-page)',
@@ -300,7 +300,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                       title="Add to list"
                     >+ List</button>
                   )}
-                  <button onClick={onClose} className="text-lg cursor-pointer mt-0.5" style={{ color: 'var(--text-tertiary)' }}>✕</button>
+                  <button onClick={onClose} className="text-lg cursor-pointer mt-0.5 min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>✕</button>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 flex-wrap">
@@ -331,7 +331,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
             {/* Core Stats Bar */}
             {stats && (
               <div className="px-5 py-3" style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)', background: 'var(--bg-surface)' }}>
-                <div className="grid grid-cols-5 gap-3 text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
                   <div>
                     <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Move</div>
                     <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
@@ -345,6 +345,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                     </div>
                   </div>
                   <div className="relative"
+                    onClick={() => setTooltip(t => !t)}
                     onMouseEnter={() => setTooltip(true)} onMouseLeave={() => setTooltip(false)}>
                     <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Game Dmg</div>
                     <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>

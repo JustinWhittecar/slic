@@ -1,4 +1,4 @@
-app = "slic"
+app = "slic-bt"
 primary_region = "lax"
 
 [build]

@@ -140,74 +140,75 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
   return (
     <div className="mb-4 rounded" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
       {/* Header row: title, budget, summary stats, actions */}
-      <div className="flex items-center gap-4 px-4 py-2.5" style={{ borderBottom: mechs.length > 0 ? '1px solid var(--border-subtle)' : 'none' }}>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">List Builder</span>
-          <button onClick={onClose} className="text-xs cursor-pointer" style={{ color: 'var(--text-tertiary)' }} title="Hide list builder (L)">✕</button>
-        </div>
-
-        {/* BV Budget */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>BV</span>
-          <input
-            type="number"
-            value={budget}
-            onChange={e => setBudget(parseInt(e.target.value) || 0)}
-            className="w-16 px-1.5 py-0.5 rounded text-xs tabular-nums text-right"
-            style={{
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border-default)',
-              color: 'var(--text-primary)',
-            }}
-          />
-          <div className="flex gap-0.5">
-            {BUDGET_PRESETS.map(p => (
-              <button
-                key={p}
-                onClick={() => setBudget(p)}
-                className="text-[10px] px-1.5 py-0.5 rounded cursor-pointer tabular-nums"
-                style={{
-                  background: budget === p ? 'var(--accent)' : 'transparent',
-                  color: budget === p ? '#fff' : 'var(--text-tertiary)',
-                  border: `1px solid ${budget === p ? 'var(--accent)' : 'var(--border-default)'}`,
-                }}
-              >
-                {(p/1000).toFixed(1)}k
-              </button>
-            ))}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 py-2.5" style={{ borderBottom: mechs.length > 0 ? '1px solid var(--border-subtle)' : 'none' }}>
+        {/* Row 1 on mobile: title + budget */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold">List Builder</span>
+            <button onClick={onClose} className="text-xs cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }} title="Hide list builder (L)">✕</button>
           </div>
-        </div>
 
-        {/* Progress bar */}
-        {mechs.length > 0 && (
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)', maxWidth: 200 }}>
-              <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${pct}%`,
-                  background: remaining < 0 ? '#ef4444' : 'var(--accent)',
-                }}
-              />
+          {/* BV Budget */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>BV</span>
+            <input
+              type="number"
+              value={budget}
+              onChange={e => setBudget(parseInt(e.target.value) || 0)}
+              className="w-16 px-1.5 py-0.5 rounded text-xs tabular-nums text-right"
+              style={{
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
+                color: 'var(--text-primary)',
+              }}
+            />
+            <div className="flex gap-0.5">
+              {BUDGET_PRESETS.map(p => (
+                <button
+                  key={p}
+                  onClick={() => setBudget(p)}
+                  className="text-[10px] px-1.5 py-0.5 rounded cursor-pointer tabular-nums"
+                  style={{
+                    background: budget === p ? 'var(--accent)' : 'transparent',
+                    color: budget === p ? '#fff' : 'var(--text-tertiary)',
+                    border: `1px solid ${budget === p ? 'var(--accent)' : 'var(--border-default)'}`,
+                  }}
+                >
+                  {(p/1000).toFixed(1)}k
+                </button>
+              ))}
             </div>
-            <span className="text-xs tabular-nums whitespace-nowrap" style={{ color: remaining < 0 ? '#ef4444' : 'var(--text-tertiary)' }}>
-              {totalBV} / {budget}
-              {remaining >= 0 ? ` (${remaining} left)` : ` (${Math.abs(remaining)} over)`}
-            </span>
           </div>
-        )}
+        </div>
 
-        {/* Summary stats */}
+        {/* Row 2 on mobile: progress + stats */}
         {mechs.length > 0 && (
-          <div className="flex gap-3 text-xs tabular-nums" style={{ color: 'var(--text-secondary)' }}>
-            <span>{mechs.length} mechs</span>
-            <span>{totalTonnage}t</span>
-            <span>Avg CR {avgRating.toFixed(1)}</span>
+          <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)', maxWidth: 200 }}>
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${pct}%`,
+                    background: remaining < 0 ? '#ef4444' : 'var(--accent)',
+                  }}
+                />
+              </div>
+              <span className="text-xs tabular-nums whitespace-nowrap" style={{ color: remaining < 0 ? '#ef4444' : 'var(--text-tertiary)' }}>
+                {totalBV} / {budget}
+                {remaining >= 0 ? ` (${remaining} left)` : ` (${Math.abs(remaining)} over)`}
+              </span>
+            </div>
+            <div className="flex gap-3 text-xs tabular-nums" style={{ color: 'var(--text-secondary)' }}>
+              <span>{mechs.length} mechs</span>
+              <span>{totalTonnage}t</span>
+              <span>Avg CR {avgRating.toFixed(1)}</span>
+            </div>
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex gap-1.5 ml-auto">
+        {/* Row 3 on mobile: actions */}
+        <div className="flex gap-1.5 sm:ml-auto">
           <button
             onClick={exportList}
             className="text-xs px-2 py-1 rounded cursor-pointer"
@@ -269,36 +270,38 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
       {/* Save/Load panel */}
       {saveLoadOpen && (
         <div className="px-4 py-3" style={{ borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' }}>
-          <div className="flex gap-2 items-center mb-2">
-            <input
-              type="text"
-              placeholder="List name…"
-              value={saveName}
-              onChange={e => setSaveName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && saveList()}
-              className="text-xs px-2 py-1 rounded w-48"
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
-            />
-            <button
-              onClick={saveList}
-              className="text-xs px-2 py-1 rounded cursor-pointer"
-              style={{ background: 'var(--accent)', color: '#fff' }}
-            >
-              Save
-            </button>
-            <div className="flex gap-2 ml-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center mb-2">
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                placeholder="List name…"
+                value={saveName}
+                onChange={e => setSaveName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && saveList()}
+                className="text-xs px-2 py-1.5 rounded flex-1 sm:w-48 sm:flex-none"
+                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
+              />
+              <button
+                onClick={saveList}
+                className="text-xs px-2 py-1.5 rounded cursor-pointer"
+                style={{ background: 'var(--accent)', color: '#fff' }}
+              >
+                Save
+              </button>
+            </div>
+            <div className="flex gap-2 flex-wrap">
               {getSavedLists().map(list => (
                 <div key={list.name} className="flex items-center gap-1">
                   <button
                     onClick={() => loadList(list)}
-                    className="text-xs cursor-pointer px-2 py-1 rounded"
+                    className="text-xs cursor-pointer px-2 py-1.5 rounded"
                     style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
                   >
                     {list.name} <span style={{ color: 'var(--text-tertiary)' }}>({list.mechs.length}, {list.budget} BV)</span>
                   </button>
                   <button
                     onClick={() => deleteList(list.name)}
-                    className="text-xs cursor-pointer"
+                    className="text-xs cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
                     style={{ color: 'var(--text-tertiary)' }}
                   >
                     ×
@@ -339,7 +342,7 @@ function MechCard({
       {/* Remove button */}
       <button
         onClick={() => onRemove(entry.id)}
-        className="absolute top-1 right-1.5 text-xs cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-1 right-1.5 text-xs cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
         style={{ color: 'var(--text-tertiary)' }}
       >
         ×

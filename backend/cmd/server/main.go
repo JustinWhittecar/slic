@@ -1,12 +1,14 @@
 package main
 
 import (
-	"context"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"context"
 	"time"
+	"strings"
 
 	"github.com/JustinWhittecar/slic/internal/db"
 	"github.com/JustinWhittecar/slic/internal/handlers"
@@ -16,13 +18,18 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	pool, err := db.Connect(ctx)
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+	dbPath := os.Getenv("SLIC_DB_PATH")
+	if dbPath == "" {
+		dbPath = "slic.db"
 	}
-	defer pool.Close()
 
-	mechHandler := &handlers.MechHandler{DB: pool}
+	sqlDB, err := db.ConnectSQLite(dbPath)
+	if err != nil {
+		log.Fatalf("Failed to connect to SQLite: %v", err)
+	}
+	defer sqlDB.Close()
+
+	mechHandler := &handlers.MechHandlerSQLite{DB: sqlDB}
 
 	mux := http.NewServeMux()
 
@@ -35,6 +42,30 @@ func main() {
 	// Mech API
 	mux.HandleFunc("GET /api/mechs", mechHandler.List)
 	mux.HandleFunc("GET /api/mechs/{id}", mechHandler.GetByID)
+
+	// Embedded frontend (SPA fallback)
+	distFS, err := fs.Sub(frontendFS, "dist")
+	if err != nil {
+		log.Fatalf("Failed to create sub FS: %v", err)
+	}
+	fileServer := http.FileServer(http.FS(distFS))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Try to serve the file directly
+		path := r.URL.Path
+		if path == "/" {
+			path = "/index.html"
+		}
+		// Check if file exists in embedded FS
+		f, err := distFS.Open(strings.TrimPrefix(path, "/"))
+		if err == nil {
+			f.Close()
+			fileServer.ServeHTTP(w, r)
+			return
+		}
+		// SPA fallback: serve index.html
+		r.URL.Path = "/"
+		fileServer.ServeHTTP(w, r)
+	})
 
 	// CORS middleware
 	handler := corsMiddleware(mux)

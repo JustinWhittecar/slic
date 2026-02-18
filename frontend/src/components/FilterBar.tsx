@@ -150,7 +150,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
           const val = e.target.value ? Number(e.target.value) : undefined
           onFiltersChange({ ...filters, [key]: val })
         }}
-        className={`${width} px-2 py-1 text-xs rounded tabular-nums outline-none`}
+        className={`w-full sm:${width} px-2 py-1.5 text-xs rounded tabular-nums outline-none`}
         style={{
           background: 'var(--bg-elevated)',
           border: '1px solid var(--border-default)',
@@ -163,7 +163,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   const pillButton = (label: string, isActive: boolean, onClick: () => void) => (
     <button
       onClick={onClick}
-      className="px-2 py-1 text-xs rounded cursor-pointer transition-colors"
+      className="px-2.5 py-1.5 text-xs rounded cursor-pointer transition-colors min-h-[36px] sm:min-h-0 sm:py-1"
       style={{
         background: isActive ? 'var(--accent)' : 'transparent',
         color: isActive ? '#ffffff' : 'var(--text-secondary)',
@@ -231,7 +231,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
       {expanded && (
         <div className="p-3 rounded space-y-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
           {/* Row 1: Weight, Tech Base */}
-          <div className="flex flex-wrap gap-4 items-start">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start">
             <div>
               <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Weight Class</div>
               <div className="flex gap-1">
@@ -287,7 +287,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
           </div>
 
           {/* Row 3: Numeric range filters */}
-          <div className="flex flex-wrap gap-4 items-start">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 items-start">
             {numInput('BV Min', 'bv_min', '1000')}
             {numInput('BV Max', 'bv_max', '2000')}
             {numInput('Year Min', 'intro_year_min', '2750')}
@@ -298,7 +298,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
           </div>
 
           {/* Row 4: Damage & rating filters */}
-          <div className="flex flex-wrap gap-4 items-start">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 items-start">
             {numInput('HN Dmg ≥', 'heat_neutral_min', '20')}
             {numInput('Alpha Dmg ≥', 'max_damage_min', '40')}
             {numInput('Armor % ≥', 'armor_pct_min', '80')}

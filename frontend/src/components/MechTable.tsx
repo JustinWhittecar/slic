@@ -72,8 +72,16 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     { id: 'intro_year', desc: false },
     { id: 'name', desc: false },
   ])
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-    () => loadState('slic-columns', DEFAULT_VISIBILITY)
+    () => {
+      const saved = loadState('slic-columns', DEFAULT_VISIBILITY)
+      if (isMobile) {
+        // On mobile, hide more columns by default for a cleaner view
+        return { ...saved, tech_base: false, optimal_range: false, armor_coverage_pct: false, tmm: false, intro_year: false }
+      }
+      return saved
+    }
   )
 
   const parentRef = useRef<HTMLDivElement>(null)
@@ -301,7 +309,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
       <div
         ref={parentRef}
         className="rounded overflow-auto"
-        style={{ height: 'calc(100vh - 240px)', border: '1px solid var(--border-default)' }}
+        style={{ height: 'calc(100vh - 200px)', border: '1px solid var(--border-default)' }}
       >
         {loading ? (
           <div className="p-8 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
