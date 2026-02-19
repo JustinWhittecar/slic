@@ -76,6 +76,13 @@ func ConnectUserDB(path string) (*sql.DB, error) {
 			gunnery INTEGER DEFAULT 4,
 			piloting INTEGER DEFAULT 5
 		)`,
+		`CREATE TABLE IF NOT EXISTS user_preferences (
+			user_id INTEGER PRIMARY KEY REFERENCES users(id),
+			column_visibility TEXT,
+			column_order TEXT,
+			active_filters TEXT,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
 	} {
 		if _, err := db.Exec(ddl); err != nil {
 			db.Close()

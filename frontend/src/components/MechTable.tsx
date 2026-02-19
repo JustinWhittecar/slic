@@ -9,18 +9,27 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { fetchMechs, fetchCollectionSummary, type MechListItem, type MechFilters } from '../api/client'
+import { fetchMechs, fetchCollectionSummary, fetchPreferences, savePreferences, deletePreferences, type MechListItem, type MechFilters } from '../api/client'
 import { ColumnSelector } from './ColumnSelector'
+import { useAuth } from '../contexts/AuthContext'
 
-const DEFAULT_VISIBILITY: VisibilityState = {
-  name: true, tonnage: false, tech_base: true, bv: true, role: false, move: true, armor_total: false,
-  heat_neutral_damage: true, alpha_damage: false, optimal_range: true, combat_rating: true, bv_efficiency: false, tmm: true, armor_coverage_pct: true,
-  era: false, intro_year: true,
+export const DEFAULT_COLUMN_ORDER = [
+  'name', 'tonnage', 'tech_base', 'role', 'bv', 'move', 'tmm', 'combat_rating', 'bv_efficiency',
+  'era', 'intro_year', 'armor_total', 'heat_neutral_damage', 'alpha_damage', 'optimal_range',
+  'armor_coverage_pct', 'engine_type', 'engine_rating', 'heat_sinks', 'rules_level', 'source', 'config',
+]
+
+export const DEFAULT_VISIBILITY: VisibilityState = {
+  name: true, tonnage: true, tech_base: true, bv: true, role: true, move: true,
+  tmm: true, combat_rating: true, bv_efficiency: true,
+  // Hidden by default
+  armor_total: false, heat_neutral_damage: false, alpha_damage: false, optimal_range: false,
+  armor_coverage_pct: false, era: false, intro_year: false,
   engine_type: false, engine_rating: false, heat_sinks: false,
   rules_level: false, source: false, config: false,
 }
 
-const COLUMN_DEFS_META = [
+export const COLUMN_DEFS_META = [
   { id: 'name', label: 'Name' },
   { id: 'tonnage', label: 'Tonnage' },
   { id: 'tech_base', label: 'Tech Base' },
@@ -66,6 +75,7 @@ interface MechTableProps {
 const columnHelper = createColumnHelper<MechListItem>()
 
 export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange, compareIds = [], onToggleCompare, onAddToList, onClearFilters }: MechTableProps) {
+  const { user } = useAuth()
   const [mechs, setMechs] = useState<MechListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -78,20 +88,65 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     () => {
       const saved = loadState('slic-columns', DEFAULT_VISIBILITY)
       if (isMobile) {
-        // On mobile, hide more columns by default for a cleaner view
         return { ...saved, tech_base: false, optimal_range: false, armor_coverage_pct: false, tmm: false, intro_year: false }
       }
       return saved
     }
   )
+  const [columnOrder, setColumnOrder] = useState<string[]>(
+    () => loadState('slic-column-order', DEFAULT_COLUMN_ORDER)
+  )
+
+  // Drag state
+  const [dragCol, setDragCol] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState<string | null>(null)
+
+  // Debounced preferences save
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  const prefsLoadedRef = useRef(false)
 
   const parentRef = useRef<HTMLDivElement>(null)
+
+  // Load preferences from API on login
+  useEffect(() => {
+    if (!user || prefsLoadedRef.current) return
+    prefsLoadedRef.current = true
+    fetchPreferences().then(prefs => {
+      if (prefs.column_visibility) {
+        const cv = typeof prefs.column_visibility === 'string'
+          ? JSON.parse(prefs.column_visibility as any) : prefs.column_visibility
+        setColumnVisibility(cv)
+      }
+      if (prefs.column_order) {
+        const co = typeof prefs.column_order === 'string'
+          ? JSON.parse(prefs.column_order as any) : prefs.column_order
+        if (Array.isArray(co) && co.length > 0) setColumnOrder(co)
+      }
+    }).catch(() => {})
+  }, [user])
+
+  // Save preferences (debounced)
+  const debouncedSave = useCallback((vis: VisibilityState, order: string[]) => {
+    clearTimeout(saveTimerRef.current)
+    // Always save to localStorage
+    localStorage.setItem('slic-columns', JSON.stringify(vis))
+    localStorage.setItem('slic-column-order', JSON.stringify(order))
+
+    if (user) {
+      saveTimerRef.current = setTimeout(() => {
+        savePreferences({ column_visibility: vis, column_order: order }).catch(() => {})
+      }, 500)
+    }
+  }, [user])
+
+  useEffect(() => {
+    debouncedSave(columnVisibility, columnOrder)
+  }, [columnVisibility, columnOrder, debouncedSave])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      // Strip owned_only from API filters (client-side filter)
       const { owned_only, ...apiFilters } = filters
       const data = await fetchMechs(apiFilters)
 
@@ -103,7 +158,6 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
           setMechs(filtered)
           onCountChange(filtered.length)
         } catch {
-          // If collection fetch fails, show all
           setMechs(data)
           onCountChange(data.length)
         }
@@ -120,9 +174,15 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
 
   useEffect(() => { load() }, [load])
 
-  useEffect(() => {
-    localStorage.setItem('slic-columns', JSON.stringify(columnVisibility))
-  }, [columnVisibility])
+  const resetToDefaults = useCallback(() => {
+    setColumnVisibility(DEFAULT_VISIBILITY)
+    setColumnOrder(DEFAULT_COLUMN_ORDER)
+    if (user) {
+      deletePreferences().catch(() => {})
+    }
+    localStorage.removeItem('slic-columns')
+    localStorage.removeItem('slic-column-order')
+  }, [user])
 
   const columns = useMemo(() => [
     ...(onToggleCompare ? [columnHelper.display({
@@ -295,9 +355,10 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
   const table = useReactTable({
     data: mechs,
     columns,
-    state: { sorting, columnVisibility },
+    state: { sorting, columnVisibility, columnOrder },
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     enableMultiSort: true,
@@ -312,10 +373,43 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     overscan: 20,
   })
 
-  // Reset scroll when filters change
   useEffect(() => {
     if (parentRef.current) parentRef.current.scrollTop = 0
   }, [filters])
+
+  // Drag handlers
+  const handleDragStart = (colId: string) => {
+    if (colId === 'name' || colId === 'compare' || colId === 'addToList') return
+    setDragCol(colId)
+  }
+  const handleDragOver = (e: React.DragEvent, colId: string) => {
+    e.preventDefault()
+    if (colId === 'name' || colId === 'compare' || colId === 'addToList') return
+    setDragOver(colId)
+  }
+  const handleDrop = (targetColId: string) => {
+    if (!dragCol || dragCol === targetColId) {
+      setDragCol(null)
+      setDragOver(null)
+      return
+    }
+    if (targetColId === 'name' || targetColId === 'compare' || targetColId === 'addToList') {
+      setDragCol(null)
+      setDragOver(null)
+      return
+    }
+    setColumnOrder(prev => {
+      const order = [...prev]
+      const fromIdx = order.indexOf(dragCol)
+      const toIdx = order.indexOf(targetColId)
+      if (fromIdx === -1 || toIdx === -1) return prev
+      order.splice(fromIdx, 1)
+      order.splice(toIdx, 0, dragCol)
+      return order
+    })
+    setDragCol(null)
+    setDragOver(null)
+  }
 
   if (error) return (
     <div className="flex flex-col items-center justify-center p-12 gap-3" style={{ color: 'var(--text-secondary)' }}>
@@ -332,12 +426,21 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
 
   return (
     <div>
-      <div className="flex justify-end mb-2">
+      <div className="flex justify-end mb-2 gap-2">
+        <button
+          onClick={resetToDefaults}
+          className="px-3 py-2 rounded text-sm cursor-pointer"
+          style={{ border: '1px solid var(--border-default)', color: 'var(--text-tertiary)' }}
+        >
+          Reset Columns
+        </button>
         <ColumnSelector
           columns={COLUMN_DEFS_META}
           visibility={columnVisibility}
           onVisibilityChange={setColumnVisibility}
           defaultVisibility={DEFAULT_VISIBILITY}
+          columnOrder={columnOrder}
+          onColumnOrderChange={setColumnOrder}
         />
       </div>
       <div
@@ -362,19 +465,39 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
             <thead className="sticky top-0 z-10" style={{ background: 'var(--bg-surface)' }}>
               {table.getHeaderGroups().map(hg => (
                 <tr key={hg.id} style={{ borderBottom: '1px solid var(--border-default)' }}>
-                  {hg.headers.map(header => (
-                    <th
-                      key={header.id}
-                      onClick={header.column.getToggleSortingHandler()}
-                      className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide cursor-pointer select-none"
-                      style={{ color: 'var(--text-tertiary)' }}
-                      onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
-                      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {{ asc: ' ↑', desc: ' ↓' }[header.column.getIsSorted() as string] ?? ''}
-                    </th>
-                  ))}
+                  {hg.headers.map(header => {
+                    const colId = header.column.id
+                    const isDraggable = colId !== 'name' && colId !== 'compare' && colId !== 'addToList'
+                    const isDragTarget = dragOver === colId
+                    return (
+                      <th
+                        key={header.id}
+                        draggable={isDraggable}
+                        onDragStart={() => handleDragStart(colId)}
+                        onDragOver={e => handleDragOver(e, colId)}
+                        onDragEnd={() => { setDragCol(null); setDragOver(null) }}
+                        onDrop={() => handleDrop(colId)}
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide select-none"
+                        style={{
+                          color: 'var(--text-tertiary)',
+                          cursor: isDraggable ? 'grab' : 'default',
+                          borderLeft: isDragTarget ? '2px solid var(--accent)' : '2px solid transparent',
+                          opacity: dragCol === colId ? 0.4 : 1,
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
+                      >
+                        <span
+                          onClick={header.column.getToggleSortingHandler()}
+                          className="cursor-pointer"
+                        >
+                          {isDraggable && <span className="mr-1" style={{ color: 'var(--text-tertiary)', fontSize: '10px' }}>⋮⋮</span>}
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {{ asc: ' ↑', desc: ' ↓' }[header.column.getIsSorted() as string] ?? ''}
+                        </span>
+                      </th>
+                    )
+                  })}
                 </tr>
               ))}
             </thead>

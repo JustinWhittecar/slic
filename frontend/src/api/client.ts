@@ -257,6 +257,41 @@ export async function deleteFromCollection(modelId: number): Promise<void> {
   await fetchWithCreds(`${BASE}/collection/${modelId}`, { method: 'DELETE' })
 }
 
+// User Preferences
+export interface UserPreferences {
+  column_visibility?: Record<string, boolean>
+  column_order?: string[]
+  active_filters?: ActiveFilter[]
+}
+
+export interface ActiveFilter {
+  field: string
+  op: string
+  value: string | string[]
+}
+
+export async function fetchPreferences(): Promise<UserPreferences> {
+  const res = await fetchWithCreds(`${BASE}/preferences`)
+  if (!res.ok) return {}
+  return res.json()
+}
+
+export async function savePreferences(prefs: UserPreferences): Promise<void> {
+  await fetchWithCreds(`${BASE}/preferences`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      column_visibility: prefs.column_visibility ? JSON.stringify(prefs.column_visibility) : undefined,
+      column_order: prefs.column_order ? JSON.stringify(prefs.column_order) : undefined,
+      active_filters: prefs.active_filters ? JSON.stringify(prefs.active_filters) : undefined,
+    }),
+  })
+}
+
+export async function deletePreferences(): Promise<void> {
+  await fetchWithCreds(`${BASE}/preferences`, { method: 'DELETE' })
+}
+
 export async function fetchCollectionSummary(): Promise<CollectionSummaryItem[]> {
   const res = await fetchWithCreds(`${BASE}/collection/summary`)
   if (!res.ok) throw new Error(`Failed to fetch collection summary: ${res.status}`)

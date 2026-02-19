@@ -46,6 +46,7 @@ func main() {
 	collectionHandler := &handlers.CollectionHandler{DB: userDB, MecDB: sqlDB}
 	listsHandler := &handlers.ListsHandler{DB: userDB}
 	modelsHandler := &handlers.ModelsHandler{DB: sqlDB}
+	preferencesHandler := &handlers.PreferencesHandler{DB: userDB}
 
 	mux := http.NewServeMux()
 
@@ -83,6 +84,11 @@ func main() {
 	mux.HandleFunc("GET /api/lists/{id}", listsHandler.Get)
 	mux.HandleFunc("PUT /api/lists/{id}", handlers.RequireAuth(listsHandler.Update))
 	mux.HandleFunc("DELETE /api/lists/{id}", handlers.RequireAuth(listsHandler.Delete))
+
+	// Preferences (protected)
+	mux.HandleFunc("GET /api/preferences", handlers.RequireAuth(preferencesHandler.Get))
+	mux.HandleFunc("PUT /api/preferences", handlers.RequireAuth(preferencesHandler.Put))
+	mux.HandleFunc("DELETE /api/preferences", handlers.RequireAuth(preferencesHandler.Delete))
 
 	// Shared lists (public)
 	mux.HandleFunc("GET /api/shared/{shareCode}", listsHandler.SharedView)
