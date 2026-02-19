@@ -172,6 +172,8 @@ func main() {
 			source_url TEXT,
 			image_url TEXT,
 			in_print INTEGER DEFAULT 1,
+			material TEXT,
+			year INTEGER,
 			created_at TEXT
 		)`,
 		`CREATE INDEX idx_physical_models_chassis ON physical_models(chassis_id)`,
@@ -251,8 +253,8 @@ func main() {
 		"INSERT INTO model_sources (id, variant_id, source_type, name, url) VALUES (?,?,?,?,?)", 5)
 
 	copyTable(ctx, pg, sl, "physical_models",
-		"SELECT id, chassis_id, name, manufacturer, COALESCE(sku,''), COALESCE(scale,'6mm'), COALESCE(source_url,''), COALESCE(image_url,''), COALESCE(in_print,true), COALESCE(created_at::text,'') FROM physical_models",
-		"INSERT INTO physical_models (id, chassis_id, name, manufacturer, sku, scale, source_url, image_url, in_print, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)", 10)
+		"SELECT id, chassis_id, name, manufacturer, COALESCE(sku,''), COALESCE(scale,'6mm'), COALESCE(source_url,''), COALESCE(image_url,''), COALESCE(in_print,true), COALESCE(material,''), COALESCE(year,0), COALESCE(created_at::text,'') FROM physical_models",
+		"INSERT INTO physical_models (id, chassis_id, name, manufacturer, sku, scale, source_url, image_url, in_print, material, year, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", 12)
 
 	log.Println("Export complete!")
 }
