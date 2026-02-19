@@ -155,6 +155,13 @@ func (h *FeedbackHandler) Submit(w http.ResponseWriter, r *http.Request) {
 			"message":          req.Message,
 			"github_issue_url": ghIssue.HTMLURL,
 		})
+		h.CIO.SendTransactional(
+			req.Contact,
+			"We got your feedback",
+			customerio.FeedbackAckEmailHTML(ghIssue.HTMLURL),
+			map[string]string{"id": anonID},
+			nil,
+		)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

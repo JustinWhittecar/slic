@@ -44,10 +44,14 @@ func main() {
 	// Customer.io
 	cioSiteID := os.Getenv("CIO_SITE_ID")
 	cioAPIKey := os.Getenv("CIO_API_KEY")
+	cioAppAPIKey := os.Getenv("CIO_APP_API_KEY")
 	if cioSiteID == "" || cioAPIKey == "" {
 		log.Println("[WARN] CIO_SITE_ID or CIO_API_KEY not set; Customer.io tracking disabled")
 	}
-	cioClient := customerio.New(cioSiteID, cioAPIKey)
+	if cioAppAPIKey == "" {
+		log.Println("[WARN] CIO_APP_API_KEY not set; Customer.io transactional emails disabled")
+	}
+	cioClient := customerio.New(cioSiteID, cioAPIKey, cioAppAPIKey)
 
 	mechHandler := &handlers.MechHandlerSQLite{DB: sqlDB}
 	feedbackHandler := handlers.NewFeedbackHandler(cioClient)

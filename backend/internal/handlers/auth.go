@@ -146,6 +146,13 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 	})
 	if isNewUser {
 		h.CIO.Track(cioID, "signed_up", map[string]interface{}{})
+		h.CIO.SendTransactional(
+			gUser.Email,
+			"Welcome to SLIC, MechWarrior",
+			customerio.WelcomeEmailHTML(),
+			map[string]string{"id": cioID},
+			nil,
+		)
 	}
 	h.CIO.Track(cioID, "logged_in", map[string]interface{}{})
 

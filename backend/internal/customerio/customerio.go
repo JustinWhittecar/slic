@@ -12,25 +12,78 @@ import (
 
 const trackBaseURL = "https://track.customer.io/api/v1"
 
+const transactionalURL = "https://api.customer.io/v1/send/email"
+
 // Client is a fire-and-forget Customer.io Track API client.
 // All methods are safe to call when credentials are missing (no-op).
 type Client struct {
-	siteID string
-	apiKey string
-	http   *http.Client
+	siteID    string
+	apiKey    string
+	appAPIKey string // App API key for transactional sends
+	http      *http.Client
 }
 
-// New creates a Client. If siteID or apiKey are empty, all calls become no-ops.
-func New(siteID, apiKey string) *Client {
+// New creates a Client. If siteID or apiKey are empty, track calls become no-ops.
+func New(siteID, apiKey, appAPIKey string) *Client {
 	return &Client{
-		siteID: siteID,
-		apiKey: apiKey,
-		http:   &http.Client{Timeout: 5 * time.Second},
+		siteID:    siteID,
+		apiKey:    apiKey,
+		appAPIKey: appAPIKey,
+		http:      &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
 func (c *Client) enabled() bool {
 	return c != nil && c.siteID != "" && c.apiKey != ""
+}
+
+func (c *Client) transactionalEnabled() bool {
+	return c != nil && c.appAPIKey != ""
+}
+
+// SendTransactional sends a transactional email via Customer.io's App API.
+// Fire-and-forget: runs in a goroutine.
+func (c *Client) SendTransactional(to, subject, htmlBody string, identifiers map[string]string, messageData map[string]interface{}) {
+	if !c.transactionalEnabled() {
+		log.Printf("[CIO] transactional send skipped (no app API key)")
+		return
+	}
+	go func() {
+		payload := map[string]interface{}{
+			"to":                       to,
+			"transactional_message_id": "1",
+			"identifiers":              identifiers,
+			"subject":                  subject,
+			"body":                     htmlBody,
+		}
+		if len(messageData) > 0 {
+			payload["message_data"] = messageData
+		}
+		body, err := json.Marshal(payload)
+		if err != nil {
+			log.Printf("[CIO] transactional marshal error: %v", err)
+			return
+		}
+		req, err := http.NewRequest("POST", transactionalURL, bytes.NewReader(body))
+		if err != nil {
+			log.Printf("[CIO] transactional request error: %v", err)
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+c.appAPIKey)
+
+		resp, err := c.http.Do(req)
+		if err != nil {
+			log.Printf("[CIO] transactional send error: %v", err)
+			return
+		}
+		resp.Body.Close()
+		if resp.StatusCode >= 400 {
+			log.Printf("[CIO] transactional send status: %d", resp.StatusCode)
+		} else {
+			log.Printf("[CIO] transactional email sent to %s: %s", to, subject)
+		}
+	}()
 }
 
 // Identify creates or updates a customer. PUT /customers/{id}
