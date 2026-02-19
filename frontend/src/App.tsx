@@ -108,6 +108,12 @@ function AppInner() {
     const budgetParam = params.get('budget')
     if (!listParam) return null
 
+    // Set budget immediately so ListBuilder's useState initializer picks it up
+    if (budgetParam) {
+      const b = parseInt(budgetParam, 10)
+      if (!isNaN(b)) localStorage.setItem('slic-list-budget', String(b))
+    }
+
     const entries = listParam.split('-').slice(0, 24)
     const parsed: { id: number; g: number; p: number }[] = []
     for (const entry of entries) {
@@ -125,13 +131,8 @@ function AppInner() {
 
   useEffect(() => {
     if (!initialListParams) return
-    const { parsed, budgetParam } = initialListParams
+    const { parsed } = initialListParams
     const ids = parsed.map(e => e.id)
-
-    if (budgetParam) {
-      const b = parseInt(budgetParam, 10)
-      if (!isNaN(b)) localStorage.setItem('slic-list-budget', String(b))
-    }
 
     fetchMechsByIds(ids).then(mechs => {
       const mechMap = new Map(mechs.map(m => [m.id, m]))
