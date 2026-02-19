@@ -189,6 +189,26 @@ export async function fetchMechsByIds(ids: number[]): Promise<MechListItem[]> {
   return res.json()
 }
 
+export interface RecommendationParams {
+  budget: number
+  tech_base?: string
+  weight_class?: string
+  exclude?: number[]
+  limit?: number
+}
+
+export async function fetchRecommendations(params: RecommendationParams): Promise<MechListItem[]> {
+  const qs = new URLSearchParams()
+  qs.set('budget', String(params.budget))
+  if (params.tech_base && params.tech_base !== 'All') qs.set('tech_base', params.tech_base)
+  if (params.weight_class && params.weight_class !== 'All') qs.set('weight_class', params.weight_class)
+  if (params.exclude?.length) qs.set('exclude', params.exclude.join(','))
+  if (params.limit) qs.set('limit', String(params.limit))
+  const res = await fetch(`${BASE}/recommendations?${qs}`)
+  if (!res.ok) throw new Error(`Failed to fetch recommendations: ${res.status}`)
+  return res.json()
+}
+
 export async function fetchMech(id: number): Promise<MechDetail> {
   const res = await fetch(`${BASE}/mechs/${id}`)
   if (!res.ok) throw new Error(`Failed to fetch mech: ${res.status}`)
