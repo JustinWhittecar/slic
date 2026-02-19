@@ -374,7 +374,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                       }}
                       className="text-xs px-2.5 py-1.5 rounded cursor-pointer"
                       style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
-                      title="Copy link to this mech"
+                      title="Copy link"
                     >{copiedLink ? '✓ Copied' : 'Share'}</button>
                     <button onClick={onClose} className="text-lg cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded" style={{ color: 'var(--text-tertiary)' }}>✕</button>
                   </div>

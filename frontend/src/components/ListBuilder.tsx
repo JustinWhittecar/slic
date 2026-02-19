@@ -172,7 +172,7 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold">List Builder</span>
-            <button onClick={onClose} className="text-xs cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }} title="Hide list builder (L)">✕</button>
+            <button onClick={onClose} className="text-xs cursor-pointer min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }} title="Close">✕</button>
           </div>
 
           {/* BV Budget */}
@@ -241,7 +241,7 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
             className="text-xs px-2 py-1 rounded cursor-pointer"
             style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
             disabled={mechs.length === 0}
-            title="Download .mul file for Flechs Sheets"
+            title="Download .mul file"
           >
             {mulMsg || 'Export'}
           </button>
