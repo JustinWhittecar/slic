@@ -222,6 +222,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   const [ownedCount, setOwnedCount] = useState(0)
 
   const [error, setError] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
 
   const loadMech = useCallback(() => {
     setLoading(true)
@@ -365,6 +366,16 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                         title="Add to list"
                       >+ List</button>
                     )}
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/mech/${mech.id}`)
+                        setCopiedLink(true)
+                        setTimeout(() => setCopiedLink(false), 2000)
+                      }}
+                      className="text-xs px-2.5 py-1.5 rounded cursor-pointer"
+                      style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
+                      title="Copy link to this mech"
+                    >{copiedLink ? '✓ Copied' : '🔗 Link'}</button>
                     <button onClick={onClose} className="text-lg cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded" style={{ color: 'var(--text-tertiary)' }}>✕</button>
                   </div>
                 </div>
