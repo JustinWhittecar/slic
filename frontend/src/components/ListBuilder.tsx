@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import type { MechListItem } from '../api/client'
 import { track } from '../analytics'
+import { RecommendationsPanel } from './RecommendationsPanel'
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -62,6 +63,7 @@ interface ListBuilderProps {
 
 export function ListBuilder({ mechs, onMechsChange, onClose, budget, onBudgetChange: setBudget }: ListBuilderProps) {
   const [saveLoadOpen, setSaveLoadOpen] = useState(false)
+  const [suggestOpen, setSuggestOpen] = useState(false)
   const [saveName, setSaveName] = useState('')
   const [shareMsg, setShareMsg] = useState('')
   const [mulMsg, setMulMsg] = useState('')
@@ -244,6 +246,15 @@ export function ListBuilder({ mechs, onMechsChange, onClose, budget, onBudgetCha
           >
             Save/Load
           </button>
+          {remaining > 0 && budget > 0 && (
+            <button
+              onClick={() => setSuggestOpen(!suggestOpen)}
+              className="text-xs px-2 py-1 rounded cursor-pointer"
+              style={{ background: suggestOpen ? 'var(--accent)' : 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: suggestOpen ? '#fff' : 'var(--text-secondary)' }}
+            >
+              Suggest Mechs
+            </button>
+          )}
           {mechs.length > 0 && (
             <button
               onClick={() => onMechsChange([])}
@@ -332,6 +343,23 @@ export function ListBuilder({ mechs, onMechsChange, onClose, budget, onBudgetCha
             </div>
           </div>
         </div>
+      )}
+
+      {/* Recommendations panel */}
+      {suggestOpen && remaining > 0 && budget > 0 && (
+        <RecommendationsPanel
+          budget={remaining}
+          excludeIds={mechs.map(m => m.mechData.id)}
+          onAdd={(mech) => {
+            const newEntry: ListMech = {
+              id: crypto.randomUUID(),
+              mechData: mech,
+              pilotGunnery: 4,
+              pilotPiloting: 5,
+            }
+            onMechsChange([...mechs, newEntry])
+          }}
+        />
       )}
     </div>
   )

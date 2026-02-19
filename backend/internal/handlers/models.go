@@ -19,6 +19,8 @@ type PhysicalModel struct {
 	SourceURL    string `json:"source_url,omitempty"`
 	ImageURL     string `json:"image_url,omitempty"`
 	InPrint      bool   `json:"in_print"`
+	Material     string `json:"material,omitempty"`
+	Year         int    `json:"year,omitempty"`
 }
 
 type ChassisModels struct {
@@ -33,6 +35,7 @@ type ChassisModels struct {
 func (h *ModelsHandler) List(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT pm.id, pm.chassis_id, pm.name, pm.manufacturer, COALESCE(pm.sku,''),
 	                 COALESCE(pm.source_url,''), COALESCE(pm.image_url,''), COALESCE(pm.in_print, 1),
+	                 COALESCE(pm.material,''), COALESCE(pm.year,0),
 	                 c.name, c.tonnage, c.tech_base
 	          FROM physical_models pm
 	          JOIN chassis c ON c.id = pm.chassis_id`
@@ -78,6 +81,7 @@ func (h *ModelsHandler) List(w http.ResponseWriter, r *http.Request) {
 
 		rows.Scan(&pm.ID, &chassisID, &pm.Name, &pm.Manufacturer, &pm.SKU,
 			&pm.SourceURL, &pm.ImageURL, &inPrint,
+			&pm.Material, &pm.Year,
 			&chassisName, &tonnage, &techBase)
 		pm.InPrint = inPrint != 0
 
