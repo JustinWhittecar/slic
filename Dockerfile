@@ -14,6 +14,7 @@ COPY --from=frontend /app/frontend/dist ./cmd/server/dist
 RUN CGO_ENABLED=0 go build -o /slic ./cmd/server
 
 FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=backend /slic /slic
 COPY backend/slic.db /slic.db
 EXPOSE 8080
