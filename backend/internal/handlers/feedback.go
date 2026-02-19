@@ -10,15 +10,18 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/JustinWhittecar/slic/internal/customerio"
 )
 
 type FeedbackHandler struct {
 	mu       sync.Mutex
 	lastSeen map[string]time.Time // simple rate limit by IP
+	CIO      *customerio.Client
 }
 
-func NewFeedbackHandler() *FeedbackHandler {
-	return &FeedbackHandler{lastSeen: make(map[string]time.Time)}
+func NewFeedbackHandler(cio *customerio.Client) *FeedbackHandler {
+	return &FeedbackHandler{lastSeen: make(map[string]time.Time), CIO: cio}
 }
 
 type feedbackRequest struct {
@@ -131,6 +134,27 @@ func (h *FeedbackHandler) Submit(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("[FEEDBACK ERROR] GitHub API status %d: %s\n", resp.StatusCode, string(respBody))
 		http.Error(w, "Failed to submit feedback", http.StatusBadGateway)
 		return
+	}
+
+	// Parse GitHub issue URL for CIO tracking
+	var ghIssue struct {
+		HTMLURL string `json:"html_url"`
+	}
+	if ghBody, err := io.ReadAll(resp.Body); err == nil {
+		json.Unmarshal(ghBody, &ghIssue)
+	}
+
+	// Track feedback in Customer.io if contact email provided
+	if req.Contact != "" && strings.Contains(req.Contact, "@") {
+		anonID := customerio.AnonIDFromEmail(req.Contact)
+		h.CIO.Identify(anonID, map[string]interface{}{
+			"email": req.Contact,
+		})
+		h.CIO.Track(anonID, "feedback_submitted", map[string]interface{}{
+			"type":             typeLabel,
+			"message":          req.Message,
+			"github_issue_url": ghIssue.HTMLURL,
+		})
 	}
 
 	w.Header().Set("Content-Type", "application/json")

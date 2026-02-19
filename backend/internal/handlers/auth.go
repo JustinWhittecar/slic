@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/JustinWhittecar/slic/internal/customerio"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -31,6 +32,7 @@ type User struct {
 type AuthHandler struct {
 	DB          *sql.DB
 	OAuthConfig *oauth2.Config
+	CIO         *customerio.Client
 }
 
 func NewAuthHandler(userDB *sql.DB) *AuthHandler {
@@ -113,6 +115,7 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 
 	// Upsert user
 	var userID int64
+	isNewUser := false
 	err = h.DB.QueryRow(`SELECT id FROM users WHERE google_id = ?`, gUser.ID).Scan(&userID)
 	if err == sql.ErrNoRows {
 		res, err := h.DB.Exec(
@@ -124,6 +127,7 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		userID, _ = res.LastInsertId()
+		isNewUser = true
 	} else if err != nil {
 		http.Error(w, "Database error", http.StatusInternalServerError)
 		return
@@ -131,6 +135,19 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 		h.DB.Exec(`UPDATE users SET email=?, display_name=?, avatar_url=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`,
 			gUser.Email, gUser.Name, gUser.Picture, userID)
 	}
+
+	// Customer.io tracking
+	cioID := fmt.Sprintf("user_%d", userID)
+	h.CIO.Identify(cioID, map[string]interface{}{
+		"email":      gUser.Email,
+		"name":       gUser.Name,
+		"created_at": time.Now().Unix(),
+		"last_login": time.Now().Unix(),
+	})
+	if isNewUser {
+		h.CIO.Track(cioID, "signed_up", map[string]interface{}{})
+	}
+	h.CIO.Track(cioID, "logged_in", map[string]interface{}{})
 
 	// Create session
 	sessionToken := generateToken(32)

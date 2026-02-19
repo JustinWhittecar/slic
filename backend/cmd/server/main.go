@@ -10,6 +10,7 @@ import (
 	"time"
 	"strings"
 
+	"github.com/JustinWhittecar/slic/internal/customerio"
 	"github.com/JustinWhittecar/slic/internal/db"
 	"github.com/JustinWhittecar/slic/internal/handlers"
 )
@@ -40,9 +41,18 @@ func main() {
 	}
 	defer userDB.Close()
 
+	// Customer.io
+	cioSiteID := os.Getenv("CIO_SITE_ID")
+	cioAPIKey := os.Getenv("CIO_API_KEY")
+	if cioSiteID == "" || cioAPIKey == "" {
+		log.Println("[WARN] CIO_SITE_ID or CIO_API_KEY not set; Customer.io tracking disabled")
+	}
+	cioClient := customerio.New(cioSiteID, cioAPIKey)
+
 	mechHandler := &handlers.MechHandlerSQLite{DB: sqlDB}
-	feedbackHandler := handlers.NewFeedbackHandler()
+	feedbackHandler := handlers.NewFeedbackHandler(cioClient)
 	authHandler := handlers.NewAuthHandler(userDB)
+	authHandler.CIO = cioClient
 	collectionHandler := &handlers.CollectionHandler{DB: userDB, MecDB: sqlDB}
 	listsHandler := &handlers.ListsHandler{DB: userDB}
 	modelsHandler := &handlers.ModelsHandler{DB: sqlDB}
