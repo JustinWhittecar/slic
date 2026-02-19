@@ -1,12 +1,16 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
+	"html"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"context"
+	"strconv"
 	"time"
 	"strings"
 
@@ -118,19 +122,75 @@ func main() {
 		log.Fatalf("Failed to create sub FS: %v", err)
 	}
 	fileServer := http.FileServer(http.FS(distFS))
+	// Read index.html once for OG tag injection
+	indexBytes, err := fs.ReadFile(distFS, "index.html")
+	if err != nil {
+		log.Fatalf("Failed to read index.html: %v", err)
+	}
+	indexHTML := string(indexBytes)
+
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Try to serve the file directly
 		path := r.URL.Path
 		if path == "/" {
 			path = "/index.html"
 		}
-		// Check if file exists in embedded FS
-		f, err := distFS.Open(strings.TrimPrefix(path, "/"))
-		if err == nil {
-			f.Close()
-			fileServer.ServeHTTP(w, r)
-			return
+		// Check if file exists in embedded FS (skip /mech/ routes)
+		if !strings.HasPrefix(path, "/mech/") {
+			f, err := distFS.Open(strings.TrimPrefix(path, "/"))
+			if err == nil {
+				f.Close()
+				fileServer.ServeHTTP(w, r)
+				return
+			}
 		}
+
+		// /mech/{id} — inject OG meta tags for social previews
+		if strings.HasPrefix(r.URL.Path, "/mech/") {
+			mechID := strings.TrimPrefix(r.URL.Path, "/mech/")
+			if id, err := strconv.Atoi(mechID); err == nil {
+				var chassis, modelCode, role string
+				var tonnage int
+				var bv sql.NullInt64
+				var cr sql.NullFloat64
+				err := sqlDB.QueryRow(`
+					SELECT c.name, v.model_code, COALESCE(v.role,''), COALESCE(vs.tonnage, c.tonnage), v.battle_value, vs.combat_rating
+					FROM variants v
+					JOIN chassis c ON c.id = v.chassis_id
+					LEFT JOIN variant_stats vs ON vs.variant_id = v.id
+					WHERE v.id = ?`, id).Scan(&chassis, &modelCode, &role, &tonnage, &bv, &cr)
+				if err == nil {
+					title := fmt.Sprintf("%s %s — SLIC", chassis, modelCode)
+					desc := fmt.Sprintf("%dt %s", tonnage, role)
+					if bv.Valid {
+						desc += fmt.Sprintf(" · BV %d", bv.Int64)
+					}
+					if cr.Valid {
+						desc += fmt.Sprintf(" · Combat Rating %.1f", cr.Float64)
+					}
+					ogHTML := indexHTML
+					ogHTML = strings.Replace(ogHTML,
+						`<meta property="og:title" content="SLIC — BattleTech Mech Database" />`,
+						fmt.Sprintf(`<meta property="og:title" content="%s" />`, html.EscapeString(title)), 1)
+					ogHTML = strings.Replace(ogHTML,
+						`<meta property="og:description" content="Browse 4,200+ mech variants with combat ratings from 1,000 Monte Carlo simulations. Build tournament lists with BV tracking." />`,
+						fmt.Sprintf(`<meta property="og:description" content="%s" />`, html.EscapeString(desc)), 1)
+					ogHTML = strings.Replace(ogHTML,
+						`<meta property="og:url" content="https://starleagueintelligencecommand.com" />`,
+						fmt.Sprintf(`<meta property="og:url" content="https://starleagueintelligencecommand.com/mech/%d" />`, id), 1)
+					ogHTML = strings.Replace(ogHTML,
+						`<title>SLIC — BattleTech Mech Database</title>`,
+						fmt.Sprintf(`<title>%s</title>`, html.EscapeString(title)), 1)
+					ogHTML = strings.Replace(ogHTML,
+						`<meta name="description" content="BattleTech mech database with Monte Carlo combat ratings, BV efficiency analysis, and tournament list builder. 4,200+ variants." />`,
+						fmt.Sprintf(`<meta name="description" content="%s" />`, html.EscapeString(desc)), 1)
+					w.Header().Set("Content-Type", "text/html; charset=utf-8")
+					w.Write([]byte(ogHTML))
+					return
+				}
+			}
+		}
+
 		// SPA fallback: serve index.html
 		r.URL.Path = "/"
 		fileServer.ServeHTTP(w, r)

@@ -78,7 +78,15 @@ let nextEntryId = 1
 
 function AppInner() {
   const [filters, setFilters] = useState<MechFilters>({ engine_types: ['Fusion', 'XL', 'XXL'] })
-  const [selectedMechId, setSelectedMechId] = useState<number | null>(null)
+  const [selectedMechId, setSelectedMechId] = useState<number | null>(() => {
+    const match = window.location.pathname.match(/^\/mech\/(\d+)$/)
+    if (match) {
+      // Clean URL to root for SPA navigation
+      window.history.replaceState({}, '', '/')
+      return parseInt(match[1], 10)
+    }
+    return null
+  })
   const [compareIds, setCompareIds] = useState<number[]>([])
   const [showCompare, setShowCompare] = useState(false)
   const [count, setCount] = useState(0)
