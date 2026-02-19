@@ -122,6 +122,7 @@ function AppInner() {
     const ids = parsed.map(e => e.id)
 
     fetchMechsByIds(ids).then(mechs => {
+      console.log('[SLIC] shared list: fetched', mechs.length, 'mechs for ids', ids)
       const mechMap = new Map(mechs.map(m => [m.id, m]))
       const listMechs: ListMech[] = []
       for (const entry of parsed) {
@@ -134,14 +135,13 @@ function AppInner() {
           pilotPiloting: entry.p,
         })
       }
+      console.log('[SLIC] shared list: built', listMechs.length, 'list entries')
       if (listMechs.length > 0) {
         setListMechs(listMechs)
         setShowListBuilder(true)
-        setSharedListBanner({ count: listMechs.length, bv: 0 }) // BV calculated in ListBuilder
+        setSharedListBanner({ count: listMechs.length, bv: 0 })
       }
-      // Clean URL without reload
-      window.history.replaceState({}, '', window.location.pathname)
-    }).catch(() => {})
+    }).catch(err => { console.error('[SLIC] shared list error:', err) })
 
     if (budgetParam) {
       const b = parseInt(budgetParam, 10)
