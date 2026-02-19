@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { track } from '../analytics'
 
 interface FeedbackModalProps {
   onClose: () => void
@@ -51,6 +52,7 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
         const text = await res.text()
         throw new Error(text)
       }
+      track('feedback_submit', { type })
       setStatus('sent')
     } catch {
       setStatus('error')

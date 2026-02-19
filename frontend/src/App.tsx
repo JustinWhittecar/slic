@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { track, trackPageView } from './analytics'
 import { MechTable } from './components/MechTable'
 import { FilterBar } from './components/FilterBar'
 import { MechDetail } from './components/MechDetail'
@@ -98,6 +99,11 @@ function AppInner() {
   const [showChangelog, setShowChangelog] = useState(false)
   const { user } = useAuth()
 
+  // Track page views
+  useEffect(() => { trackPageView('home') }, [])
+  useEffect(() => { if (showAbout) trackPageView('about') }, [showAbout])
+  useEffect(() => { if (showCollection) trackPageView('collection') }, [showCollection])
+
   const handleCountChange = useCallback((c: number) => setCount(c), [])
   const clearFilters = useCallback(() => setFilters({ engine_types: ['Fusion', 'XL', 'XXL'] }), [])
 
@@ -118,6 +124,7 @@ function AppInner() {
   }, [])
 
   const addToList = useCallback((mech: MechListItem) => {
+    track('list_add_mech', { mech_id: mech.id, mech_name: `${mech.chassis} ${mech.model_code}` })
     setListMechs(prev => [...prev, {
       id: `entry-${nextEntryId++}`,
       mechData: mech,

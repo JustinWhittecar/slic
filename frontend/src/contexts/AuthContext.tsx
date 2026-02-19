@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { fetchMe, logout as apiLogout, type AuthUser } from '../api/client'
+import { track } from '../analytics'
 
 interface AuthContextType {
   user: AuthUser | null
@@ -22,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchMe().then(u => {
       setUser(u)
+      if (u) track('login')
       setLoading(false)
     })
   }, [])
@@ -31,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = async () => {
+    track('logout')
     await apiLogout()
     setUser(null)
   }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { fetchMech, fetchCollectionSummary, type MechDetail as MechDetailType, type MechEquipment } from '../api/client'
 import { useAuth } from '../contexts/AuthContext'
+import { track } from '../analytics'
 
 interface MechDetailProps {
   mechId: number
@@ -229,6 +230,12 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   }, [mechId])
 
   useEffect(() => { loadMech() }, [loadMech])
+
+  useEffect(() => {
+    if (mech) {
+      track('mech_view', { mech_id: mech.id, mech_name: `${mech.chassis} ${mech.model_code}`, chassis: mech.chassis })
+    }
+  }, [mech])
 
   useEffect(() => {
     if (!user || !mech) return

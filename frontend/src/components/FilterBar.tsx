@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import type { MechFilters } from '../api/client'
+import { track } from '../analytics'
 
 const WEIGHT_CLASSES = [
   { label: 'Light', min: 20, max: 35 },
@@ -111,6 +112,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
     clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
       onFiltersChange({ ...filters, name: value || undefined })
+      if (value) track('search', { query: value })
     }, 300)
   }, [filters, onFiltersChange])
 
@@ -173,6 +175,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
 
   const addFilter = (def: FilterDef) => {
     setShowFilterMenu(false)
+    track('filter_add', { field: def.field })
     if (def.type === 'enum') {
       // Add with first option
       const firstOpt = def.options?.[0]
@@ -191,6 +194,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   }
 
   const removeFilter = (def: FilterDef) => {
+    track('filter_remove', { field: def.field })
     const newFilters = { ...filters }
     if (def.type === 'enum' && def.filterKey) {
       delete (newFilters as any)[def.filterKey]

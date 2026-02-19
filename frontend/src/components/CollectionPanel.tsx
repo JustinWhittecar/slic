@@ -3,6 +3,7 @@ import {
   fetchModels, fetchCollection, updateCollection,
   type ChassisModels,
 } from '../api/client'
+import { track } from '../analytics'
 
 interface CollectionPanelProps {
   onClose: () => void
@@ -69,8 +70,10 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
     const newMap = new Map(collection)
     if (next === 0) {
       newMap.delete(modelId)
+      track('collection_remove', { model_id: modelId })
     } else {
       newMap.set(modelId, next)
+      if (delta > 0) track('collection_add', { model_id: modelId })
     }
     setCollection(newMap)
     try {

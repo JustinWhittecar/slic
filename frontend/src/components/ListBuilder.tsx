@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { MechListItem } from '../api/client'
+import { track } from '../analytics'
 
 // BV multipliers indexed by [gunnery][piloting], from Total Warfare
 const BV_TABLE: number[][] = [
@@ -123,6 +124,7 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
   }
 
   const exportList = () => {
+    track('list_export', { mech_count: mechs.length, total_bv: totalBV })
     const lines = [`BV Budget: ${budget}`, '']
     mechs.forEach((entry) => {
       const name = `${entry.mechData.chassis} ${entry.mechData.model_code}`
