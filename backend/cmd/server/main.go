@@ -66,6 +66,7 @@ func main() {
 	modelsHandler := &handlers.ModelsHandler{DB: sqlDB}
 	preferencesHandler := &handlers.PreferencesHandler{DB: userDB}
 	eventsHandler := handlers.NewEventsHandler(userDB)
+	replayHandler := &handlers.ReplayHandler{DB: sqlDB}
 
 	mux := http.NewServeMux()
 
@@ -112,6 +113,9 @@ func main() {
 	// Events (analytics)
 	mux.HandleFunc("POST /api/events", eventsHandler.Track)
 	mux.HandleFunc("GET /api/events/stats", handlers.RequireAuth(eventsHandler.Stats))
+
+	// Replays
+	mux.HandleFunc("GET /api/variants/{id}/replay", replayHandler.GetReplay)
 
 	// Shared lists (public)
 	mux.HandleFunc("GET /api/shared/{shareCode}", listsHandler.SharedView)

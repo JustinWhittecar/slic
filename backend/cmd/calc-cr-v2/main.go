@@ -5,6 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"bytes"
+	"compress/gzip"
+	"database/sql"
 	"math"
 	"math/rand/v2"
 	"os"
@@ -18,6 +21,7 @@ import (
 
 	"github.com/JustinWhittecar/slic/internal/db"
 	"github.com/JustinWhittecar/slic/internal/ingestion"
+	_ "modernc.org/sqlite"
 )
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -455,6 +459,9 @@ func main() {
 	replayMode := flag.String("replay", "", "Run replay: 'attacker_name vs defender_name'")
 	replayOut := flag.String("replay-out", "", "Output file for replay JSON")
 	replaySeed := flag.Int64("replay-seed", 42, "RNG seed for replay")
+	genReplays := flag.Bool("gen-replays", false, "Generate replay for every variant and store in SQLite")
+	genReplaysDB := flag.String("gen-replays-db", "/Users/puckopenclaw/projects/slic/slic.db", "SQLite DB path for storing replays")
+	genReplaysLimit := flag.Int("gen-replays-limit", 0, "Limit number of variants to process (0=all)")
 	flag.Parse()
 
 	if *cpuprofile != "" {
@@ -566,6 +573,142 @@ func main() {
 			log.Fatalf("Write: %v", err)
 		}
 		log.Printf("Replay written to %s (%d turns, result: %s)", outFile, len(replay.Turns), replay.Result)
+		return
+	}
+
+	// Gen-replays mode: generate a replay for every variant, store in SQLite
+	if *genReplays {
+		log.Println("=== GEN-REPLAYS MODE ===")
+
+		// Open SQLite DB for writing
+		slDB, err := sql.Open("sqlite", *genReplaysDB)
+		if err != nil {
+			log.Fatalf("Open SQLite: %v", err)
+		}
+		defer slDB.Close()
+		slDB.Exec("PRAGMA journal_mode=WAL")
+		slDB.Exec("PRAGMA synchronous=NORMAL")
+
+		// Create table
+		slDB.Exec(`CREATE TABLE IF NOT EXISTS variant_replays (
+			variant_id INTEGER PRIMARY KEY,
+			replay_data BLOB NOT NULL
+		)`)
+
+		// Load all variants from Postgres
+		allVariants, err := loadVariantsFromDB(ctx, pool, "")
+		if err != nil {
+			log.Fatalf("Load variants: %v", err)
+		}
+		loadWeaponsForVariants(ctx, pool, allVariants)
+
+		limit := len(allVariants)
+		if *genReplaysLimit > 0 && *genReplaysLimit < limit {
+			limit = *genReplaysLimit
+		}
+
+		hbkTemplate := buildHBK4P()
+
+		log.Printf("Generating replays for %d variants...", limit)
+
+		var genProcessed atomic.Int64
+		var mu sync.Mutex
+
+		numW := runtime.NumCPU()
+		genJobs := make(chan int, limit)
+		var genWg sync.WaitGroup
+
+		// Prepare insert statement
+		tx, err := slDB.Begin()
+		if err != nil {
+			log.Fatalf("Begin tx: %v", err)
+		}
+		stmt, err := tx.Prepare(`INSERT OR REPLACE INTO variant_replays (variant_id, replay_data) VALUES (?, ?)`)
+		if err != nil {
+			log.Fatalf("Prepare: %v", err)
+		}
+
+		type replayResult struct {
+			variantID int
+			data      []byte
+		}
+		results := make(chan replayResult, 100)
+
+		// Writer goroutine
+		done := make(chan struct{})
+		go func() {
+			count := 0
+			for r := range results {
+				mu.Lock()
+				_, err := stmt.Exec(r.variantID, r.data)
+				mu.Unlock()
+				if err != nil {
+					log.Printf("Insert variant %d: %v", r.variantID, err)
+				}
+				count++
+				if count%100 == 0 {
+					log.Printf("  Stored %d replays", count)
+				}
+			}
+			close(done)
+		}()
+
+		for w := 0; w < numW; w++ {
+			genWg.Add(1)
+			go func() {
+				defer genWg.Done()
+				for idx := range genJobs {
+					v := &allVariants[idx]
+					mtf := mtfMap[v.Name+" "+v.ModelCode]
+					if mtf == nil {
+						mtf = mtfMap[v.Name]
+					}
+					mechTemplate := buildMechState(v, mtf)
+
+					// Deterministic seed per variant
+					rng := rand.New(rand.NewPCG(uint64(v.ID), 0))
+					b1 := boards[rng.IntN(len(boards))]
+					b2 := boards[rng.IntN(len(boards))]
+					combined := CombineBoards(b1, b2)
+
+					replay := simulateReplay(combined, mechTemplate, hbkTemplate, rng)
+					jsonData, err := replayToJSON(replay)
+					if err != nil {
+						log.Printf("JSON %s: %v", v.Name, err)
+						continue
+					}
+
+					// Gzip compress
+					var buf bytes.Buffer
+					gz := gzip.NewWriter(&buf)
+					gz.Write(jsonData)
+					gz.Close()
+
+					results <- replayResult{v.ID, buf.Bytes()}
+
+					n := genProcessed.Add(1)
+					if n%100 == 0 {
+						log.Printf("  Generated %d/%d replays", n, limit)
+					}
+				}
+			}()
+		}
+
+		for i := 0; i < limit; i++ {
+			genJobs <- i
+		}
+		close(genJobs)
+		genWg.Wait()
+		close(results)
+		<-done
+
+		stmt.Close()
+		if err := tx.Commit(); err != nil {
+			log.Fatalf("Commit: %v", err)
+		}
+		slDB.Close()
+
+		log.Printf("Done! Generated %d replays in %s", genProcessed.Load(), *genReplaysDB)
 		return
 	}
 

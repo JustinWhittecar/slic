@@ -1,7 +1,9 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, lazy, Suspense } from 'react'
 import { fetchMech, fetchCollectionSummary, type MechDetail as MechDetailType, type MechEquipment } from '../api/client'
 import { useAuth } from '../contexts/AuthContext'
 import { track } from '../analytics'
+
+const CombatReplay = lazy(() => import('./CombatReplay'))
 
 interface MechDetailProps {
   mechId: number
@@ -218,6 +220,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   const [techOpen, setTechOpen] = useState(false)
   const [equipOpen, setEquipOpen] = useState(true)
   const [sparkOpen, setSparkOpen] = useState(true)
+  const [combatOpen, setCombatOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const [ownedCount, setOwnedCount] = useState(0)
 
@@ -608,6 +611,31 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                 )}
               </div>
             )}
+
+            {/* Combat Sim Replay - Collapsible, lazy-loaded */}
+            <div style={{ borderBottom: '1px solid var(--border-default)' }}>
+              <button
+                onClick={() => setCombatOpen(!combatOpen)}
+                className="w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                <span>⚡ Combat Sim</span>
+                <svg className={`w-3.5 h-3.5 transition-transform ${combatOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {combatOpen && (
+                <Suspense fallback={
+                  <div className="px-5 py-4">
+                    <div className="h-48 rounded animate-pulse flex items-center justify-center" style={{ background: 'var(--bg-elevated)' }}>
+                      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Loading...</span>
+                    </div>
+                  </div>
+                }>
+                  <CombatReplay mechId={mech.id} />
+                </Suspense>
+              )}
+            </div>
           </div>
         )}
       </div>
