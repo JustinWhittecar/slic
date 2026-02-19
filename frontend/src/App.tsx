@@ -100,7 +100,7 @@ function AppInner() {
     }
   }, [])
   const [listMechs, setListMechs] = useState<ListMech[]>([])
-  const [showListBuilder, setShowListBuilder] = useState(true)
+  const [showListBuilder, setShowListBuilder] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
   const [showCollection, setShowCollection] = useState(false)
