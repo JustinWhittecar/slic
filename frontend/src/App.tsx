@@ -11,6 +11,8 @@ import { FeedbackModal } from './components/FeedbackModal'
 import { ChangelogPage } from './components/ChangelogPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CollectionPanel } from './components/CollectionPanel'
+import { BlogIndex } from './blog/BlogIndex'
+import { BlogPost } from './blog/BlogPost'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { getBVMultiplier, type ListMech } from './components/ListBuilder'
 import { fetchMechs, fetchMechsByIds, type MechListItem, type MechFilters } from './api/client'
@@ -113,6 +115,13 @@ function AppInner() {
   const [showFeedback, setShowFeedback] = useState(false)
   const [showCollection, setShowCollection] = useState(false)
   const [showChangelog, setShowChangelog] = useState(false)
+  const [blogView, setBlogView] = useState<'none' | 'index' | string>(() => {
+    const path = window.location.pathname
+    if (path === '/blog') return 'index'
+    const blogMatch = path.match(/^\/blog\/(.+)$/)
+    if (blogMatch) return blogMatch[1]
+    return 'none'
+  })
   const [sharedListBanner, setSharedListBanner] = useState<{ count: number; bv: number } | null>(null)
   const { user } = useAuth()
 
@@ -180,6 +189,33 @@ function AppInner() {
   useEffect(() => { if (showAbout) trackPageView('about') }, [showAbout])
   useEffect(() => { if (showCollection) trackPageView('collection') }, [showCollection])
 
+  const navigateToBlog = useCallback(() => {
+    setBlogView('index')
+    window.history.pushState({}, '', '/blog')
+    document.title = 'SLIC Blog'
+  }, [])
+  const navigateToPost = useCallback((slug: string) => {
+    setBlogView(slug)
+    window.history.pushState({}, '', `/blog/${slug}`)
+  }, [])
+  const navigateHome = useCallback(() => {
+    setBlogView('none')
+    window.history.pushState({}, '', '/')
+    document.title = 'SLIC — BattleTech Mech Database'
+  }, [])
+
+  // Handle browser back/forward for blog
+  useEffect(() => {
+    const handler = () => {
+      const path = window.location.pathname
+      if (path === '/blog') setBlogView('index')
+      else if (path.startsWith('/blog/')) setBlogView(path.slice(6))
+      else setBlogView('none')
+    }
+    window.addEventListener('popstate', handler)
+    return () => window.removeEventListener('popstate', handler)
+  }, [])
+
   const handleCountChange = useCallback((c: number) => setCount(c), [])
   const clearFilters = useCallback(() => setFilters({ engine_types: ['Fusion', 'XL', 'XXL'] }), [])
 
@@ -237,6 +273,13 @@ function AppInner() {
     return { ...filters, bv_max: effectiveMax }
   }, [filters, showListBuilder, listMechs, listBudget])
 
+  if (blogView === 'index') {
+    return <BlogIndex onNavigate={navigateToPost} onBack={navigateHome} />
+  }
+  if (blogView !== 'none') {
+    return <BlogPost slug={blogView} onBack={navigateHome} onBackToIndex={navigateToBlog} />
+  }
+
   return (
     <div className="min-h-screen transition-colors" style={{ background: 'var(--bg-page)', color: 'var(--text-primary)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
       <div className="max-w-[1600px] mx-auto px-4 py-4">
@@ -283,6 +326,17 @@ function AppInner() {
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
               Feedback
+            </button>
+            <button
+              onClick={navigateToBlog}
+              className="text-xs px-3 py-1.5 rounded cursor-pointer"
+              style={{
+                background: 'var(--bg-elevated)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-default)',
+              }}
+            >
+              Blog
             </button>
             <button
               onClick={() => setShowChangelog(true)}
