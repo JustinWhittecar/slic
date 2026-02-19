@@ -256,19 +256,11 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
           <button
             onClick={exportMul}
             className="text-xs px-2 py-1 rounded cursor-pointer"
-            style={{ background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }}
+            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
             disabled={mechs.length === 0}
             title="Download .mul file for Flechs Sheets"
           >
-            {mulMsg || '⬇ .mul'}
-          </button>
-          <button
-            onClick={exportList}
-            className="text-xs px-2 py-1 rounded cursor-pointer"
-            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
-            disabled={mechs.length === 0}
-          >
-            {exportMsg || 'Copy Text'}
+            {mulMsg || 'Export'}
           </button>
           <button
             onClick={shareList}
