@@ -1,5 +1,29 @@
 const BASE = '/api'
 
+const fetchWithCreds = (url: string, opts?: RequestInit) =>
+  fetch(url, { credentials: 'include', ...opts })
+
+export interface AuthUser {
+  id: number
+  email: string
+  display_name: string
+  avatar_url: string
+}
+
+export async function fetchMe(): Promise<AuthUser | null> {
+  try {
+    const res = await fetchWithCreds(`${BASE}/auth/me`)
+    if (!res.ok) return null
+    return res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function logout(): Promise<void> {
+  await fetchWithCreds(`${BASE}/auth/logout`, { method: 'POST' })
+}
+
 export interface MechListItem {
   id: number
   model_code: string

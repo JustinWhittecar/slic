@@ -7,12 +7,72 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { ListBuilder } from './components/ListBuilder'
 import { AboutPage } from './components/AboutPage'
 import { FeedbackModal } from './components/FeedbackModal'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import type { ListMech } from './components/ListBuilder'
 import { fetchMechs, type MechListItem, type MechFilters } from './api/client'
 
+function UserMenu() {
+  const { user, loading, login, logout } = useAuth()
+  const [open, setOpen] = useState(false)
+
+  if (loading) return null
+
+  if (!user) {
+    return (
+      <button
+        onClick={login}
+        className="text-xs px-3 py-1.5 rounded cursor-pointer flex items-center gap-1.5"
+        style={{
+          background: 'var(--bg-elevated)',
+          color: 'var(--text-secondary)',
+          border: '1px solid var(--border-default)',
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Sign in
+      </button>
+    )
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 text-xs px-2 py-1 rounded cursor-pointer"
+        style={{
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-default)',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        {user.avatar_url && (
+          <img src={user.avatar_url} alt="" className="rounded-full" style={{ width: 20, height: 20 }} />
+        )}
+        <span>{user.display_name || user.email}</span>
+      </button>
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-1 rounded shadow-lg py-1 z-50"
+          style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', minWidth: 140 }}
+        >
+          <button
+            onClick={() => { setOpen(false); logout() }}
+            className="w-full text-left text-xs px-3 py-1.5 cursor-pointer"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 let nextEntryId = 1
 
-export function App() {
+function AppInner() {
   const [filters, setFilters] = useState<MechFilters>({ engine_types: ['Fusion', 'XL', 'XXL'] })
   const [selectedMechId, setSelectedMechId] = useState<number | null>(null)
   const [compareIds, setCompareIds] = useState<number[]>([])
@@ -119,6 +179,7 @@ export function App() {
             >
               About
             </button>
+            <UserMenu />
             <ThemeToggle />
           </div>
         </header>
@@ -194,5 +255,13 @@ export function App() {
       {showAbout && <AboutPage onClose={() => setShowAbout(false)} />}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
     </div>
+  )
+}
+
+export function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
   )
 }

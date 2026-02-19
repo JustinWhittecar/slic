@@ -29,8 +29,22 @@ func main() {
 	}
 	defer sqlDB.Close()
 
+	// User DB (writable, separate from read-only mech DB)
+	userDBPath := os.Getenv("SLIC_USER_DB_PATH")
+	if userDBPath == "" {
+		userDBPath = "users.db"
+	}
+	userDB, err := db.ConnectUserDB(userDBPath)
+	if err != nil {
+		log.Fatalf("Failed to connect to user DB: %v", err)
+	}
+	defer userDB.Close()
+
 	mechHandler := &handlers.MechHandlerSQLite{DB: sqlDB}
 	feedbackHandler := handlers.NewFeedbackHandler()
+	authHandler := handlers.NewAuthHandler(userDB)
+	collectionHandler := &handlers.CollectionHandler{DB: userDB}
+	listsHandler := &handlers.ListsHandler{DB: userDB}
 
 	mux := http.NewServeMux()
 
@@ -46,6 +60,27 @@ func main() {
 
 	// Feedback
 	mux.HandleFunc("POST /api/feedback", feedbackHandler.Submit)
+
+	// Auth
+	mux.HandleFunc("GET /api/auth/google", authHandler.GoogleLogin)
+	mux.HandleFunc("GET /api/auth/callback", authHandler.Callback)
+	mux.HandleFunc("GET /api/auth/me", authHandler.Me)
+	mux.HandleFunc("POST /api/auth/logout", authHandler.Logout)
+
+	// Collection (protected)
+	mux.HandleFunc("GET /api/collection", handlers.RequireAuth(collectionHandler.List))
+	mux.HandleFunc("PUT /api/collection/{chassisId}", handlers.RequireAuth(collectionHandler.Put))
+	mux.HandleFunc("DELETE /api/collection/{chassisId}", handlers.RequireAuth(collectionHandler.Delete))
+
+	// Lists (protected)
+	mux.HandleFunc("GET /api/lists", handlers.RequireAuth(listsHandler.ListAll))
+	mux.HandleFunc("POST /api/lists", handlers.RequireAuth(listsHandler.Create))
+	mux.HandleFunc("GET /api/lists/{id}", listsHandler.Get)
+	mux.HandleFunc("PUT /api/lists/{id}", handlers.RequireAuth(listsHandler.Update))
+	mux.HandleFunc("DELETE /api/lists/{id}", handlers.RequireAuth(listsHandler.Delete))
+
+	// Shared lists (public)
+	mux.HandleFunc("GET /api/shared/{shareCode}", listsHandler.SharedView)
 
 	// Embedded frontend (SPA fallback)
 	distFS, err := fs.Sub(frontendFS, "dist")
@@ -71,8 +106,8 @@ func main() {
 		fileServer.ServeHTTP(w, r)
 	})
 
-	// CORS middleware
-	handler := corsMiddleware(mux)
+	// Wrap with auth middleware (populates user context) then CORS
+	handler := corsMiddleware(authHandler.AuthMiddleware(mux))
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -100,8 +135,18 @@ func main() {
 
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		origin := r.Header.Get("Origin")
+		// Allow specific origins for credentials support
+		allowed := origin == "https://starleagueintelligencecommand.com" ||
+			origin == "http://localhost:5173" ||
+			origin == "http://localhost:8080"
+		if allowed && origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+		} else if origin == "" {
+			// Same-origin requests
+		}
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
