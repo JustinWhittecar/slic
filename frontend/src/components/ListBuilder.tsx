@@ -20,7 +20,7 @@ const BV_TABLE: number[][] = [
   [1.14, 1.10, 1.06, 1.01, 0.94, 0.86, 0.78, 0.71, 0.64], // G8
 ]
 
-function getBVMultiplier(gunnery: number, piloting: number): number {
+export function getBVMultiplier(gunnery: number, piloting: number): number {
   const g = Math.max(0, Math.min(8, gunnery))
   const p = Math.max(0, Math.min(8, piloting))
   return BV_TABLE[g][p]

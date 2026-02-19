@@ -12,7 +12,7 @@ import { ChangelogPage } from './components/ChangelogPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CollectionPanel } from './components/CollectionPanel'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import type { ListMech } from './components/ListBuilder'
+import { getBVMultiplier, type ListMech } from './components/ListBuilder'
 import { fetchMechs, fetchMechsByIds, type MechListItem, type MechFilters } from './api/client'
 
 function UserMenu() {
@@ -212,6 +212,20 @@ function AppInner() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
+  // Auto-filter table by remaining BV when list builder is open
+  const tableFilters = useMemo(() => {
+    if (!showListBuilder || listMechs.length === 0) return filters
+    const budget = parseInt(localStorage.getItem('slic-list-budget') || '7000', 10)
+    const totalBV = listMechs.reduce((s, m) => {
+      const base = m.mechData.battle_value ?? 0
+      return s + Math.round(base * getBVMultiplier(m.pilotGunnery, m.pilotPiloting))
+    }, 0)
+    const remaining = budget - totalBV
+    if (remaining <= 0) return filters
+    const effectiveMax = filters.bv_max ? Math.min(filters.bv_max, remaining) : remaining
+    return { ...filters, bv_max: effectiveMax }
+  }, [filters, showListBuilder, listMechs])
+
   return (
     <div className="min-h-screen transition-colors" style={{ background: 'var(--bg-page)', color: 'var(--text-primary)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
       <div className="max-w-[1600px] mx-auto px-4 py-4">
@@ -338,7 +352,7 @@ function AppInner() {
         )}
 
         <MechTable
-          filters={filters}
+          filters={tableFilters}
           onSelectMech={setSelectedMechId}
           selectedMechId={selectedMechId}
           onCountChange={handleCountChange}
