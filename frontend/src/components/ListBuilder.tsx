@@ -6,9 +6,11 @@ function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-// BV multipliers indexed by [gunnery][piloting], normalized so 4/5 = 1.0
-// Published BV values (MUL) already assume a 4/5 pilot, so this table
-// adjusts relative to that baseline.
+// BV multipliers from Total Warfare, normalized so G4/P5 = 1.0
+// Published BV (MUL) assumes a 4/5 pilot. This table adjusts relative to that.
+// Note: TW uses a simplified single-multiplier table. MUL computes BV using
+// separate offensive/defensive modifiers, so exact values may differ slightly
+// for non-4/5 pilots. This matches standard tournament practice.
 const BV_TABLE: number[][] = [
   // P: 0     1     2     3     4     5     6     7     8
   [1.94, 1.85, 1.77, 1.68, 1.54, 1.40, 1.34, 1.27, 1.20], // G0
