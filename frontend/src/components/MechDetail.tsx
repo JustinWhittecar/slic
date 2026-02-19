@@ -168,23 +168,34 @@ function DamageSparkline({ data }: { data: number[] }) {
 
   return (
     <div>
-      <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Damage by Turn</div>
-      <svg viewBox={`0 0 ${w} ${h + 16}`} className="w-full" style={{ maxHeight: 96 }}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
+          Expected damage per turn at optimal engagement range. Gaps = out of range.
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${w} ${h + 18}`} className="w-full" style={{ maxHeight: 100 }}>
         {data.map((d, i) => {
-          const barH = (d / max) * h
+          const barH = d > 0 ? (d / max) * h : 0
           const x = gap + i * (barW + gap)
           const y = h - barH
           return (
             <g key={i}>
-              <rect x={x} y={y} width={barW} height={barH} rx={2}
-                fill="var(--accent)" opacity={0.75} />
-              {d > 0 && (
-                <text x={x + barW / 2} y={y - 2} textAnchor="middle"
-                  fill="var(--text-secondary)" fontSize={8} fontFamily="monospace">
-                  {d.toFixed(0)}
+              {d > 0 ? (
+                <>
+                  <rect x={x} y={y} width={barW} height={barH} rx={2}
+                    fill="var(--accent)" opacity={0.75} />
+                  <text x={x + barW / 2} y={y - 3} textAnchor="middle"
+                    fill="var(--text-secondary)" fontSize={8} fontFamily="monospace">
+                    {d.toFixed(0)}
+                  </text>
+                </>
+              ) : (
+                <text x={x + barW / 2} y={h - 4} textAnchor="middle"
+                  fill="var(--text-tertiary)" fontSize={8} opacity={0.5}>
+                  —
                 </text>
               )}
-              <text x={x + barW / 2} y={h + 12} textAnchor="middle"
+              <text x={x + barW / 2} y={h + 14} textAnchor="middle"
                 fill="var(--text-tertiary)" fontSize={8} fontFamily="monospace">
                 {i + 1}
               </text>
@@ -202,6 +213,8 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   const [loading, setLoading] = useState(true)
   const [visible, setVisible] = useState(false)
   const [techOpen, setTechOpen] = useState(false)
+  const [equipOpen, setEquipOpen] = useState(true)
+  const [sparkOpen, setSparkOpen] = useState(true)
   const [tooltip, setTooltip] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const [ownedCount, setOwnedCount] = useState(0)
@@ -328,22 +341,24 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                     {mech.intro_year && <><span>·</span><span>{mech.intro_year}</span></>}
                   </div>
                 </div>
-                <div className="flex items-start gap-2 ml-3 shrink-0">
+                <div className="flex items-center gap-3 ml-4 shrink-0">
                   {mech.battle_value && (
                     <div className="text-right">
-                      <div className="text-xs uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>BV</div>
-                      <div className="text-lg font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>{mech.battle_value.toLocaleString()}</div>
+                      <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>BV</div>
+                      <div className="text-lg font-bold tabular-nums leading-tight" style={{ color: 'var(--text-primary)' }}>{mech.battle_value.toLocaleString()}</div>
                     </div>
                   )}
-                  {onAddToList && mech && (
-                    <button
-                      onClick={() => onAddToList(mech)}
-                      className="text-xs px-2 py-1 rounded cursor-pointer font-medium"
-                      style={{ background: 'var(--accent)', color: '#fff' }}
-                      title="Add to list"
-                    >+ List</button>
-                  )}
-                  <button onClick={onClose} className="text-lg cursor-pointer mt-0.5 min-w-[44px] min-h-[44px] flex items-center justify-center" style={{ color: 'var(--text-tertiary)' }}>✕</button>
+                  <div className="flex items-center gap-1.5">
+                    {onAddToList && mech && (
+                      <button
+                        onClick={() => onAddToList(mech)}
+                        className="text-xs px-2.5 py-1.5 rounded cursor-pointer font-medium"
+                        style={{ background: 'var(--accent)', color: '#fff' }}
+                        title="Add to list"
+                      >+ List</button>
+                    )}
+                    <button onClick={onClose} className="text-lg cursor-pointer min-w-[36px] min-h-[36px] flex items-center justify-center rounded" style={{ color: 'var(--text-tertiary)' }}>✕</button>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 flex-wrap">
@@ -415,7 +430,8 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                     <div>
                       <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>BV Efficiency</div>
                       <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
-                        {((stats.combat_rating * stats.combat_rating) / (mech.battle_value / 1000)).toFixed(2)}
+                        {(() => { const baseline = 45.52; const raw = (stats.combat_rating * stats.combat_rating) / mech.battle_value * baseline; return Math.min(10, Math.max(1, 5.0 + 3.5 * Math.log(raw))).toFixed(1); })()}
+                        <span className="text-[10px] font-normal" style={{ color: 'var(--text-tertiary)' }}>/10</span>
                       </div>
                     </div>
                   )}
@@ -533,11 +549,20 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
               </div>
             )}
 
-            {/* Equipment by Location */}
+            {/* Equipment by Location - Collapsible */}
             {sortedLocs.length > 0 && (
-              <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-default)' }}>
-                <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>Equipment</div>
-                <div className="space-y-2.5">
+              <div style={{ borderBottom: '1px solid var(--border-default)' }}>
+                <button
+                  onClick={() => setEquipOpen(!equipOpen)}
+                  className="w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <span>Equipment</span>
+                  <svg className={`w-3.5 h-3.5 transition-transform ${equipOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {equipOpen && <div className="px-5 pb-3 space-y-2.5">
                   {sortedLocs.map(loc => (
                     <div key={loc}>
                       <div className="text-[11px] font-semibold uppercase tracking-wide mb-0.5" style={{ color: 'var(--text-primary)' }}>
@@ -575,14 +600,28 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                       </table>
                     </div>
                   ))}
-                </div>
+                </div>}
               </div>
             )}
 
-            {/* Damage Sparkline */}
+            {/* Damage Sparkline - Collapsible */}
             {damageByTurn.some(d => d > 0) && (
-              <div className="px-5 py-3">
-                <DamageSparkline data={damageByTurn} />
+              <div style={{ borderBottom: '1px solid var(--border-default)' }}>
+                <button
+                  onClick={() => setSparkOpen(!sparkOpen)}
+                  className="w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <span>Damage by Turn</span>
+                  <svg className={`w-3.5 h-3.5 transition-transform ${sparkOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {sparkOpen && (
+                  <div className="px-5 pb-3">
+                    <DamageSparkline data={damageByTurn} />
+                  </div>
+                )}
               </div>
             )}
           </div>
