@@ -211,8 +211,10 @@ func simulateReplay(board *Board, attackerTemplate, defenderTemplate *MechState,
 				replay.Result = "attacker_destroyed"
 				break
 			}
+			attacker.Heat += attacker.HeatPenalty; attacker.HeatPenalty = 0
 			attacker.Heat -= attacker.Dissipation
 			if attacker.Heat < 0 { attacker.Heat = 0 }
+			defender.Heat += defender.HeatPenalty; defender.HeatPenalty = 0
 			defender.Heat -= defender.Dissipation
 			if defender.Heat < 0 { defender.Heat = 0 }
 			turnData.Events = events
@@ -441,9 +443,11 @@ func simulateReplay(board *Board, attackerTemplate, defenderTemplate *MechState,
 			}
 		}
 
-		// Heat dissipation
+		// Heat dissipation (including plasma heat from enemy)
+		attacker.Heat += attacker.HeatPenalty; attacker.HeatPenalty = 0
 		attacker.Heat -= attacker.Dissipation
 		if attacker.Heat < 0 { attacker.Heat = 0 }
+		defender.Heat += defender.HeatPenalty; defender.HeatPenalty = 0
 		defender.Heat -= defender.Dissipation
 		if defender.Heat < 0 { defender.Heat = 0 }
 
@@ -876,11 +880,13 @@ func simulateDuelReplay(board *Board, attackerTemplate, defenderTemplate *MechSt
 			}
 		}
 
-		// Heat dissipation — both
+		// Heat dissipation — both (including plasma heat from enemy)
+		attacker.Heat += attacker.HeatPenalty; attacker.HeatPenalty = 0
 		attacker.Heat -= attacker.Dissipation
 		if attacker.Heat < 0 {
 			attacker.Heat = 0
 		}
+		defender.Heat += defender.HeatPenalty; defender.HeatPenalty = 0
 		defender.Heat -= defender.Dissipation
 		if defender.Heat < 0 {
 			defender.Heat = 0

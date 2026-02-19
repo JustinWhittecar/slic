@@ -128,9 +128,11 @@ type MechState struct {
 	IsLaserAMS           bool
 	HasArtemisIV         bool
 	HasArtemisV          bool
+	HasApollo            bool
 	AMSUsedThisTurn      bool
 
 	// Heat state
+	HeatPenalty       int // heat applied by enemy plasma weapons
 	IsShutdown        bool
 	ProneFromShutdown bool
 

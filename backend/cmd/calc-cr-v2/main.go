@@ -57,6 +57,20 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 			return turn
 		}
 
+		// Unjam RAC weapons (RAC clears jam after 1 turn)
+		for i := range attacker.Weapons {
+			w := &attacker.Weapons[i]
+			if w.Jammed && w.Category == catRotaryAC {
+				w.Jammed = false
+			}
+		}
+		for i := range defender.Weapons {
+			w := &defender.Weapons[i]
+			if w.Jammed && w.Category == catRotaryAC {
+				w.Jammed = false
+			}
+		}
+
 		// Handle shutdown
 		if attacker.IsShutdown {
 			attacker.IsShutdown = false
@@ -66,10 +80,14 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 			if attacker.isDestroyed() {
 				return maxTurns // attacker died
 			}
+			attacker.Heat += attacker.HeatPenalty
+			attacker.HeatPenalty = 0
 			attacker.Heat -= attacker.Dissipation
 			if attacker.Heat < 0 {
 				attacker.Heat = 0
 			}
+			defender.Heat += defender.HeatPenalty
+			defender.HeatPenalty = 0
 			defender.Heat -= defender.Dissipation
 			if defender.Heat < 0 {
 				defender.Heat = 0
@@ -309,6 +327,8 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 		if !attacker.IsShutdown {
 			attacker.Heat += attacker.EngineHits * 5
 		}
+		attacker.Heat += attacker.HeatPenalty // plasma weapon heat from enemy
+		attacker.HeatPenalty = 0
 		attacker.Heat -= attacker.Dissipation
 		if attacker.Heat < 0 {
 			attacker.Heat = 0
@@ -316,6 +336,8 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 		if !defender.IsShutdown {
 			defender.Heat += defender.EngineHits * 5
 		}
+		defender.Heat += defender.HeatPenalty // plasma weapon heat from enemy
+		defender.HeatPenalty = 0
 		defender.Heat -= defender.Dissipation
 		if defender.Heat < 0 {
 			defender.Heat = 0

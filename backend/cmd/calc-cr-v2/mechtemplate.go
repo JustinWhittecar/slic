@@ -404,6 +404,9 @@ func buildMechState(v *DBVariant, mtf *ingestion.MTFData) *MechState {
 				} else if strings.Contains(sLower, "artemis iv") {
 					m.HasArtemisIV = true
 				}
+				if strings.Contains(sLower, "apollo") {
+					m.HasApollo = true
+				}
 			}
 		}
 	}
@@ -430,6 +433,9 @@ func buildMechState(v *DBVariant, mtf *ingestion.MTFData) *MechState {
 			}
 			if cat == catLBX {
 				thm--
+			}
+			if cat == catMRM && m.HasApollo {
+				thm-- // Apollo FCS: -1 to-hit for MRMs
 			}
 			sw := SimWeapon{
 				Name:       w.Name,

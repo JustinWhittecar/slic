@@ -17,6 +17,7 @@ const (
 	catSRM
 	catMRM
 	catStreakSRM
+	catStreakLRM
 	catUltraAC
 	catRotaryAC
 	catLBX
@@ -24,13 +25,25 @@ const (
 	catATM
 	catMML
 	catArrowIV
+	catRocketLauncher
+	catPlasmaCannon
+	catPlasmaRifle
+	catVSP
 )
 
 func categorizeWeapon(name string) weaponCategory {
 	upper := strings.ToUpper(name)
 	switch {
-	case strings.Contains(upper, "STREAK SRM") || strings.Contains(upper, "STREAK LRM"):
+	case strings.Contains(upper, "STREAK LRM"):
+		return catStreakLRM
+	case strings.Contains(upper, "STREAK SRM"):
 		return catStreakSRM
+	case strings.Contains(upper, "ROCKET LAUNCHER"):
+		return catRocketLauncher
+	case upper == "PLASMA CANNON" || upper == "CLPLASMA CANNON":
+		return catPlasmaCannon
+	case upper == "PLASMA RIFLE":
+		return catPlasmaRifle
 	case strings.Contains(upper, "MML"):
 		return catMML
 	case strings.Contains(upper, "ATM") && !strings.Contains(upper, "ANTI"):
@@ -51,6 +64,8 @@ func categorizeWeapon(name string) weaponCategory {
 		return catSRM
 	case strings.Contains(upper, "LRM"):
 		return catLRM
+	case strings.Contains(upper, "VSP") || strings.Contains(upper, "VARIABLE SPEED PULSE"):
+		return catVSP
 	default:
 		return catNormal
 	}
@@ -225,6 +240,14 @@ func resolveWeaponFire2D(w *SimWeapon, target int, isRear bool, attacker *MechSt
 		return resolveArrowIV(w, target, defender, rng)
 	case catStreakSRM:
 		return resolveStreakSRM(w, target, isRear, attacker, defender, rng)
+	case catStreakLRM:
+		return resolveStreakLRM(w, target, isRear, attacker, defender, rng)
+	case catRocketLauncher:
+		return resolveRocketLauncher(w, target, isRear, defender, rng)
+	case catPlasmaCannon:
+		return resolvePlasmaCannon(w, target, defender, rng)
+	case catPlasmaRifle:
+		return resolvePlasmaRifle(w, target, isRear, defender, rng)
 	case catUltraAC:
 		return resolveUltraAC(w, target, isRear, defender, rng)
 	case catRotaryAC:
@@ -243,6 +266,8 @@ func resolveWeaponFire2D(w *SimWeapon, target int, isRear bool, attacker *MechSt
 		return resolveATM(w, target, isRear, attacker, defender, rng)
 	case catMML:
 		return resolveMML(w, target, isRear, attacker, defender, rng)
+	case catVSP:
+		return resolveVSP(w, target, isRear, attacker, defender, rng)
 	default:
 		if roll2d6(rng) >= target {
 			loc := rollHitLocation(isRear, rng)
@@ -291,42 +316,107 @@ func resolveStreakSRM(w *SimWeapon, target int, isRear bool, attacker *MechState
 }
 
 func resolveUltraAC(w *SimWeapon, target int, isRear bool, defender *MechState, rng *rand.Rand) int {
+	// Ultra AC rapid-fire R2: ONE to-hit roll, jam on natural 2, cluster table column 2 for hits.
+	// Even if jammed, the attack still resolves normally.
+	r := roll2d6(rng)
+	if r == 2 {
+		w.Jammed = true // permanently jammed for rest of game
+	}
 	dmgDealt := 0
-	if roll2d6(rng) >= target {
-		loc := rollHitLocation(isRear, rng)
-		defender.applyDamage(loc, w.Damage, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
-		dmgDealt += w.Damage
-	}
-	secondRoll := roll2d6(rng)
-	if secondRoll == 2 {
-		w.Jammed = true
-		return dmgDealt
-	}
-	if secondRoll >= target {
-		loc := rollHitLocation(isRear, rng)
-		defender.applyDamage(loc, w.Damage, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
-		dmgDealt += w.Damage
+	if r >= target {
+		hits := clusterHits(2, rng) // cluster table column "2" → 1 or 2 hits
+		for h := 0; h < hits; h++ {
+			loc := rollHitLocation(isRear, rng)
+			defender.applyDamage(loc, w.Damage, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+			dmgDealt += w.Damage
+		}
 	}
 	return dmgDealt
 }
 
+// racOptimalShots returns the optimal number of shots (2-6) for a Rotary AC
+// based on single-turn EV considering jam probability.
+// Jam thresholds: 2-3 shots → jam on 2, 4-5 → jam on ≤3, 6 → jam on ≤4.
+// RAC unjams next turn (1-turn cooldown), so jam cost = 1 turn of lost damage.
+func racOptimalShots(w *SimWeapon, hitProb float64) int {
+	bestShots := 2
+	bestEV := 0.0
+	// Approximate future damage per turn (used to cost jam penalty)
+	avgFutureDmg := float64(w.Damage) * 4 * hitProb * 0.58 // rough mid estimate
+	for shots := 2; shots <= 6; shots++ {
+		var jamProb float64
+		switch {
+		case shots <= 3:
+			jamProb = 1.0 / 36.0 // natural 2
+		case shots <= 5:
+			jamProb = 3.0 / 36.0 // ≤3
+		default:
+			jamProb = 6.0 / 36.0 // ≤4
+		}
+		// EV = hits * damage * hitProb * clusterFraction - jamProb * futureDmgLost
+		clusterAvg := clusterAverage(shots)
+		ev := clusterAvg*float64(w.Damage)*hitProb - jamProb*avgFutureDmg
+		if ev > bestEV {
+			bestEV = ev
+			bestShots = shots
+		}
+	}
+	return bestShots
+}
+
+// clusterAverage returns the average number of hits from the cluster table for a given rack size.
+func clusterAverage(rackSize int) float64 {
+	colIdx := 0
+	for i, rs := range clusterRackSizes {
+		if rs <= rackSize {
+			colIdx = i
+		}
+	}
+	total := 0
+	for row := 0; row < 11; row++ {
+		total += clusterTable[row][colIdx]
+	}
+	// Each row is equally likely on 2d6? No — 2d6 distribution.
+	// Weights for 2d6 results 2-12: 1,2,3,4,5,6,5,4,3,2,1 (out of 36)
+	weights := [11]int{1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1}
+	weighted := 0.0
+	for row := 0; row < 11; row++ {
+		weighted += float64(clusterTable[row][colIdx]) * float64(weights[row])
+	}
+	return weighted / 36.0
+}
+
 func resolveRotaryAC(w *SimWeapon, target int, isRear bool, defender *MechState, rng *rand.Rand) int {
-	// RAC fires 6 shots. Roll once to hit; on natural 2 it jams.
-	// Use cluster table with rack size 6 to determine hits.
+	// RAC rapid-fire R6: choose optimal shot count, ONE to-hit roll.
+	// Jam thresholds vary by shots fired. RAC unjams next turn (not permanent).
+	p := hitProb(target)
+	shots := racOptimalShots(w, p)
+
 	r := roll2d6(rng)
-	if r == 2 {
-		w.Jammed = true
-		return 0
+
+	// Jam check based on shots fired
+	var jamThreshold int
+	switch {
+	case shots <= 3:
+		jamThreshold = 2
+	case shots <= 5:
+		jamThreshold = 3
+	default:
+		jamThreshold = 4
 	}
-	if r < target {
-		return 0
+	if r <= jamThreshold {
+		w.Jammed = true // unjams next turn (handled in turn loop)
 	}
-	hits := clusterHits(6, rng)
+
+	// Attack still resolves even on jam
 	dmgDealt := 0
-	for h := 0; h < hits; h++ {
-		loc := rollHitLocation(isRear, rng)
-		defender.applyDamage(loc, w.Damage, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
-		dmgDealt += w.Damage
+	if r >= target {
+		hits := clusterHits(shots, rng)
+		for h := 0; h < hits; h++ {
+			loc := rollHitLocation(isRear, rng)
+			defender.applyDamage(loc, w.Damage, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+			dmgDealt += w.Damage
+		}
 	}
 	return dmgDealt
 }
@@ -384,12 +474,23 @@ func resolveSRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 func resolveMRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := clusterHits(w.RackSize, rng)
+		bonus := 0
+		if attacker.HasApollo {
+			bonus = 2 // Apollo FCS gives +2 cluster bonus for MRMs
+		}
+		hits := clusterHitsWithBonus(w.RackSize, bonus, rng)
 		hits = amsIntercept(hits, defender, rng)
-		for h := 0; h < hits; h++ {
+		// MRM is C5: 1 dmg/missile, apply in 5-point groups
+		totalDmg := hits // hits * 1 dmg per missile
+		for totalDmg > 0 {
+			grp := 5
+			if totalDmg < 5 {
+				grp = totalDmg
+			}
 			loc := rollHitLocation(isRear, rng)
-			defender.applyDamage(loc, 1, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
-			dmgDealt++
+			defender.applyDamage(loc, grp, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+			dmgDealt += grp
+			totalDmg -= grp
 		}
 	}
 	return dmgDealt
@@ -435,10 +536,17 @@ func resolveATM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 	if roll2d6(rng) >= target {
 		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
 		hits = amsIntercept(hits, defender, rng)
-		for h := 0; h < hits; h++ {
+		// ATM is C5: total damage = hits * dmgPerMissile, apply in 5-point groups
+		totalDmg := hits * dmgPerMissile
+		for totalDmg > 0 {
+			grp := 5
+			if totalDmg < 5 {
+				grp = totalDmg
+			}
 			loc := rollHitLocation(isRear, rng)
-			defender.applyDamage(loc, dmgPerMissile, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
-			dmgDealt += dmgPerMissile
+			defender.applyDamage(loc, grp, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+			dmgDealt += grp
+			totalDmg -= grp
 		}
 	}
 	return dmgDealt
@@ -486,6 +594,135 @@ func resolveMML(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 	return dmgDealt
 }
 
+func resolveStreakLRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
+	// Streak LRM: all missiles hit on successful to-hit (no cluster roll). 1 dmg/missile, 5-point groupings.
+	dmgDealt := 0
+	if roll2d6(rng) >= target {
+		hits := w.RackSize // all missiles hit — that's the Streak feature
+		hits = amsIntercept(hits, defender, rng)
+		for hits > 0 {
+			grp := 5
+			if hits < 5 {
+				grp = hits
+			}
+			loc := rollHitLocation(isRear, rng)
+			defender.applyDamage(loc, grp, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+			dmgDealt += grp
+			hits -= grp
+		}
+	}
+	return dmgDealt
+}
+
+func resolveRocketLauncher(w *SimWeapon, target int, isRear bool, defender *MechState, rng *rand.Rand) int {
+	// Rocket Launchers: one-shot cluster weapon. 1 dmg/missile, 5-point groupings.
+	// After firing, weapon is spent (destroyed).
+	w.Destroyed = true // one-shot weapon
+	dmgDealt := 0
+	if roll2d6(rng) >= target {
+		hits := clusterHits(w.RackSize, rng)
+		for hits > 0 {
+			grp := 5
+			if hits < 5 {
+				grp = hits
+			}
+			loc := rollHitLocation(isRear, rng)
+			defender.applyDamage(loc, grp, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+			dmgDealt += grp
+			hits -= grp
+		}
+	}
+	return dmgDealt
+}
+
+func resolvePlasmaCannon(w *SimWeapon, target int, defender *MechState, rng *rand.Rand) int {
+	// Plasma Cannon: 0 damage, applies 2d6 heat to target on hit.
+	if roll2d6(rng) >= target {
+		heatApplied := roll2d6(rng)
+		defender.HeatPenalty += heatApplied
+	}
+	return 0
+}
+
+func resolvePlasmaRifle(w *SimWeapon, target int, isRear bool, defender *MechState, rng *rand.Rand) int {
+	// Plasma Rifle: 10 damage + heat to target on hit.
+	if roll2d6(rng) >= target {
+		loc := rollHitLocation(isRear, rng)
+		defender.applyDamage(loc, w.Damage, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+		heatApplied := roll2d6(rng)
+		defender.HeatPenalty += heatApplied
+		return w.Damage
+	}
+	return 0
+}
+
+// vspDamageByRange returns the variable damage for VSP lasers based on range bracket.
+// Small VSP: 5/4/3, Medium VSP: 9/7/5, Large VSP: 11/9/7
+func vspDamageByRange(w *SimWeapon, dist int) int {
+	// w.Damage is set to max (short range) value in DB
+	shortDmg := w.Damage
+	var medDmg, longDmg int
+	switch shortDmg {
+	case 5: // Small VSP
+		medDmg, longDmg = 4, 3
+	case 9: // Medium VSP
+		medDmg, longDmg = 7, 5
+	case 11: // Large VSP
+		medDmg, longDmg = 9, 7
+	default:
+		medDmg, longDmg = shortDmg, shortDmg
+	}
+	if dist <= w.ShortRange {
+		return shortDmg
+	}
+	if dist <= w.MedRange {
+		return medDmg
+	}
+	return longDmg
+}
+
+// vspToHitMod returns the VSP to-hit modifier by range: -3 short, -2 medium, -1 long
+func vspToHitMod(w *SimWeapon, dist int) int {
+	if dist <= w.ShortRange {
+		return -3
+	}
+	if dist <= w.MedRange {
+		return -2
+	}
+	return -1
+}
+
+func resolveVSP(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
+	// VSP target already includes range modifier from rangeModifier() but NOT the VSP-specific to-hit mod.
+	// We need to adjust: remove the DB toHitMod (0) and apply vspToHitMod instead.
+	// Actually, the target number is computed externally with w.ToHitMod (0 from DB) + rangeModifier.
+	// We need the distance to compute VSP mod. Use attacker/defender positions.
+	dist := HexDistance(attacker.Pos, defender.Pos)
+	vspMod := vspToHitMod(w, dist)
+	adjustedTarget := target + vspMod // add the VSP pulse bonus
+	dmg := vspDamageByRange(w, dist)
+
+	if roll2d6(rng) >= adjustedTarget {
+		loc := rollHitLocation(isRear, rng)
+		defender.applyDamage(loc, dmg, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
+		return dmg
+	}
+	return 0
+}
+
+// effectiveWeaponHeat returns the actual heat generated when firing a weapon,
+// accounting for rapid-fire modes (UAC 2×, RAC shots×).
+func effectiveWeaponHeat(w *SimWeapon) int {
+	switch w.Category {
+	case catUltraAC:
+		return w.Heat * 2 // always rapid-fire 2 shots
+	case catRotaryAC:
+		return w.Heat * 4 // default ~4 shots (heuristic, actual chosen at resolve time)
+	default:
+		return w.Heat
+	}
+}
+
 // ─── EV-based weapon selection ──────────────────────────────────────────────
 
 // selectWeaponsEV selects which weapons to fire based on EV-based heat management.
@@ -517,7 +754,7 @@ func selectWeaponsEV(mech *MechState, board *Board, defender *MechState, dist in
 		if ed <= 0 {
 			continue
 		}
-		candidates = append(candidates, weaponFire{i, ed, w.Heat})
+		candidates = append(candidates, weaponFire{i, ed, effectiveWeaponHeat(w)})
 	}
 
 	// Sort by damage/heat ratio
@@ -609,10 +846,43 @@ func weaponExpectedDamage(w *SimWeapon, dist int, target int) float64 {
 	switch w.Category {
 	case catStreakSRM:
 		return float64(w.RackSize) * 2 * p
+	case catStreakLRM:
+		return float64(w.RackSize) * 1 * p
 	case catUltraAC:
-		return float64(w.Damage) * 2 * p
+		// Average hits from cluster table column 2, factoring jam (permanent loss)
+		avgHits := clusterAverage(2) // ~1.39
+		jamProb := 1.0 / 36.0
+		return float64(w.Damage) * avgHits * p * (1 - jamProb)
 	case catRotaryAC:
-		return float64(w.Damage) * 6 * p
+		// Use optimal shot count EV
+		bestEV := 0.0
+		for shots := 2; shots <= 6; shots++ {
+			var jamProb float64
+			switch {
+			case shots <= 3:
+				jamProb = 1.0 / 36.0
+			case shots <= 5:
+				jamProb = 3.0 / 36.0
+			default:
+				jamProb = 6.0 / 36.0
+			}
+			avgHits := clusterAverage(shots)
+			// RAC jam = 1 turn lost, approximate cost as losing this turn's EV
+			ev := float64(w.Damage) * avgHits * p * (1 - jamProb)
+			if ev > bestEV {
+				bestEV = ev
+			}
+		}
+		return bestEV
+	case catRocketLauncher:
+		// One-shot cluster weapon, 1 dmg/missile, C5 grouping
+		return float64(w.RackSize) * p * 0.58
+	case catPlasmaCannon:
+		// 0 damage but applies ~7 avg heat; model heat disruption as ~3.5 equivalent damage
+		return 3.5 * p
+	case catPlasmaRifle:
+		// 10 damage + ~7 avg heat to target
+		return (float64(w.Damage) + 3.5) * p
 	case catLBX:
 		return float64(w.RackSize) * p * 0.7
 	case catLRM:
@@ -710,6 +980,24 @@ func weaponExpectedDamage(w *SimWeapon, dist int, target int) float64 {
 			}
 		}
 		return bestDmg
+	case catVSP:
+		// VSP has range-dependent damage and to-hit mod; approximate with average
+		// Short: -3 mod, max dmg; Med: -2 mod, mid dmg; Long: -1 mod, min dmg
+		// Use the range bracket for this distance
+		vspMod := -2 // average approximation
+		dmg := float64(w.Damage) * 0.8 // rough average across ranges
+		if dist <= w.ShortRange {
+			vspMod = -3
+			dmg = float64(w.Damage)
+		} else if dist <= w.MedRange {
+			vspMod = -2
+			dmg = float64(vspDamageByRange(w, dist))
+		} else {
+			vspMod = -1
+			dmg = float64(vspDamageByRange(w, dist))
+		}
+		adjustedT := t + vspMod
+		return dmg * hitProb(adjustedT)
 	default:
 		return float64(w.Damage) * p
 	}
