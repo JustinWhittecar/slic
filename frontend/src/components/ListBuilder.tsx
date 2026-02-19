@@ -28,7 +28,7 @@ function getBVMultiplier(gunnery: number, piloting: number): number {
 
 const GUNNERY_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7]
 const PILOTING_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7]
-const BUDGET_PRESETS = [7000, 7500, 10000]
+const BUDGET_PRESETS = [3000, 5000, 7000, 10000]
 
 export interface ListMech {
   id: string
@@ -79,21 +79,7 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
   const remaining = budget - totalBV
   const pct = budget > 0 ? Math.min(100, (totalBV / budget) * 100) : 0
 
-  // Validation warnings
-  const warnings = useMemo(() => {
-    const w: { text: string; level: 'warn' | 'error' }[] = []
-    if (mechs.length > 0 && mechs.length < 3) w.push({ text: `Min 3 units required (${mechs.length}/3)`, level: 'warn' })
-    if (mechs.length > 6) w.push({ text: `Max 6 units (${mechs.length}/6)`, level: 'error' })
-    const chassisCount: Record<string, number> = {}
-    for (const m of mechs) {
-      const c = m.mechData.chassis
-      chassisCount[c] = (chassisCount[c] || 0) + 1
-    }
-    for (const [chassis, count] of Object.entries(chassisCount)) {
-      if (count > 3) w.push({ text: `Max 3 of ${chassis} (${count}/3)`, level: 'error' })
-    }
-    return w
-  }, [mechs])
+  const overBudget = totalBV > budget && budget > 0
 
   const removeMech = useCallback((id: string) => {
     onMechsChange(mechs.filter(m => m.id !== id))
@@ -272,14 +258,12 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
         </div>
       </div>
 
-      {/* Warnings */}
-      {warnings.length > 0 && (
-        <div className="px-4 py-1.5 flex gap-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-          {warnings.map((w, i) => (
-            <span key={i} className="text-xs" style={{ color: w.level === 'error' ? '#ef4444' : '#f59e0b' }}>
-              {w.text}
-            </span>
-          ))}
+      {/* Over budget warning */}
+      {overBudget && (
+        <div className="px-4 py-1.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <span className="text-xs" style={{ color: '#f59e0b' }}>
+            Over budget by {(totalBV - budget).toLocaleString()} BV
+          </span>
         </div>
       )}
 
