@@ -24,11 +24,18 @@
   --bg-hover: #242424;
   --border-default: #252525;
   --border-subtle: #1e1e1e;
-  --text-primary: #ebebeb;
+  --text-primary: #d4d4d4;
   --text-secondary: #8a8a8a;
   --text-tertiary: #555555;
   --accent: #7b8af9;
   --accent-hover: #939ffc;
+}
+
+/* Softer placeholder text */
+input::placeholder, textarea::placeholder {
+  color: var(--text-tertiary) !important;
+  opacity: 0.7;
+  font-style: italic;
 }
 
 /* Column header tooltips */

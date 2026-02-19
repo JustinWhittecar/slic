@@ -56,9 +56,9 @@ func (h *MechHandlerSQLite) List(w http.ResponseWriter, r *http.Request) {
 		args = append(args, v)
 	}
 	if v := r.URL.Query().Get("name"); v != "" {
-		query += " AND (v.name LIKE ? OR c.name LIKE ? OR c.alternate_name LIKE ?)"
+		query += " AND (v.name LIKE ? OR c.name LIKE ? OR c.alternate_name LIKE ? OR v.model_code LIKE ?)"
 		p := "%" + v + "%"
-		args = append(args, p, p, p)
+		args = append(args, p, p, p, p)
 	}
 	if v := r.URL.Query().Get("bv_min"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {

@@ -209,7 +209,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
           type="text"
           value={searchText}
           onChange={e => handleSearch(e.target.value)}
-          placeholder="Search mechs..."
+          placeholder="Search by name or model code (e.g. HBK-4P)..."
           className="flex-1 px-3 py-2 rounded text-sm outline-none"
           style={{
             background: 'var(--bg-surface)',
@@ -303,22 +303,22 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
 
           {/* Row 3: Numeric range filters */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 items-start">
-            {numInput('BV Min', 'bv_min', '1000')}
-            {numInput('BV Max', 'bv_max', '2000')}
-            {numInput('Year Min', 'intro_year_min', '2750')}
-            {numInput('Year Max', 'intro_year_max', '3150')}
-            {numInput('TMM ≥', 'tmm_min', '2')}
-            {numInput('Walk MP ≥', 'walk_mp_min', '4')}
-            {numInput('Jump MP ≥', 'jump_mp_min', '3')}
+            {numInput('BV Min', 'bv_min', 'e.g. 1000')}
+            {numInput('BV Max', 'bv_max', 'e.g. 2000')}
+            {numInput('Year Min', 'intro_year_min', 'e.g. 2750')}
+            {numInput('Year Max', 'intro_year_max', 'e.g. 3150')}
+            {numInput('TMM ≥', 'tmm_min', 'any')}
+            {numInput('Walk MP ≥', 'walk_mp_min', 'any')}
+            {numInput('Jump MP ≥', 'jump_mp_min', 'any')}
           </div>
 
           {/* Row 4: Damage & rating filters */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-4 items-start">
-            {numInput('HN Dmg ≥', 'heat_neutral_min', '20')}
-            {numInput('Alpha Dmg ≥', 'max_damage_min', '40')}
-            {numInput('Armor % ≥', 'armor_pct_min', '80')}
-            {numInput('Combat Rtg ≥', 'combat_rating_min', '5')}
-            {numInput('Combat Rtg ≤', 'combat_rating_max', '10')}
+            {numInput('HN Dmg ≥', 'heat_neutral_min', 'any')}
+            {numInput('Alpha Dmg ≥', 'max_damage_min', 'any')}
+            {numInput('Armor % ≥', 'armor_pct_min', 'any')}
+            {numInput('Combat Rtg ≥', 'combat_rating_min', 'any')}
+            {numInput('Combat Rtg ≤', 'combat_rating_max', 'any')}
 
             {activeFilterCount > 0 && (
               <div className="flex items-end">

@@ -350,7 +350,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                 {mech.sarna_url && (
                   <a href={mech.sarna_url} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors"
-                    style={{ border: '1px solid var(--border-default)', color: 'var(--text-secondary)', background: 'var(--bg-surface)' }}>
+                    style={{ border: '1px solid #2a7b6f', color: '#2a9d8f', background: 'rgba(42, 157, 143, 0.08)' }}>
                     Sarna <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
                   </a>
                 )}
@@ -543,21 +543,31 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                       <div className="text-[11px] font-semibold uppercase tracking-wide mb-0.5" style={{ color: 'var(--text-primary)' }}>
                         {LOCATION_NAMES[loc] || loc}
                       </div>
-                      <table className="w-full text-xs">
+                      <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ color: 'var(--text-tertiary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <th className="text-left pr-2 py-0.5 font-normal">Equipment</th>
+                            <th className="text-right px-1 py-0.5 font-normal">Dmg</th>
+                            <th className="text-right px-1 py-0.5 font-normal">Heat</th>
+                            <th className="text-right pl-1 py-0.5 font-normal">S/M/L</th>
+                          </tr>
+                        </thead>
                         <tbody>
-                          {equipByLoc[loc]!.map(eq => (
-                            <tr key={eq.id} style={{ color: 'var(--text-primary)' }}>
-                              <td className="pr-2 py-0.5">
+                          {equipByLoc[loc]!.map((eq, idx) => (
+                            <tr key={eq.id} style={{ color: 'var(--text-primary)', background: idx % 2 === 0 ? 'transparent' : 'var(--bg-elevated)' }}>
+                              <td className="pr-2 py-1">
                                 {eq.quantity > 1 ? <span style={{ color: 'var(--text-tertiary)' }}>{eq.quantity}× </span> : ''}{eq.name}
                               </td>
-                              {eq.damage !== undefined && eq.damage > 0 && (
+                              {eq.damage !== undefined && eq.damage > 0 ? (
                                 <>
-                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.damage}d</td>
-                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.heat ?? 0}h</td>
+                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.damage}</td>
+                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.heat ?? 0}</td>
                                   <td className="tabular-nums text-right pl-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
                                     {eq.short_range ?? '—'}/{eq.medium_range ?? '—'}/{eq.long_range ?? '—'}
                                   </td>
                                 </>
+                              ) : (
+                                <td colSpan={3}></td>
                               )}
                             </tr>
                           ))}
