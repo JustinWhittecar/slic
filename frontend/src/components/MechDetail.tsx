@@ -429,7 +429,21 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                           const color = mfgColors[model.manufacturer] || 'var(--text-tertiary)'
                           const searchQuery = encodeURIComponent(`battletech ${model.name} miniature`)
                           const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${searchQuery}`
-                          const amazonUrl = `https://www.amazon.com/s?k=${searchQuery}`
+
+                          // Determine the best store link per manufacturer
+                          let storeUrl: string | null = null
+                          let storeLabel = 'Store'
+                          if (model.source_url) {
+                            // IWM models already have direct product URLs
+                            storeUrl = model.source_url
+                            storeLabel = 'IWM'
+                          } else if (model.manufacturer === 'Catalyst' && model.sku) {
+                            // Catalyst models: link to store search by SKU
+                            storeUrl = `https://store.catalystgamelabs.com/search?q=${encodeURIComponent(model.sku)}`
+                            storeLabel = 'Catalyst'
+                          }
+                          // No store link → show eBay as fallback
+
                           return (
                             <div key={model.id} className="flex items-start gap-2 text-xs py-1">
                               <span
@@ -443,35 +457,26 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                                   <span className="truncate" style={{ color: 'var(--text-primary)' }}>
                                     {model.name}
                                   </span>
-                                  {model.material && (
-                                    <span className="shrink-0" style={{ color: 'var(--text-tertiary)' }}>
-                                      {model.material}
-                                    </span>
-                                  )}
-                                  {model.year && model.year > 0 && (
+                                  {model.sku && (
                                     <span className="shrink-0 tabular-nums" style={{ color: 'var(--text-tertiary)' }}>
-                                      {model.year}
+                                      {model.sku}
                                     </span>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  {model.source_url && (
-                                    <a href={model.source_url} target="_blank" rel="noopener noreferrer"
+                                  {storeUrl ? (
+                                    <a href={storeUrl} target="_blank" rel="noopener noreferrer"
                                       className="inline-flex items-center gap-0.5" style={{ color: 'var(--accent)' }}
                                       onClick={e => e.stopPropagation()}>
-                                      <span style={{ fontSize: 10 }}>Store ↗</span>
+                                      <span style={{ fontSize: 10 }}>{storeLabel} ↗</span>
+                                    </a>
+                                  ) : (
+                                    <a href={ebayUrl} target="_blank" rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
+                                      onClick={e => e.stopPropagation()}>
+                                      <span style={{ fontSize: 10 }}>eBay ↗</span>
                                     </a>
                                   )}
-                                  <a href={ebayUrl} target="_blank" rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
-                                    onClick={e => e.stopPropagation()}>
-                                    <span style={{ fontSize: 10 }}>eBay ↗</span>
-                                  </a>
-                                  <a href={amazonUrl} target="_blank" rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
-                                    onClick={e => e.stopPropagation()}>
-                                    <span style={{ fontSize: 10 }}>Amazon ↗</span>
-                                  </a>
                                 </div>
                               </div>
                             </div>
