@@ -52,6 +52,7 @@ func (c *Client) SendTransactional(to, subject, htmlBody string, identifiers map
 		payload := map[string]interface{}{
 			"to":                       to,
 			"transactional_message_id": "1",
+			"from":                     "SLIC Command <slic@starleagueintelligencecommand.com>",
 			"identifiers":              identifiers,
 			"subject":                  subject,
 			"body":                     htmlBody,
@@ -77,9 +78,11 @@ func (c *Client) SendTransactional(to, subject, htmlBody string, identifiers map
 			log.Printf("[CIO] transactional send error: %v", err)
 			return
 		}
-		resp.Body.Close()
+		defer resp.Body.Close()
 		if resp.StatusCode >= 400 {
-			log.Printf("[CIO] transactional send status: %d", resp.StatusCode)
+			var respBody bytes.Buffer
+			respBody.ReadFrom(resp.Body)
+			log.Printf("[CIO] transactional send status: %d body: %s", resp.StatusCode, respBody.String())
 		} else {
 			log.Printf("[CIO] transactional email sent to %s: %s", to, subject)
 		}
