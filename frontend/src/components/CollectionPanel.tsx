@@ -34,12 +34,14 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
   const [search, setSearch] = useState('')
   const [weightClass, setWeightClass] = useState('All')
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
+  const [showProxies, setShowProxies] = useState(false)
   const [loading, setLoading] = useState(true)
   const [visible, setVisible] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    Promise.all([fetchModels(), fetchCollection()]).then(([models, coll]) => {
+    setLoading(true)
+    Promise.all([fetchModels(undefined, showProxies), fetchCollection()]).then(([models, coll]) => {
       setAllModels(models)
       const map = new Map<number, number>()
       for (const item of coll) {
@@ -48,7 +50,7 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
       setCollection(map)
       setLoading(false)
     }).catch(() => setLoading(false))
-  }, [])
+  }, [showProxies])
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -157,6 +159,17 @@ export function CollectionPanel({ onClose }: CollectionPanelProps) {
             </div>
             <div className="mt-0.5 text-right" style={{ color: 'var(--text-tertiary)' }}>{ownedChassisIds.size}/732 chassis</div>
           </div>
+
+          {/* Proxy toggle */}
+          <label className="flex items-center gap-2 mt-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showProxies}
+              onChange={e => setShowProxies(e.target.checked)}
+              className="accent-current"
+            />
+            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Show proxy models</span>
+          </label>
         </div>
 
         {/* Chassis List */}

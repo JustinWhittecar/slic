@@ -194,9 +194,12 @@ export interface ChassisModels {
   models: PhysicalModel[]
 }
 
-export async function fetchModels(chassisId?: number): Promise<ChassisModels[]> {
-  const params = chassisId ? `?chassis_id=${chassisId}` : ''
-  const res = await fetch(`${BASE}/models${params}`)
+export async function fetchModels(chassisId?: number, includeProxy?: boolean): Promise<ChassisModels[]> {
+  const searchParams = new URLSearchParams()
+  if (chassisId) searchParams.set('chassis_id', String(chassisId))
+  if (includeProxy) searchParams.set('include_proxy', 'true')
+  const qs = searchParams.toString()
+  const res = await fetch(`${BASE}/models${qs ? '?' + qs : ''}`)
   if (!res.ok) throw new Error(`Failed to fetch models: ${res.status}`)
   return res.json()
 }

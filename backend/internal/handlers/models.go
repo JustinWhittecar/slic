@@ -37,11 +37,24 @@ func (h *ModelsHandler) List(w http.ResponseWriter, r *http.Request) {
 	          FROM physical_models pm
 	          JOIN chassis c ON c.id = pm.chassis_id`
 	args := []any{}
+	conditions := []string{}
 
 	if v := r.URL.Query().Get("chassis_id"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
-			query += " WHERE pm.chassis_id = ?"
+			conditions = append(conditions, "pm.chassis_id = ?")
 			args = append(args, n)
+		}
+	}
+
+	// Exclude proxy models by default; include with ?include_proxy=true
+	if r.URL.Query().Get("include_proxy") != "true" {
+		conditions = append(conditions, "pm.manufacturer != 'Proxy'")
+	}
+
+	if len(conditions) > 0 {
+		query += " WHERE " + conditions[0]
+		for _, c := range conditions[1:] {
+			query += " AND " + c
 		}
 	}
 
