@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { track, trackPageView } from './analytics'
 import { MechTable } from './components/MechTable'
 import { FilterBar } from './components/FilterBar'
@@ -101,10 +101,12 @@ function AppInner() {
   const { user } = useAuth()
 
   // Parse shared list from URL on mount
-  useEffect(() => {
+  // Capture URL params immediately (before child effects like FilterBar can overwrite the URL)
+  const initialListParams = useMemo(() => {
     const params = new URLSearchParams(window.location.search)
     const listParam = params.get('list')
-    if (!listParam) return
+    const budgetParam = params.get('budget')
+    if (!listParam) return null
 
     const entries = listParam.split('-').slice(0, 24)
     const parsed: { id: number; g: number; p: number }[] = []
@@ -116,13 +118,22 @@ function AppInner() {
       const p = skills?.length >= 2 ? parseInt(skills[1], 10) : 4
       parsed.push({ id, g: isNaN(g) ? 4 : Math.min(7, Math.max(0, g)), p: isNaN(p) ? 4 : Math.min(7, Math.max(0, p)) })
     }
-    if (parsed.length === 0) return
+    if (parsed.length === 0) return null
+    return { parsed, budgetParam }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    const budgetParam = params.get('budget')
+  useEffect(() => {
+    if (!initialListParams) return
+    const { parsed, budgetParam } = initialListParams
     const ids = parsed.map(e => e.id)
 
+    if (budgetParam) {
+      const b = parseInt(budgetParam, 10)
+      if (!isNaN(b)) localStorage.setItem('slic-list-budget', String(b))
+    }
+
     fetchMechsByIds(ids).then(mechs => {
-      console.log('[SLIC] shared list: fetched', mechs.length, 'mechs for ids', ids)
       const mechMap = new Map(mechs.map(m => [m.id, m]))
       const listMechs: ListMech[] = []
       for (const entry of parsed) {
@@ -135,19 +146,13 @@ function AppInner() {
           pilotPiloting: entry.p,
         })
       }
-      console.log('[SLIC] shared list: built', listMechs.length, 'list entries')
       if (listMechs.length > 0) {
         setListMechs(listMechs)
         setShowListBuilder(true)
         setSharedListBanner({ count: listMechs.length, bv: 0 })
       }
-    }).catch(err => { console.error('[SLIC] shared list error:', err) })
-
-    if (budgetParam) {
-      const b = parseInt(budgetParam, 10)
-      if (!isNaN(b)) localStorage.setItem('slic-list-budget', String(b))
-    }
-  }, [])
+    }).catch(() => {})
+  }, [initialListParams])
 
   // Track page views
   useEffect(() => { trackPageView('home') }, [])
