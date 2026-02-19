@@ -43,7 +43,7 @@ func (c *Client) transactionalEnabled() bool {
 
 // SendTransactional sends a transactional email via Customer.io's App API.
 // Fire-and-forget: runs in a goroutine.
-func (c *Client) SendTransactional(to, subject, htmlBody string, identifiers map[string]string, messageData map[string]interface{}) {
+func (c *Client) SendTransactional(to, subject, htmlBody string, transactionalMessageID string, identifiers map[string]string, messageData map[string]interface{}) {
 	if !c.transactionalEnabled() {
 		log.Printf("[CIO] transactional send skipped (no app API key)")
 		return
@@ -51,7 +51,7 @@ func (c *Client) SendTransactional(to, subject, htmlBody string, identifiers map
 	go func() {
 		payload := map[string]interface{}{
 			"to":                       to,
-			"transactional_message_id": "1",
+			"transactional_message_id": transactionalMessageID,
 			"from":                     "SLIC Command <slic@starleagueintelligencecommand.com>",
 			"identifiers":              identifiers,
 			"subject":                  subject,
