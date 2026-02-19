@@ -52,21 +52,15 @@ interface ListBuilderProps {
   mechs: ListMech[]
   onMechsChange: (mechs: ListMech[]) => void
   onClose: () => void
+  budget: number
+  onBudgetChange: (budget: number) => void
 }
 
-export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps) {
-  const [budget, setBudget] = useState(() => {
-    const saved = localStorage.getItem('slic-list-budget')
-    return saved ? parseInt(saved, 10) : 7000
-  })
+export function ListBuilder({ mechs, onMechsChange, onClose, budget, onBudgetChange: setBudget }: ListBuilderProps) {
   const [saveLoadOpen, setSaveLoadOpen] = useState(false)
   const [saveName, setSaveName] = useState('')
   const [shareMsg, setShareMsg] = useState('')
   const [mulMsg, setMulMsg] = useState('')
-
-  useEffect(() => {
-    localStorage.setItem('slic-list-budget', String(budget))
-  }, [budget])
 
   const totalBV = useMemo(() => mechs.reduce((s, m) => s + getAdjustedBV(m), 0), [mechs])
   const totalTonnage = useMemo(() => mechs.reduce((s, m) => s + m.mechData.tonnage, 0), [mechs])

@@ -101,6 +101,14 @@ function AppInner() {
   }, [])
   const [listMechs, setListMechs] = useState<ListMech[]>([])
   const [showListBuilder, setShowListBuilder] = useState(false)
+  const [listBudget, setListBudget] = useState(() => {
+    const saved = localStorage.getItem('slic-list-budget')
+    return saved ? parseInt(saved, 10) : 7000
+  })
+
+  useEffect(() => {
+    localStorage.setItem('slic-list-budget', String(listBudget))
+  }, [listBudget])
   const [showAbout, setShowAbout] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
   const [showCollection, setShowCollection] = useState(false)
@@ -159,6 +167,10 @@ function AppInner() {
         setListMechs(listMechs)
         setShowListBuilder(true)
         setSharedListBanner({ count: listMechs.length, bv: 0 })
+        if (initialListParams.budgetParam) {
+          const b = parseInt(initialListParams.budgetParam, 10)
+          if (!isNaN(b)) setListBudget(b)
+        }
       }
     }).catch(() => {})
   }, [initialListParams])
@@ -215,16 +227,17 @@ function AppInner() {
   // Auto-filter table by remaining BV when list builder is open
   const tableFilters = useMemo(() => {
     if (!showListBuilder || listMechs.length === 0) return filters
-    const budget = parseInt(localStorage.getItem('slic-list-budget') || '7000', 10)
     const totalBV = listMechs.reduce((s, m) => {
       const base = m.mechData.battle_value ?? 0
       return s + Math.round(base * getBVMultiplier(m.pilotGunnery, m.pilotPiloting))
     }, 0)
-    const remaining = budget - totalBV
+    const remaining = listBudget - totalBV
     if (remaining <= 0) return filters
-    const effectiveMax = filters.bv_max ? Math.min(filters.bv_max, remaining) : remaining
+    // Convert adjusted BV remaining to raw BV for API filter (default 4/5 pilot = 1.25x)
+    const rawRemaining = Math.floor(remaining / 1.25)
+    const effectiveMax = filters.bv_max ? Math.min(filters.bv_max, rawRemaining) : rawRemaining
     return { ...filters, bv_max: effectiveMax }
-  }, [filters, showListBuilder, listMechs])
+  }, [filters, showListBuilder, listMechs, listBudget])
 
   return (
     <div className="min-h-screen transition-colors" style={{ background: 'var(--bg-page)', color: 'var(--text-primary)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
@@ -324,6 +337,8 @@ function AppInner() {
             mechs={listMechs}
             onMechsChange={setListMechs}
             onClose={() => setShowListBuilder(false)}
+            budget={listBudget}
+            onBudgetChange={setListBudget}
           />
         )}
 
