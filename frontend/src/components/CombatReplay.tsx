@@ -140,8 +140,8 @@ export function CombatReplay({ mechId }: CombatReplayProps) {
 
     const atk = turn.attacker
     const def = turn.defender
-    const fromPx = hexToPixel(atk.col, atk.row)
-    const toPx = hexToPixel(def.col, def.row)
+    const atkPx = hexToPixel(atk.col, atk.row)
+    const defPx = hexToPixel(def.col, def.row)
 
     const fires = fireEvents.map((e, i) => {
       const hit = !e.message.includes('MISS')
@@ -153,6 +153,10 @@ export function CombatReplay({ mechId }: CombatReplayProps) {
         : weapon.toLowerCase().includes('srm') || weapon.toLowerCase().includes('lrm') || weapon.toLowerCase().includes('streak') || weapon.toLowerCase().includes('mml') || weapon.toLowerCase().includes('atm')
           ? 'missile'
           : 'ballistic'
+      // Fire FROM actor TO target
+      const isDefender = e.actor === 'defender'
+      const fromPx = isDefender ? defPx : atkPx
+      const toPx = isDefender ? atkPx : defPx
       return {
         id: fireIdRef.current++,
         weapon, hit, damage, type: wType,

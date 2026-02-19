@@ -557,8 +557,8 @@ func main() {
 		b2 := boards[rng.IntN(len(boards))]
 		combined := CombineBoards(b1, b2)
 
-		log.Printf("Running replay: %s vs %s (seed %d)", atkName, defName, *replaySeed)
-		replay := simulateReplay(combined, atkTemplate, defTemplate, rng)
+		log.Printf("Running duel replay: %s vs %s (seed %d)", atkName, defName, *replaySeed)
+		replay := simulateDuelReplay(combined, atkTemplate, defTemplate, rng)
 
 		data, err := replayToJSON(replay)
 		if err != nil {
@@ -665,13 +665,25 @@ func main() {
 					}
 					mechTemplate := buildMechState(v, mtf)
 
-					// Deterministic seed per variant
-					rng := rand.New(rand.NewPCG(uint64(v.ID), 0))
-					b1 := boards[rng.IntN(len(boards))]
-					b2 := boards[rng.IntN(len(boards))]
-					combined := CombineBoards(b1, b2)
+					// Run 5 sims with different seeds, pick median by turn count
+					const numDuelSims = 5
+					type simResult struct {
+						replay *ReplayData
+						turns  int
+					}
+					var simResults []simResult
+					for s := 0; s < numDuelSims; s++ {
+						rng := rand.New(rand.NewPCG(uint64(v.ID), uint64(s)))
+						b1 := boards[rng.IntN(len(boards))]
+						b2 := boards[rng.IntN(len(boards))]
+						combined := CombineBoards(b1, b2)
+						r := simulateDuelReplay(combined, mechTemplate, hbkTemplate, rng)
+						simResults = append(simResults, simResult{r, len(r.Turns)})
+					}
+					// Sort by turns, pick median
+					sort.Slice(simResults, func(i, j int) bool { return simResults[i].turns < simResults[j].turns })
+					replay := simResults[numDuelSims/2].replay
 
-					replay := simulateReplay(combined, mechTemplate, hbkTemplate, rng)
 					jsonData, err := replayToJSON(replay)
 					if err != nil {
 						log.Printf("JSON %s: %v", v.Name, err)
