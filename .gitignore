@@ -24,3 +24,7 @@ backend/calc-cr-v2
 backend/calc-efficiency
 backend/cmd/calc-cr-v2/replay_output.json
 backend/cmd/calc-cr-v2/calc-cr-v2
+backend/verify-bv
+backend/bv-verification.csv
+*.db-shm
+*.db-wal

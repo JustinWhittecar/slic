@@ -130,9 +130,24 @@ func ParseMTF(path string) (*MTFData, error) {
 		}
 
 		// If in a location block, collect equipment
+		// But stop if we hit a lore/metadata field (overview:, capabilities:, etc.)
 		if currentLocation != "" {
-			data.LocationEquipment[currentLocation] = append(data.LocationEquipment[currentLocation], trimmed)
-			continue
+			if idx := strings.Index(trimmed, ":"); idx >= 0 {
+				key := strings.ToLower(strings.TrimSpace(trimmed[:idx]))
+				switch key {
+				case "overview", "capabilities", "deployment", "history",
+					"manufacturer", "primaryfactory", "systemmanufacturer", "systemmode",
+					"nocrit":
+					currentLocation = "" // Exit location block
+					// Fall through to key:value parsing below
+				default:
+					data.LocationEquipment[currentLocation] = append(data.LocationEquipment[currentLocation], trimmed)
+					continue
+				}
+			} else {
+				data.LocationEquipment[currentLocation] = append(data.LocationEquipment[currentLocation], trimmed)
+				continue
+			}
 		}
 
 		// If in weapons section, parse weapon entries
