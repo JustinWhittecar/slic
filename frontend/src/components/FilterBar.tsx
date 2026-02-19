@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 import type { MechFilters } from '../api/client'
 
 const WEIGHT_CLASSES = [
@@ -34,6 +35,7 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
+  const { user } = useAuth()
   const [expanded, setExpanded] = useState(false)
   const [searchText, setSearchText] = useState(filters.name ?? '')
   const debounceRef = useRef<ReturnType<typeof setTimeout>>()
@@ -215,6 +217,19 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
             color: 'var(--text-primary)',
           }}
         />
+        {user && (
+          <button
+            onClick={() => onFiltersChange({ ...filters, owned_only: !filters.owned_only })}
+            className="px-3 py-2 rounded text-sm cursor-pointer whitespace-nowrap"
+            style={{
+              border: `1px solid ${filters.owned_only ? 'var(--accent)' : 'var(--border-default)'}`,
+              color: filters.owned_only ? '#fff' : 'var(--text-secondary)',
+              background: filters.owned_only ? 'var(--accent)' : 'var(--bg-surface)',
+            }}
+          >
+            Owned
+          </button>
+        )}
         <button
           onClick={() => setExpanded(!expanded)}
           className="px-3 py-2 rounded text-sm cursor-pointer"

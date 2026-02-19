@@ -27,6 +27,14 @@ func ConnectUserDB(path string) (*sql.DB, error) {
 		return nil, fmt.Errorf("ping user db: %w", err)
 	}
 
+	// Migrate: drop old user_collections with chassis_id schema
+	var hasChassisCol bool
+	row := db.QueryRow(`SELECT COUNT(*) FROM pragma_table_info('user_collections') WHERE name='chassis_id'`)
+	row.Scan(&hasChassisCol)
+	if hasChassisCol {
+		db.Exec(`DROP TABLE IF EXISTS user_collections`)
+	}
+
 	// Create tables
 	for _, ddl := range []string{
 		`CREATE TABLE IF NOT EXISTS users (
@@ -47,10 +55,10 @@ func ConnectUserDB(path string) (*sql.DB, error) {
 		`CREATE TABLE IF NOT EXISTS user_collections (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			user_id INTEGER NOT NULL REFERENCES users(id),
-			chassis_id INTEGER NOT NULL,
+			physical_model_id INTEGER NOT NULL,
 			quantity INTEGER DEFAULT 1,
 			notes TEXT,
-			UNIQUE(user_id, chassis_id)
+			UNIQUE(user_id, physical_model_id)
 		)`,
 		`CREATE TABLE IF NOT EXISTS user_lists (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -9,7 +9,7 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { fetchMechs, type MechListItem, type MechFilters } from '../api/client'
+import { fetchMechs, fetchCollectionSummary, type MechListItem, type MechFilters } from '../api/client'
 import { ColumnSelector } from './ColumnSelector'
 
 const DEFAULT_VISIBILITY: VisibilityState = {
@@ -91,9 +91,26 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     setLoading(true)
     setError(null)
     try {
-      const data = await fetchMechs(filters)
-      setMechs(data)
-      onCountChange(data.length)
+      // Strip owned_only from API filters (client-side filter)
+      const { owned_only, ...apiFilters } = filters
+      const data = await fetchMechs(apiFilters)
+
+      if (owned_only) {
+        try {
+          const summary = await fetchCollectionSummary()
+          const ownedChassisNames = new Set(summary.map(s => s.chassis_name))
+          const filtered = data.filter(m => ownedChassisNames.has(m.chassis))
+          setMechs(filtered)
+          onCountChange(filtered.length)
+        } catch {
+          // If collection fetch fails, show all
+          setMechs(data)
+          onCountChange(data.length)
+        }
+      } else {
+        setMechs(data)
+        onCountChange(data.length)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')
     } finally {

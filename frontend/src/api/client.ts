@@ -142,6 +142,7 @@ export interface MechFilters {
   jump_mp_min?: number
   engine_types?: string[]
   heat_sink_type?: string
+  owned_only?: boolean
 }
 
 export async function fetchMechs(filters: MechFilters = {}): Promise<MechListItem[]> {
@@ -170,5 +171,77 @@ export async function fetchMechs(filters: MechFilters = {}): Promise<MechListIte
 export async function fetchMech(id: number): Promise<MechDetail> {
   const res = await fetch(`${BASE}/mechs/${id}`)
   if (!res.ok) throw new Error(`Failed to fetch mech: ${res.status}`)
+  return res.json()
+}
+
+// Physical Models
+export interface PhysicalModel {
+  id: number
+  name: string
+  manufacturer: string
+  sku?: string
+  source_url?: string
+  image_url?: string
+  in_print: boolean
+}
+
+export interface ChassisModels {
+  chassis_id: number
+  chassis_name: string
+  tonnage: number
+  tech_base: string
+  has_model: boolean
+  models: PhysicalModel[]
+}
+
+export async function fetchModels(chassisId?: number): Promise<ChassisModels[]> {
+  const params = chassisId ? `?chassis_id=${chassisId}` : ''
+  const res = await fetch(`${BASE}/models${params}`)
+  if (!res.ok) throw new Error(`Failed to fetch models: ${res.status}`)
+  return res.json()
+}
+
+// Collection
+export interface CollectionItem {
+  id: number
+  physical_model_id: number
+  quantity: number
+  notes: string
+  model_name: string
+  manufacturer: string
+  sku: string
+  source_url?: string
+  chassis_id: number
+  chassis_name: string
+  tonnage: number
+}
+
+export interface CollectionSummaryItem {
+  chassis_id: number
+  chassis_name: string
+  total_quantity: number
+}
+
+export async function fetchCollection(): Promise<CollectionItem[]> {
+  const res = await fetchWithCreds(`${BASE}/collection`)
+  if (!res.ok) throw new Error(`Failed to fetch collection: ${res.status}`)
+  return res.json()
+}
+
+export async function updateCollection(modelId: number, quantity: number, notes?: string): Promise<void> {
+  await fetchWithCreds(`${BASE}/collection/${modelId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quantity, notes: notes ?? '' }),
+  })
+}
+
+export async function deleteFromCollection(modelId: number): Promise<void> {
+  await fetchWithCreds(`${BASE}/collection/${modelId}`, { method: 'DELETE' })
+}
+
+export async function fetchCollectionSummary(): Promise<CollectionSummaryItem[]> {
+  const res = await fetchWithCreds(`${BASE}/collection/summary`)
+  if (!res.ok) throw new Error(`Failed to fetch collection summary: ${res.status}`)
   return res.json()
 }

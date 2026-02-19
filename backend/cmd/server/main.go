@@ -43,8 +43,9 @@ func main() {
 	mechHandler := &handlers.MechHandlerSQLite{DB: sqlDB}
 	feedbackHandler := handlers.NewFeedbackHandler()
 	authHandler := handlers.NewAuthHandler(userDB)
-	collectionHandler := &handlers.CollectionHandler{DB: userDB}
+	collectionHandler := &handlers.CollectionHandler{DB: userDB, MecDB: sqlDB}
 	listsHandler := &handlers.ListsHandler{DB: userDB}
+	modelsHandler := &handlers.ModelsHandler{DB: sqlDB}
 
 	mux := http.NewServeMux()
 
@@ -67,10 +68,14 @@ func main() {
 	mux.HandleFunc("GET /api/auth/me", authHandler.Me)
 	mux.HandleFunc("POST /api/auth/logout", authHandler.Logout)
 
+	// Physical models
+	mux.HandleFunc("GET /api/models", modelsHandler.List)
+
 	// Collection (protected)
 	mux.HandleFunc("GET /api/collection", handlers.RequireAuth(collectionHandler.List))
-	mux.HandleFunc("PUT /api/collection/{chassisId}", handlers.RequireAuth(collectionHandler.Put))
-	mux.HandleFunc("DELETE /api/collection/{chassisId}", handlers.RequireAuth(collectionHandler.Delete))
+	mux.HandleFunc("GET /api/collection/summary", handlers.RequireAuth(collectionHandler.Summary))
+	mux.HandleFunc("PUT /api/collection/{modelId}", handlers.RequireAuth(collectionHandler.Put))
+	mux.HandleFunc("DELETE /api/collection/{modelId}", handlers.RequireAuth(collectionHandler.Delete))
 
 	// Lists (protected)
 	mux.HandleFunc("GET /api/lists", handlers.RequireAuth(listsHandler.ListAll))

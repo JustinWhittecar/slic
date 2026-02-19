@@ -7,6 +7,7 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { ListBuilder } from './components/ListBuilder'
 import { AboutPage } from './components/AboutPage'
 import { FeedbackModal } from './components/FeedbackModal'
+import { CollectionPanel } from './components/CollectionPanel'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import type { ListMech } from './components/ListBuilder'
 import { fetchMechs, type MechListItem, type MechFilters } from './api/client'
@@ -91,6 +92,8 @@ function AppInner() {
   const [showListBuilder, setShowListBuilder] = useState(true)
   const [showAbout, setShowAbout] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [showCollection, setShowCollection] = useState(false)
+  const { user } = useAuth()
 
   const handleCountChange = useCallback((c: number) => setCount(c), [])
   const clearFilters = useCallback(() => setFilters({ engine_types: ['Fusion', 'XL', 'XXL'] }), [])
@@ -156,6 +159,20 @@ function AppInner() {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
               List{listMechs.length > 0 ? ` (${listMechs.length})` : ''}
             </button>
+            {user && (
+              <button
+                onClick={() => setShowCollection(true)}
+                className="text-xs px-3 py-1.5 rounded cursor-pointer flex items-center gap-1.5"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-default)',
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                Collection
+              </button>
+            )}
             <button
               onClick={() => setShowFeedback(true)}
               className="text-xs px-3 py-1.5 rounded cursor-pointer flex items-center gap-1.5"
@@ -254,6 +271,7 @@ function AppInner() {
 
       {showAbout && <AboutPage onClose={() => setShowAbout(false)} />}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+      {showCollection && <CollectionPanel onClose={() => setShowCollection(false)} />}
     </div>
   )
 }

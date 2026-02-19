@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { fetchMech, type MechDetail as MechDetailType, type MechEquipment } from '../api/client'
+import { fetchMech, fetchCollectionSummary, type MechDetail as MechDetailType, type MechEquipment } from '../api/client'
+import { useAuth } from '../contexts/AuthContext'
 
 interface MechDetailProps {
   mechId: number
@@ -196,12 +197,14 @@ function DamageSparkline({ data }: { data: number[] }) {
 }
 
 export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
+  const { user } = useAuth()
   const [mech, setMech] = useState<MechDetailType | null>(null)
   const [loading, setLoading] = useState(true)
   const [visible, setVisible] = useState(false)
   const [techOpen, setTechOpen] = useState(false)
   const [tooltip, setTooltip] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
+  const [ownedCount, setOwnedCount] = useState(0)
 
   const [error, setError] = useState(false)
 
@@ -212,6 +215,14 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   }, [mechId])
 
   useEffect(() => { loadMech() }, [loadMech])
+
+  useEffect(() => {
+    if (!user || !mech) return
+    fetchCollectionSummary().then(summary => {
+      const match = summary.find(s => s.chassis_name === mech.chassis)
+      setOwnedCount(match?.total_quantity ?? 0)
+    }).catch(() => {})
+  }, [user, mech])
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -358,6 +369,12 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                   </a>
                 )}
               </div>
+              {user && ownedCount > 0 && (
+                <div className="mt-2 text-xs font-medium px-2 py-1 rounded inline-flex items-center gap-1" style={{ background: 'var(--bg-elevated)', color: 'var(--accent)' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                  You own {ownedCount} model{ownedCount !== 1 ? 's' : ''} of this chassis
+                </div>
+              )}
             </div>
 
             {/* Core Stats Bar */}
