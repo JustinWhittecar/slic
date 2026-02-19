@@ -61,7 +61,6 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
   })
   const [saveLoadOpen, setSaveLoadOpen] = useState(false)
   const [saveName, setSaveName] = useState('')
-  const [exportMsg, setExportMsg] = useState('')
   const [shareMsg, setShareMsg] = useState('')
   const [mulMsg, setMulMsg] = useState('')
 
@@ -149,22 +148,6 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
     URL.revokeObjectURL(url)
     setMulMsg('Downloaded!')
     setTimeout(() => setMulMsg(''), 2000)
-  }
-
-  const exportList = () => {
-    track('list_export', { mech_count: mechs.length, total_bv: totalBV })
-    const lines = [`BV Budget: ${budget}`, '']
-    mechs.forEach((entry) => {
-      const name = `${entry.mechData.chassis} ${entry.mechData.model_code}`
-      const bv = getAdjustedBV(entry)
-      const skill = `${entry.pilotGunnery}/${entry.pilotPiloting}`
-      lines.push(`${name} (${entry.mechData.tonnage}t, BV ${bv}, Pilot ${skill})`)
-    })
-    lines.push('')
-    lines.push(`Total: ${mechs.length} mechs, ${totalTonnage}t, ${totalBV} BV`)
-    navigator.clipboard.writeText(lines.join('\n'))
-    setExportMsg('Copied!')
-    setTimeout(() => setExportMsg(''), 2000)
   }
 
   const shareList = () => {
