@@ -7,6 +7,8 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { ListBuilder } from './components/ListBuilder'
 import { AboutPage } from './components/AboutPage'
 import { FeedbackModal } from './components/FeedbackModal'
+import { ChangelogPage } from './components/ChangelogPage'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { CollectionPanel } from './components/CollectionPanel'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import type { ListMech } from './components/ListBuilder'
@@ -93,6 +95,7 @@ function AppInner() {
   const [showAbout, setShowAbout] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
   const [showCollection, setShowCollection] = useState(false)
+  const [showChangelog, setShowChangelog] = useState(false)
   const { user } = useAuth()
 
   const handleCountChange = useCallback((c: number) => setCount(c), [])
@@ -186,6 +189,17 @@ function AppInner() {
               Feedback
             </button>
             <button
+              onClick={() => setShowChangelog(true)}
+              className="text-xs px-3 py-1.5 rounded cursor-pointer"
+              style={{
+                background: 'var(--bg-elevated)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-default)',
+              }}
+            >
+              Changelog
+            </button>
+            <button
               onClick={() => setShowAbout(true)}
               className="text-xs px-3 py-1.5 rounded cursor-pointer"
               style={{
@@ -249,7 +263,10 @@ function AppInner() {
 
         <footer className="mt-2 text-xs flex justify-between items-center" style={{ color: 'var(--text-tertiary)' }}>
           <span>Showing {count} of {totalCount} variants</span>
+          <span>Data updated: Feb 18, 2026 · 4,227 variants</span>
           <span className="flex gap-2">
+            <button onClick={() => setShowChangelog(true)} className="cursor-pointer hover:underline">Changelog</button>
+            <span>·</span>
             <button onClick={() => setShowAbout(true)} className="cursor-pointer hover:underline">About</button>
             <span>·</span>
             <span>slic.dev</span>
@@ -272,14 +289,17 @@ function AppInner() {
       {showAbout && <AboutPage onClose={() => setShowAbout(false)} />}
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
       {showCollection && <CollectionPanel onClose={() => setShowCollection(false)} />}
+      {showChangelog && <ChangelogPage onClose={() => setShowChangelog(false)} />}
     </div>
   )
 }
 
 export function App() {
   return (
-    <AuthProvider>
-      <AppInner />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppInner />
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }

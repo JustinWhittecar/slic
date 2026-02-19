@@ -83,6 +83,21 @@ func ConnectUserDB(path string) (*sql.DB, error) {
 			active_filters TEXT,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
+		`CREATE TABLE IF NOT EXISTS events (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER,
+			session_id TEXT NOT NULL,
+			event_name TEXT NOT NULL,
+			properties TEXT,
+			page_url TEXT,
+			referrer TEXT,
+			user_agent TEXT,
+			ip TEXT,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_events_name ON events(event_name)`,
+		`CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_events_user ON events(user_id)`,
 	} {
 		if _, err := db.Exec(ddl); err != nil {
 			db.Close()
