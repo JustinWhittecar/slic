@@ -202,7 +202,7 @@ INSERT INTO wizkids_staging (name, sku, year, chassis_match, source_url) VALUES
 INSERT INTO wizkids_staging (name, sku, year, chassis_match, source_url) VALUES
 -- Non-Unique
 ('Jackalope (DO)', 'DO081', 2006, 'Jackalope', 'https://www.sarna.net/wiki/Miniatures_-_Wizkids/MechWarrior:_Domination'),
-('Phoenix Hawk I (DO)', 'DO085', 2006, 'Phoenix Hawk L ''Fenikkusu Taka''', 'https://www.sarna.net/wiki/Miniatures_-_Wizkids/MechWarrior:_Domination'),
+('Phoenix Hawk I (DO)', 'DO085', 2006, 'Phoenix Hawk', 'https://www.sarna.net/wiki/Miniatures_-_Wizkids/MechWarrior:_Domination'),
 ('Mjolnir (DO)', 'DO089', 2006, 'Mjolnir', 'https://www.sarna.net/wiki/Miniatures_-_Wizkids/MechWarrior:_Domination'),
 ('Night Stalker (DO)', 'DO093', 2006, 'Night Stalker', 'https://www.sarna.net/wiki/Miniatures_-_Wizkids/MechWarrior:_Domination'),
 ('Violator (DO)', 'DO097', 2006, 'Violator', 'https://www.sarna.net/wiki/Miniatures_-_Wizkids/MechWarrior:_Domination'),
