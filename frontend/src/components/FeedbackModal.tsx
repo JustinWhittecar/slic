@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { track } from '../analytics'
+import { useAuth } from '../contexts/AuthContext'
 
 interface FeedbackModalProps {
   onClose: () => void
@@ -12,6 +13,7 @@ const TYPES = [
 ]
 
 export function FeedbackModal({ onClose }: FeedbackModalProps) {
+  const { user } = useAuth()
   const [type, setType] = useState('general')
   const [message, setMessage] = useState('')
   const [contact, setContact] = useState('')
@@ -46,7 +48,7 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, message: message.trim(), contact: contact.trim() }),
+        body: JSON.stringify({ type, message: message.trim(), contact: user?.email || contact.trim() }),
       })
       if (!res.ok) {
         const text = await res.text()
@@ -132,19 +134,21 @@ export function FeedbackModal({ onClose }: FeedbackModalProps) {
                 }}
               />
 
-              {/* Contact (optional) */}
-              <input
-                type="text"
-                value={contact}
-                onChange={e => setContact(e.target.value)}
-                placeholder="Email or name (optional, for follow-up)"
-                className="w-full px-3 py-2 rounded text-xs outline-none"
-                style={{
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border-default)',
-                  color: 'var(--text-primary)',
-                }}
-              />
+              {/* Contact (optional, hidden when logged in) */}
+              {!user && (
+                <input
+                  type="text"
+                  value={contact}
+                  onChange={e => setContact(e.target.value)}
+                  placeholder="Email or name (optional, for follow-up)"
+                  className="w-full px-3 py-2 rounded text-xs outline-none"
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-default)',
+                    color: 'var(--text-primary)',
+                  }}
+                />
+              )}
 
               {status === 'error' && (
                 <p className="text-xs" style={{ color: '#ef4444' }}>
