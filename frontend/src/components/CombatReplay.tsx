@@ -39,7 +39,6 @@ interface ReplayData {
 
 const HEX_SIZE = 22
 const SQRT3 = Math.sqrt(3)
-const LOC_NAMES = ['HD', 'CT', 'LT', 'RT', 'LA', 'RA', 'LL', 'RL']
 
 // ─── Hex math (flat-top, odd-q offset, 1-indexed) ──────────────────────────
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import type { MechListItem } from '../api/client'
 import { track } from '../analytics'
 
