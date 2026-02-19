@@ -233,9 +233,7 @@ function AppInner() {
     }, 0)
     const remaining = listBudget - totalBV
     if (remaining <= 0) return filters
-    // Convert adjusted BV remaining to raw BV for API filter (default 4/5 pilot = 1.25x)
-    const rawRemaining = Math.floor(remaining / 1.25)
-    const effectiveMax = filters.bv_max ? Math.min(filters.bv_max, rawRemaining) : rawRemaining
+    const effectiveMax = filters.bv_max ? Math.min(filters.bv_max, remaining) : remaining
     return { ...filters, bv_max: effectiveMax }
   }, [filters, showListBuilder, listMechs, listBudget])
 

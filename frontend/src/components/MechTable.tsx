@@ -247,13 +247,8 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     }),
     columnHelper.accessor('battle_value', {
       id: 'bv',
-      header: () => <span className="tooltip-header" data-tip="BV adjusted for 4/5 pilot">BV</span>,
-      cell: info => {
-        const base = info.getValue()
-        if (base == null) return <span className="tabular-nums">—</span>
-        return <span className="tabular-nums">{Math.round(base * 1.25).toLocaleString()}</span>
-      },
-      sortingFn: (a, b) => ((a.original.battle_value ?? 0) * 1.25) - ((b.original.battle_value ?? 0) * 1.25),
+      header: () => <span className="tooltip-header" data-tip="Battle Value (4/5 pilot)">BV</span>,
+      cell: info => <span className="tabular-nums">{info.getValue()?.toLocaleString() ?? '—'}</span>,
     }),
     columnHelper.accessor('role', {
       id: 'role',
