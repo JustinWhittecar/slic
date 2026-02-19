@@ -67,6 +67,7 @@ func main() {
 	preferencesHandler := &handlers.PreferencesHandler{DB: userDB}
 	eventsHandler := handlers.NewEventsHandler(userDB)
 	replayHandler := &handlers.ReplayHandler{DB: sqlDB}
+	recommendationsHandler := &handlers.RecommendationsHandler{DB: sqlDB}
 
 	mux := http.NewServeMux()
 
@@ -79,6 +80,9 @@ func main() {
 	// Mech API
 	mux.HandleFunc("GET /api/mechs", mechHandler.List)
 	mux.HandleFunc("GET /api/mechs/{id}", mechHandler.GetByID)
+
+	// Recommendations
+	mux.HandleFunc("GET /api/recommendations", recommendationsHandler.Recommend)
 
 	// Feedback
 	mux.HandleFunc("POST /api/feedback", feedbackHandler.Submit)
