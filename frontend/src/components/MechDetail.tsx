@@ -427,22 +427,24 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                             'FASA': '#f97316',
                           }
                           const color = mfgColors[model.manufacturer] || 'var(--text-tertiary)'
-                          const searchQuery = encodeURIComponent(`battletech ${model.name} miniature`)
-                          const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${searchQuery}`
-
                           // Determine the best store link per manufacturer
                           let storeUrl: string | null = null
-                          let storeLabel = 'Store'
-                          if (model.source_url) {
-                            // IWM models already have direct product URLs
+                          let storeLabel = 'eBay'
+                          if (model.manufacturer === 'IWM' && model.source_url) {
                             storeUrl = model.source_url
-                            storeLabel = 'IWM'
-                          } else if (model.manufacturer === 'Catalyst' && model.sku) {
-                            // Catalyst models: link to store search by SKU
-                            storeUrl = `https://store.catalystgamelabs.com/search?q=${encodeURIComponent(model.sku)}`
-                            storeLabel = 'Catalyst'
+                            storeLabel = 'Iron Wind Metals'
+                          } else if (model.manufacturer === 'Catalyst') {
+                            // Link to Catalyst store search by pack name (before the " - " mech name)
+                            const packName = model.name.includes(' - ') ? model.name.split(' - ')[0] : model.name
+                            const catalystSearch = encodeURIComponent(packName)
+                            storeUrl = `https://store.catalystgamelabs.com/search?q=${catalystSearch}`
+                            storeLabel = 'Catalyst Store'
+                          } else {
+                            // Ral Partha, FASA, Armorcast, WizKids, Proxy — all out of print → eBay
+                            const ebayQuery = encodeURIComponent(`battletech ${model.name} miniature`)
+                            storeUrl = model.manufacturer === 'Proxy' ? null : `https://www.ebay.com/sch/i.html?_nkw=${ebayQuery}`
+                            storeLabel = 'eBay'
                           }
-                          // No store link → show eBay as fallback
 
                           return (
                             <div key={model.id} className="flex items-start gap-2 text-xs py-1">
@@ -464,17 +466,12 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  {storeUrl ? (
+                                  {storeUrl && (
                                     <a href={storeUrl} target="_blank" rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-0.5" style={{ color: 'var(--accent)' }}
+                                      className="inline-flex items-center gap-0.5"
+                                      style={{ color: storeLabel === 'eBay' ? 'var(--text-tertiary)' : 'var(--accent)' }}
                                       onClick={e => e.stopPropagation()}>
                                       <span style={{ fontSize: 10 }}>{storeLabel} ↗</span>
-                                    </a>
-                                  ) : (
-                                    <a href={ebayUrl} target="_blank" rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
-                                      onClick={e => e.stopPropagation()}>
-                                      <span style={{ fontSize: 10 }}>eBay ↗</span>
                                     </a>
                                   )}
                                 </div>
