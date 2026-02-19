@@ -173,11 +173,12 @@ function DamageSparkline({ data }: { data: number[] }) {
           Expected damage per turn at optimal engagement range. Gaps = out of range.
         </span>
       </div>
-      <svg viewBox={`0 0 ${w} ${h + 18}`} className="w-full" style={{ maxHeight: 100 }}>
+      <svg viewBox={`0 0 ${w} ${h + 28}`} className="w-full" style={{ maxHeight: 110 }}>
         {data.map((d, i) => {
+          const topPad = 12
           const barH = d > 0 ? (d / max) * h : 0
           const x = gap + i * (barW + gap)
-          const y = h - barH
+          const y = topPad + h - barH
           return (
             <g key={i}>
               {d > 0 ? (
@@ -190,12 +191,12 @@ function DamageSparkline({ data }: { data: number[] }) {
                   </text>
                 </>
               ) : (
-                <text x={x + barW / 2} y={h - 4} textAnchor="middle"
+                <text x={x + barW / 2} y={topPad + h - 4} textAnchor="middle"
                   fill="var(--text-tertiary)" fontSize={8} opacity={0.5}>
                   —
                 </text>
               )}
-              <text x={x + barW / 2} y={h + 14} textAnchor="middle"
+              <text x={x + barW / 2} y={topPad + h + 14} textAnchor="middle"
                 fill="var(--text-tertiary)" fontSize={8} fontFamily="monospace">
                 {i + 1}
               </text>
@@ -212,10 +213,10 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
   const [mech, setMech] = useState<MechDetailType | null>(null)
   const [loading, setLoading] = useState(true)
   const [visible, setVisible] = useState(false)
+  const [modelsOpen, setModelsOpen] = useState(true)
   const [techOpen, setTechOpen] = useState(false)
   const [equipOpen, setEquipOpen] = useState(true)
   const [sparkOpen, setSparkOpen] = useState(true)
-  const [tooltip, setTooltip] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
   const [ownedCount, setOwnedCount] = useState(0)
 
@@ -378,64 +379,91 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
               )}
             </div>
 
-            {/* Core Stats Bar */}
-            {stats && (
-              <div className="px-5 py-3" style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)', background: 'var(--bg-surface)' }}>
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Move</div>
-                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
-                      {stats.walk_mp}/{stats.run_mp}/{stats.jump_mp}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>TMM</div>
-                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
-                      +{stats.tmm ?? 0}
-                    </div>
-                  </div>
-                  <div className="relative"
-                    onClick={() => setTooltip(t => !t)}
-                    onMouseEnter={() => setTooltip(true)} onMouseLeave={() => setTooltip(false)}>
-                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Game Dmg</div>
-                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
-                      {(mech.game_damage ?? stats.effective_heat_neutral_damage ?? 0).toFixed(1)}
-                    </div>
-                    {tooltip && (
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 p-2 text-xs rounded shadow-lg z-10"
-                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}>
-                        12-turn sim on 34-hex board vs smart 4/5 opponent (walk 4, medium lasers, seeks range 6-8). Subject moves to maximize damage. Heat-neutral weapon selection, MMLs switch modes.
+            {/* Available Models - Collapsible (first section) */}
+            {mech.models && (
+              <div style={{ borderTop: '1px solid var(--border-default)', borderBottom: '1px solid var(--border-default)' }}>
+                <button
+                  onClick={() => setModelsOpen(!modelsOpen)}
+                  className="w-full px-5 py-2.5 flex items-center justify-between text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <span>Available Models{mech.models.length > 0 ? ` (${mech.models.length})` : ''}</span>
+                  <svg className={`w-3.5 h-3.5 transition-transform ${modelsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {modelsOpen && (
+                  <div className="px-5 pb-3">
+                    {mech.models.length > 0 ? (
+                      <div className="space-y-1.5">
+                        {mech.models.map(model => {
+                          const mfgColors: Record<string, string> = {
+                            'IWM': '#3b82f6',
+                            'Catalyst': '#22c55e',
+                            'Ral Partha': '#a855f7',
+                            'Armorcast': '#f59e0b',
+                            'WizKids': '#ef4444',
+                            'FASA': '#f97316',
+                          }
+                          const color = mfgColors[model.manufacturer] || 'var(--text-tertiary)'
+                          const searchQuery = encodeURIComponent(`battletech ${model.name} miniature`)
+                          const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${searchQuery}`
+                          const amazonUrl = `https://www.amazon.com/s?k=${searchQuery}`
+                          return (
+                            <div key={model.id} className="flex items-start gap-2 text-xs py-1">
+                              <span
+                                className="px-1.5 py-0.5 rounded text-[10px] font-semibold shrink-0 mt-0.5"
+                                style={{ background: color + '20', color, border: `1px solid ${color}40` }}
+                              >
+                                {model.manufacturer}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="truncate" style={{ color: 'var(--text-primary)' }}>
+                                    {model.name}
+                                  </span>
+                                  {model.material && (
+                                    <span className="shrink-0" style={{ color: 'var(--text-tertiary)' }}>
+                                      {model.material}
+                                    </span>
+                                  )}
+                                  {model.year && model.year > 0 && (
+                                    <span className="shrink-0 tabular-nums" style={{ color: 'var(--text-tertiary)' }}>
+                                      {model.year}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  {model.source_url && (
+                                    <a href={model.source_url} target="_blank" rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-0.5" style={{ color: 'var(--accent)' }}
+                                      onClick={e => e.stopPropagation()}>
+                                      <span style={{ fontSize: 10 }}>Store ↗</span>
+                                    </a>
+                                  )}
+                                  <a href={ebayUrl} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
+                                    onClick={e => e.stopPropagation()}>
+                                    <span style={{ fontSize: 10 }}>eBay ↗</span>
+                                  </a>
+                                  <a href={amazonUrl} target="_blank" rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
+                                    onClick={e => e.stopPropagation()}>
+                                    <span style={{ fontSize: 10 }}>Amazon ↗</span>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                        No official models available — proxy only
                       </div>
                     )}
                   </div>
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Armor</div>
-                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
-                      {stats.armor_total}
-                      {stats.armor_coverage_pct !== undefined && (
-                        <span className="text-[10px] font-normal ml-0.5" style={{ color: 'var(--text-tertiary)' }}>
-                          {stats.armor_coverage_pct.toFixed(0)}%
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div title={`Offense: ${stats.offense_turns?.toFixed(1) ?? '—'} turns · Defense: ${stats.defense_turns?.toFixed(1) ?? '—'} turns\n1,000 Monte Carlo sims vs HBK-4P`}>
-                    <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Combat Rating</div>
-                    <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--accent)' }}>
-                      {stats.combat_rating != null && stats.combat_rating > 0 ? stats.combat_rating.toFixed(1) : '—'}
-                      <span className="text-[10px] font-normal" style={{ color: 'var(--text-tertiary)' }}>/10</span>
-                    </div>
-                  </div>
-                  {mech.battle_value && mech.battle_value > 0 && stats.combat_rating != null && stats.combat_rating > 0 && (
-                    <div>
-                      <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>BV Efficiency</div>
-                      <div className="text-sm font-semibold tabular-nums" style={{ color: 'var(--text-primary)' }}>
-                        {(() => { const baseline = 45.52; const raw = (stats.combat_rating * stats.combat_rating) / mech.battle_value * baseline; return Math.min(10, Math.max(1, 5.0 + 3.5 * Math.log(raw))).toFixed(1); })()}
-                        <span className="text-[10px] font-normal" style={{ color: 'var(--text-tertiary)' }}>/10</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
             )}
 
@@ -469,87 +497,7 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
               </div>
             )}
 
-            {/* Available Models */}
-            {mech.models && mech.models.length > 0 && (
-              <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-default)' }}>
-                <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>Available Models</div>
-                <div className="space-y-1.5">
-                  {mech.models.map(model => {
-                    const mfgColors: Record<string, string> = {
-                      'IWM': '#3b82f6',
-                      'Catalyst': '#22c55e',
-                      'Ral Partha': '#a855f7',
-                      'Armorcast': '#f59e0b',
-                    }
-                    const color = mfgColors[model.manufacturer] || 'var(--text-tertiary)'
-                    const searchQuery = encodeURIComponent(`battletech ${model.name} miniature`)
-                    const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${searchQuery}`
-                    const amazonUrl = `https://www.amazon.com/s?k=${searchQuery}`
-                    return (
-                      <div key={model.id} className="flex items-start gap-2 text-xs py-1">
-                        <span
-                          className="px-1.5 py-0.5 rounded text-[10px] font-semibold shrink-0 mt-0.5"
-                          style={{ background: color + '20', color, border: `1px solid ${color}40` }}
-                        >
-                          {model.manufacturer}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="truncate" style={{ color: 'var(--text-primary)' }}>
-                              {model.name}
-                            </span>
-                            {model.material && (
-                              <span className="shrink-0" style={{ color: 'var(--text-tertiary)' }}>
-                                {model.material}
-                              </span>
-                            )}
-                            {model.year && model.year > 0 && (
-                              <span className="shrink-0 tabular-nums" style={{ color: 'var(--text-tertiary)' }}>
-                                {model.year}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            {model.source_url && (
-                              <a href={model.source_url} target="_blank" rel="noopener noreferrer"
-                                className="inline-flex items-center gap-0.5" style={{ color: 'var(--accent)' }}
-                                onClick={e => e.stopPropagation()}>
-                                <span style={{ fontSize: 10 }}>Store ↗</span>
-                              </a>
-                            )}
-                            <a href={ebayUrl} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
-                              onClick={e => e.stopPropagation()}>
-                              <span style={{ fontSize: 10 }}>eBay ↗</span>
-                            </a>
-                            <a href={amazonUrl} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-0.5" style={{ color: 'var(--text-tertiary)' }}
-                              onClick={e => e.stopPropagation()}>
-                              <span style={{ fontSize: 10 }}>Amazon ↗</span>
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                {mech.models.length === 0 && (
-                  <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                    No official models available — proxy only
-                  </div>
-                )}
-              </div>
-            )}
-            {mech.models && mech.models.length === 0 && (
-              <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-default)' }}>
-                <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>Available Models</div>
-                <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                  No official models available — proxy only
-                </div>
-              </div>
-            )}
-
-            {/* Equipment by Location - Collapsible */}
+            {/* Equipment by Location - Collapsible, single aligned table */}
             {sortedLocs.length > 0 && (
               <div style={{ borderBottom: '1px solid var(--border-default)' }}>
                 <button
@@ -562,45 +510,63 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                {equipOpen && <div className="px-5 pb-3 space-y-2.5">
-                  {sortedLocs.map(loc => (
-                    <div key={loc}>
-                      <div className="text-[11px] font-semibold uppercase tracking-wide mb-0.5" style={{ color: 'var(--text-primary)' }}>
-                        {LOCATION_NAMES[loc] || loc}
-                      </div>
-                      <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
-                        <thead>
-                          <tr style={{ color: 'var(--text-tertiary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            <th className="text-left pr-2 py-0.5 font-normal">Equipment</th>
-                            <th className="text-right px-1 py-0.5 font-normal">Dmg</th>
-                            <th className="text-right px-1 py-0.5 font-normal">Heat</th>
-                            <th className="text-right pl-1 py-0.5 font-normal">S/M/L</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {equipByLoc[loc]!.map((eq, idx) => (
-                            <tr key={eq.id} style={{ color: 'var(--text-primary)', background: idx % 2 === 0 ? 'transparent' : 'var(--bg-elevated)' }}>
-                              <td className="pr-2 py-1">
-                                {eq.quantity > 1 ? <span style={{ color: 'var(--text-tertiary)' }}>{eq.quantity}× </span> : ''}{eq.name}
+                {equipOpen && (
+                  <div className="px-5 pb-3">
+                    <table className="w-full text-xs" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+                      <colgroup>
+                        <col style={{ width: '45%' }} />
+                        <col style={{ width: '15%' }} />
+                        <col style={{ width: '15%' }} />
+                        <col style={{ width: '25%' }} />
+                      </colgroup>
+                      <thead>
+                        <tr style={{ color: 'var(--text-tertiary)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          <th className="text-left pr-2 py-0.5 font-normal">Equipment</th>
+                          <th className="text-right px-1 py-0.5 font-normal">Dmg</th>
+                          <th className="text-right px-1 py-0.5 font-normal">Heat</th>
+                          <th className="text-right pl-1 py-0.5 font-normal">S/M/L</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedLocs.map(loc => {
+                          let rowIdx = 0
+                          return [
+                            <tr key={`loc-${loc}`}>
+                              <td colSpan={4} className="pt-2 pb-0.5">
+                                <div className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>
+                                  {LOCATION_NAMES[loc] || loc}
+                                </div>
                               </td>
-                              {eq.damage !== undefined && eq.damage > 0 ? (
-                                <>
-                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.damage}</td>
-                                  <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.heat ?? 0}</td>
-                                  <td className="tabular-nums text-right pl-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
-                                    {eq.short_range ?? '—'}/{eq.medium_range ?? '—'}/{eq.long_range ?? '—'}
+                            </tr>,
+                            ...equipByLoc[loc]!.map(eq => {
+                              const bg = rowIdx++ % 2 === 1 ? 'var(--bg-elevated)' : 'transparent'
+                              return (
+                                <tr key={eq.id} style={{ color: 'var(--text-primary)', background: bg }}>
+                                  <td className="pr-2 py-1">
+                                    {eq.quantity > 1 ? <span style={{ color: 'var(--text-tertiary)' }}>{eq.quantity}× </span> : ''}{eq.name}
                                   </td>
-                                </>
-                              ) : (
-                                <td colSpan={3}></td>
-                              )}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ))}
-                </div>}
+                                  {eq.damage !== undefined && eq.damage > 0 ? (
+                                    <>
+                                      <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.damage}</td>
+                                      <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.heat ?? 0}</td>
+                                      <td className="tabular-nums text-right pl-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
+                                        {eq.short_range ?? '—'}/{eq.medium_range ?? '—'}/{eq.long_range ?? '—'}
+                                      </td>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <td></td><td></td><td></td>
+                                    </>
+                                  )}
+                                </tr>
+                              )
+                            })
+                          ]
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
 
