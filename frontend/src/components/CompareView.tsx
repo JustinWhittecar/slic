@@ -263,7 +263,7 @@ export function CompareView({ mechIds, onClose, onRemove, onAddToList }: Compare
                               <div className="flex justify-between">
                                 <span>{eq.quantity > 1 ? `${eq.quantity}× ` : ''}{eq.name}</span>
                                 <span className="tabular-nums ml-2" style={{ color: 'var(--text-tertiary)' }}>
-                                  {eq.damage && eq.damage > 0 ? `${eq.damage}` : eq.rack_size ? `${eq.rack_size * 2}` : ''}
+                                  {eq.damage ? `${eq.damage}` : ''}
                                   {eq.heat ? `/${eq.heat}h` : ''}
                                 </span>
                               </div>

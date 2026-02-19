@@ -451,6 +451,7 @@ function AppInner() {
           mechIds={compareIds}
           onClose={() => setShowCompare(false)}
           onRemove={removeFromCompare}
+          onAddToList={addToList}
         />
       )}
 
