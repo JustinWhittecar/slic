@@ -283,8 +283,6 @@ func (h *MechHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 	chassisURL := strings.ReplaceAll(sarnaName, " ", "_")
 	m.SarnaURL = "https://www.sarna.net/wiki/" + chassisURL
-	m.IWMUrl = "https://www.ironwindmetals.com/index.php/product-listing?cid=0&searchword=" + strings.ToLower(strings.ReplaceAll(m.Chassis, " ", "+"))
-	m.CatalystUrl = "https://store.catalystgamelabs.com/search?q=" + strings.ReplaceAll(m.Chassis, " ", "+")
 
 	// Load equipment
 	eqRows, err := h.DB.Query(ctx, `

@@ -354,20 +354,6 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                     Sarna <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
                   </a>
                 )}
-                {mech.iwm_url && (
-                  <a href={mech.iwm_url} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors"
-                    style={{ border: '1px solid var(--border-default)', color: 'var(--text-secondary)', background: 'var(--bg-surface)' }}>
-                    IWM <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
-                  </a>
-                )}
-                {mech.catalyst_url && (
-                  <a href={mech.catalyst_url} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors"
-                    style={{ border: '1px solid var(--border-default)', color: 'var(--text-secondary)', background: 'var(--bg-surface)' }}>
-                    Catalyst <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
-                  </a>
-                )}
               </div>
               {user && ownedCount > 0 && (
                 <div className="mt-2 text-xs font-medium px-2 py-1 rounded inline-flex items-center gap-1" style={{ background: 'var(--bg-elevated)', color: 'var(--accent)' }}>
@@ -464,6 +450,72 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                     )}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Available Models */}
+            {mech.models && mech.models.length > 0 && (
+              <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-default)' }}>
+                <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>Available Models</div>
+                <div className="space-y-1.5">
+                  {mech.models.map(model => {
+                    const mfgColors: Record<string, string> = {
+                      'IWM': '#3b82f6',
+                      'Catalyst': '#22c55e',
+                      'Ral Partha': '#a855f7',
+                      'Armorcast': '#f59e0b',
+                    }
+                    const color = mfgColors[model.manufacturer] || 'var(--text-tertiary)'
+                    return (
+                      <div key={model.id} className="flex items-center gap-2 text-xs">
+                        <span
+                          className="px-1.5 py-0.5 rounded text-[10px] font-semibold shrink-0"
+                          style={{ background: color + '20', color, border: `1px solid ${color}40` }}
+                        >
+                          {model.manufacturer}
+                        </span>
+                        <span className="truncate" style={{ color: 'var(--text-primary)' }}>
+                          {model.name}
+                        </span>
+                        {model.material && (
+                          <span className="shrink-0" style={{ color: 'var(--text-tertiary)' }}>
+                            {model.material}
+                          </span>
+                        )}
+                        {model.year && model.year > 0 && (
+                          <span className="shrink-0 tabular-nums" style={{ color: 'var(--text-tertiary)' }}>
+                            {model.year}
+                          </span>
+                        )}
+                        {model.source_url && (
+                          <a
+                            href={model.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 ml-auto"
+                            style={{ color: 'var(--accent)' }}
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <span style={{ fontSize: 10 }}>Buy ↗</span>
+                          </a>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+                {mech.models.length === 0 && (
+                  <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    No official models available — proxy only
+                  </div>
+                )}
+              </div>
+            )}
+            {mech.models && mech.models.length === 0 && (
+              <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-default)' }}>
+                <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>Available Models</div>
+                <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                  No official models available — proxy only
+                </div>
               </div>
             )}
 

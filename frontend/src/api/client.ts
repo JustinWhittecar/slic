@@ -86,10 +86,20 @@ export interface MechEquipment {
   effective_dps_heat?: number
 }
 
+export interface MechModelInfo {
+  id: number
+  name: string
+  manufacturer: string
+  sku?: string
+  source_url?: string
+  material?: string
+  year?: number
+}
+
 export interface MechDetail extends MechListItem {
+  chassis_id: number
   sarna_url?: string
-  iwm_url?: string
-  catalyst_url?: string
+  models?: MechModelInfo[]
   stats?: {
     walk_mp: number
     run_mp: number

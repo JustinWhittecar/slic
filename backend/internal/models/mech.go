@@ -116,11 +116,21 @@ type VariantStats struct {
 	DefenseTurns             float64 `json:"defense_turns,omitempty"`
 }
 
+type PhysicalModelInfo struct {
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	Manufacturer string `json:"manufacturer"`
+	SKU          string `json:"sku,omitempty"`
+	SourceURL    string `json:"source_url,omitempty"`
+	Material     string `json:"material,omitempty"`
+	Year         int    `json:"year,omitempty"`
+}
+
 type MechDetail struct {
 	MechListItem
+	ChassisID   int                `json:"chassis_id"`
 	SarnaURL    string             `json:"sarna_url,omitempty"`
-	IWMUrl      string             `json:"iwm_url,omitempty"`
-	CatalystUrl string             `json:"catalyst_url,omitempty"`
 	Stats       *VariantStats      `json:"stats,omitempty"`
 	Equipment   []VariantEquipment `json:"equipment,omitempty"`
+	Models      []PhysicalModelInfo `json:"models,omitempty"`
 }

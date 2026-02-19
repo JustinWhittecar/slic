@@ -228,14 +228,14 @@ func (h *MechHandlerSQLite) GetByID(w http.ResponseWriter, r *http.Request) {
 	err = h.DB.QueryRow(`
 		SELECT v.id, v.model_code, v.name, c.name, COALESCE(c.alternate_name,''), COALESCE(vs2.tonnage, c.tonnage), c.tech_base,
 		       v.battle_value, v.intro_year, COALESCE(v.era,''), COALESCE(v.role,''), COALESCE(c.sarna_url,''),
-		       COALESCE(vs2.game_damage, 0), COALESCE(vs2.combat_rating, 0)
+		       COALESCE(vs2.game_damage, 0), COALESCE(vs2.combat_rating, 0), v.chassis_id
 		FROM variants v
 		JOIN chassis c ON c.id = v.chassis_id
 		LEFT JOIN variant_stats vs2 ON vs2.variant_id = v.id
 		WHERE v.id = ?`, id).Scan(
 		&m.ID, &m.ModelCode, &m.Name, &m.Chassis, &m.AlternateName, &m.Tonnage, &m.TechBase,
 		&m.BV, &m.IntroYear, &m.Era, &m.Role, &m.SarnaURL,
-		&m.GameDamage, &m.CombatRating)
+		&m.GameDamage, &m.CombatRating, &m.ChassisID)
 	if err != nil {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
@@ -265,15 +265,29 @@ func (h *MechHandlerSQLite) GetByID(w http.ResponseWriter, r *http.Request) {
 		m.Stats = &stats
 	}
 
-	// Generate sourcing links
+	// Generate Sarna link
 	sarnaName := m.Chassis
 	if idx := strings.Index(sarnaName, "("); idx > 0 {
 		sarnaName = strings.TrimSpace(sarnaName[:idx])
 	}
 	chassisURL := strings.ReplaceAll(sarnaName, " ", "_")
 	m.SarnaURL = "https://www.sarna.net/wiki/" + chassisURL
-	m.IWMUrl = "https://www.ironwindmetals.com/index.php/product-listing?cid=0&searchword=" + strings.ToLower(strings.ReplaceAll(m.Chassis, " ", "+"))
-	m.CatalystUrl = "https://store.catalystgamelabs.com/search?q=" + strings.ReplaceAll(m.Chassis, " ", "+")
+
+	// Load physical models for this chassis (exclude Proxy)
+	modelRows, err := h.DB.Query(`
+		SELECT id, name, manufacturer, COALESCE(sku,''), COALESCE(source_url,''),
+		       COALESCE(material,''), COALESCE(year,0)
+		FROM physical_models
+		WHERE chassis_id = ? AND manufacturer != 'Proxy'
+		ORDER BY manufacturer, name`, m.ChassisID)
+	if err == nil {
+		defer modelRows.Close()
+		for modelRows.Next() {
+			var pm models.PhysicalModelInfo
+			modelRows.Scan(&pm.ID, &pm.Name, &pm.Manufacturer, &pm.SKU, &pm.SourceURL, &pm.Material, &pm.Year)
+			m.Models = append(m.Models, pm)
+		}
+	}
 
 	// Load equipment
 	eqRows, err := h.DB.Query(`
