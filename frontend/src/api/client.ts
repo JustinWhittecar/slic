@@ -182,6 +182,13 @@ export async function fetchMechs(filters: MechFilters = {}): Promise<MechListIte
   return mechs
 }
 
+export async function fetchMechsByIds(ids: number[]): Promise<MechListItem[]> {
+  if (ids.length === 0) return []
+  const res = await fetch(`${BASE}/mechs?ids=${ids.join(',')}`)
+  if (!res.ok) throw new Error(`Failed to fetch mechs by ids: ${res.status}`)
+  return res.json()
+}
+
 export async function fetchMech(id: number): Promise<MechDetail> {
   const res = await fetch(`${BASE}/mechs/${id}`)
   if (!res.ok) throw new Error(`Failed to fetch mech: ${res.status}`)

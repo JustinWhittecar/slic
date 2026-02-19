@@ -13,7 +13,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { CollectionPanel } from './components/CollectionPanel'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import type { ListMech } from './components/ListBuilder'
-import { fetchMechs, type MechListItem, type MechFilters } from './api/client'
+import { fetchMechs, fetchMechsByIds, type MechListItem, type MechFilters } from './api/client'
 
 function UserMenu() {
   const { user, loading, login, logout } = useAuth()
@@ -97,7 +97,57 @@ function AppInner() {
   const [showFeedback, setShowFeedback] = useState(false)
   const [showCollection, setShowCollection] = useState(false)
   const [showChangelog, setShowChangelog] = useState(false)
+  const [sharedListBanner, setSharedListBanner] = useState<{ count: number; bv: number } | null>(null)
   const { user } = useAuth()
+
+  // Parse shared list from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const listParam = params.get('list')
+    if (!listParam) return
+
+    const entries = listParam.split('-').slice(0, 24)
+    const parsed: { id: number; g: number; p: number }[] = []
+    for (const entry of entries) {
+      const [idStr, skills] = entry.split('.')
+      const id = parseInt(idStr, 10)
+      if (isNaN(id)) continue
+      const g = skills?.length >= 1 ? parseInt(skills[0], 10) : 4
+      const p = skills?.length >= 2 ? parseInt(skills[1], 10) : 4
+      parsed.push({ id, g: isNaN(g) ? 4 : Math.min(7, Math.max(0, g)), p: isNaN(p) ? 4 : Math.min(7, Math.max(0, p)) })
+    }
+    if (parsed.length === 0) return
+
+    const budgetParam = params.get('budget')
+    const ids = parsed.map(e => e.id)
+
+    fetchMechsByIds(ids).then(mechs => {
+      const mechMap = new Map(mechs.map(m => [m.id, m]))
+      const listMechs: ListMech[] = []
+      for (const entry of parsed) {
+        const mechData = mechMap.get(entry.id)
+        if (!mechData) continue
+        listMechs.push({
+          id: `entry-${nextEntryId++}`,
+          mechData,
+          pilotGunnery: entry.g,
+          pilotPiloting: entry.p,
+        })
+      }
+      if (listMechs.length > 0) {
+        setListMechs(listMechs)
+        setShowListBuilder(true)
+        setSharedListBanner({ count: listMechs.length, bv: 0 }) // BV calculated in ListBuilder
+      }
+      // Clean URL without reload
+      window.history.replaceState({}, '', window.location.pathname)
+    }).catch(() => {})
+
+    if (budgetParam) {
+      const b = parseInt(budgetParam, 10)
+      if (!isNaN(b)) localStorage.setItem('slic-list-budget', String(b))
+    }
+  }, [])
 
   // Track page views
   useEffect(() => { trackPageView('home') }, [])
@@ -223,6 +273,22 @@ function AppInner() {
         </header>
 
         <FilterBar filters={filters} onFiltersChange={setFilters} />
+
+        {/* Shared list banner */}
+        {sharedListBanner && (
+          <div className="mb-2 flex items-center gap-3 rounded px-3 py-2" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--accent)' }}>
+            <span className="text-xs" style={{ color: 'var(--accent)' }}>
+              📋 Viewing shared list ({sharedListBanner.count} mech{sharedListBanner.count !== 1 ? 's' : ''})
+            </span>
+            <button
+              onClick={() => { setSharedListBanner(null); setListMechs([]) }}
+              className="text-xs px-2 py-1 rounded cursor-pointer"
+              style={{ color: 'var(--text-secondary)', background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
 
         {/* List Builder - inline */}
         {showListBuilder && (

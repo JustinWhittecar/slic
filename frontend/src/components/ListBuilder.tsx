@@ -58,6 +58,7 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
   const [saveLoadOpen, setSaveLoadOpen] = useState(false)
   const [saveName, setSaveName] = useState('')
   const [exportMsg, setExportMsg] = useState('')
+  const [shareMsg, setShareMsg] = useState('')
 
   useEffect(() => {
     localStorage.setItem('slic-list-budget', String(budget))
@@ -139,6 +140,20 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
     setTimeout(() => setExportMsg(''), 2000)
   }
 
+  const shareList = () => {
+    track('list_share', { mech_count: mechs.length, total_bv: totalBV })
+    const encoded = mechs.map(m =>
+      `${m.mechData.id}.${m.pilotGunnery}${m.pilotPiloting}`
+    ).join('-')
+    const url = new URL(window.location.href)
+    url.search = ''
+    url.searchParams.set('list', encoded)
+    url.searchParams.set('budget', String(budget))
+    navigator.clipboard.writeText(url.toString())
+    setShareMsg('Link copied!')
+    setTimeout(() => setShareMsg(''), 2000)
+  }
+
   return (
     <div className="mb-4 rounded" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
       {/* Header row: title, budget, summary stats, actions */}
@@ -218,6 +233,14 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
             disabled={mechs.length === 0}
           >
             {exportMsg || 'Export'}
+          </button>
+          <button
+            onClick={shareList}
+            className="text-xs px-2 py-1 rounded cursor-pointer"
+            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
+            disabled={mechs.length === 0}
+          >
+            {shareMsg || 'Share'}
           </button>
           <button
             onClick={() => setSaveLoadOpen(!saveLoadOpen)}

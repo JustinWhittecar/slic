@@ -35,6 +35,22 @@ func (h *MechHandlerSQLite) List(w http.ResponseWriter, r *http.Request) {
 
 	args := []any{}
 
+	// Support ?ids=1,2,3 for fetching specific variants by ID
+	if v := r.URL.Query().Get("ids"); v != "" {
+		idStrs := strings.Split(v, ",")
+		placeholders := []string{}
+		for _, s := range idStrs {
+			s = strings.TrimSpace(s)
+			if n, err := strconv.Atoi(s); err == nil {
+				placeholders = append(placeholders, "?")
+				args = append(args, n)
+			}
+		}
+		if len(placeholders) > 0 {
+			query += " AND v.id IN (" + strings.Join(placeholders, ",") + ")"
+		}
+	}
+
 	if v := r.URL.Query().Get("tonnage_min"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
 			query += " AND COALESCE(vs.tonnage, c.tonnage) >= ?"
