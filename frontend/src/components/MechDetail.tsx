@@ -566,9 +566,9 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                                   <td className="pr-2 py-1">
                                     {eq.quantity > 1 ? <span style={{ color: 'var(--text-tertiary)' }}>{eq.quantity}× </span> : ''}{eq.name}
                                   </td>
-                                  {eq.damage !== undefined && eq.damage > 0 ? (
+                                  {(eq.damage !== undefined && eq.damage > 0) || (eq.rack_size && eq.rack_size > 0) ? (
                                     <>
-                                      <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.damage}</td>
+                                      <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.damage && eq.damage > 0 ? eq.damage : eq.rack_size ? `${eq.rack_size * 2}` : '—'}</td>
                                       <td className="tabular-nums text-right px-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>{eq.heat ?? 0}</td>
                                       <td className="tabular-nums text-right pl-1 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
                                         {eq.short_range ?? '—'}/{eq.medium_range ?? '—'}/{eq.long_range ?? '—'}
