@@ -83,6 +83,9 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.OAuthConfig.Exchange(context.Background(), code)
 	if err != nil {
+		fmt.Printf("[AUTH ERROR] Token exchange failed: %v\n", err)
+		fmt.Printf("[AUTH ERROR] Redirect URI: %s\n", h.OAuthConfig.RedirectURL)
+		fmt.Printf("[AUTH ERROR] Client ID set: %v\n", h.OAuthConfig.ClientID != "")
 		http.Error(w, "Token exchange failed", http.StatusInternalServerError)
 		return
 	}
