@@ -144,16 +144,17 @@ export function AboutPage({ onClose }: AboutPageProps) {
             {/* BV Efficiency */}
             <Section title="BV Efficiency">
               <p>
-                BV Efficiency measures combat value per BV spent. The formula is:
+                BV Efficiency uses the same log-scale methodology as Combat Rating, measuring
+                how much combat power you get per BV spent. The formula is:
               </p>
               <div className="my-3 px-4 py-2.5 rounded text-sm font-mono text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
-                BV Efficiency = CR² / (BV / 1000)
+                BV Efficiency = 5 + 3.5 × ln(CR² / BV × baseline)
               </div>
               <p>
-                Squaring the Combat Rating rewards strong mechs disproportionately — a CR 8
-                mech isn't just twice as good as a CR 4, it's four times more efficient per BV.
-                This helps identify mechs that punch above their weight class in
-                tournament list building.
+                Like CR, it's anchored to the HBK-4P as a 5.0 baseline and clamped to 1–10.
+                The log scale means "twice as efficient" and "half as efficient" are equal
+                distances from baseline. High scores identify mechs that punch well above
+                their weight class in tournament list building.
               </p>
             </Section>
 

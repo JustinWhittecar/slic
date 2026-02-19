@@ -247,8 +247,8 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
     }),
     columnHelper.accessor('bv_efficiency', {
       id: 'bv_efficiency',
-      header: () => <span className="tooltip-header" data-tip="Combat Rating² per 1,000 BV. Rewards mechs that are both strong AND cheap. Higher = more combat value per BV spent.">BV Efficiency</span>,
-      cell: info => <span className="tabular-nums">{info.getValue() != null ? info.getValue()!.toFixed(2) : '—'}</span>,
+      header: () => <span className="tooltip-header" data-tip="Log-scale combat value per BV spent, anchored to HBK-4P = 5. Same methodology as Combat Rating. Higher = more bang for your BV buck.">BV Efficiency</span>,
+      cell: info => <span className="tabular-nums">{info.getValue() != null ? info.getValue()!.toFixed(1) : '—'}</span>,
     }),
     columnHelper.accessor('armor_coverage_pct', {
       id: 'armor_coverage_pct',

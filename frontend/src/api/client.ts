@@ -172,7 +172,11 @@ export async function fetchMechs(filters: MechFilters = {}): Promise<MechListIte
   const mechs: MechListItem[] = await res.json()
   for (const m of mechs) {
     if (m.combat_rating && m.combat_rating > 0 && m.battle_value && m.battle_value > 0) {
-      m.bv_efficiency = (m.combat_rating * m.combat_rating) / (m.battle_value / 1000)
+      // Log-scale BV efficiency anchored to HBK-4P = 5, same approach as CR itself
+      // Formula: 5 + 3.5 * ln(CR² / BV * baseline), where baseline = 1138/25 = 45.52
+      const baseline = 45.52 // BV_hbk / CR_hbk² = 1138 / 5² 
+      const raw = (m.combat_rating * m.combat_rating) / m.battle_value * baseline
+      m.bv_efficiency = Math.min(10, Math.max(1, 5.0 + 3.5 * Math.log(raw)))
     }
   }
   return mechs
