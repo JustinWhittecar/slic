@@ -55,7 +55,7 @@ func (c *Client) SendTransactional(to, subject, htmlBody string, identifiers map
 			"from":                     "SLIC Command <slic@starleagueintelligencecommand.com>",
 			"identifiers":              identifiers,
 			"subject":                  subject,
-			"body":                     htmlBody,
+			"body_html":                htmlBody,
 		}
 		if len(messageData) > 0 {
 			payload["message_data"] = messageData
