@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { MechListItem } from '../api/client'
 import { track } from '../analytics'
 
+function escapeXml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 // BV multipliers indexed by [gunnery][piloting], from Total Warfare
 const BV_TABLE: number[][] = [
   // P: 0     1     2     3     4     5     6     7     8
@@ -59,6 +63,7 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
   const [saveName, setSaveName] = useState('')
   const [exportMsg, setExportMsg] = useState('')
   const [shareMsg, setShareMsg] = useState('')
+  const [mulMsg, setMulMsg] = useState('')
 
   useEffect(() => {
     localStorage.setItem('slic-list-budget', String(budget))
@@ -122,6 +127,28 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
     const lists = getSavedLists().filter(l => l.name !== name)
     localStorage.setItem('slic-saved-lists', JSON.stringify(lists))
     setSaveLoadOpen(s => s)
+  }
+
+  const exportMul = () => {
+    track('list_export_mul', { mech_count: mechs.length, total_bv: totalBV })
+    const entities = mechs.map((entry, i) => {
+      const chassis = entry.mechData.chassis
+      const model = entry.mechData.model_code
+      const g = entry.pilotGunnery
+      const p = entry.pilotPiloting
+      const type = entry.mechData.config || 'Biped'
+      return `    <entity chassis="${escapeXml(chassis)}" model="${escapeXml(model)}" type="${escapeXml(type)}">\n        <pilot name="MechWarrior ${i + 1}" gunnery="${g}" piloting="${p}"/>\n    </entity>`
+    })
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<unit version="1.0">\n${entities.join('\n')}\n</unit>\n`
+    const blob = new Blob([xml], { type: 'application/xml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'slic-force.mul'
+    a.click()
+    URL.revokeObjectURL(url)
+    setMulMsg('Downloaded!')
+    setTimeout(() => setMulMsg(''), 2000)
   }
 
   const exportList = () => {
@@ -227,12 +254,21 @@ export function ListBuilder({ mechs, onMechsChange, onClose }: ListBuilderProps)
         {/* Row 3 on mobile: actions */}
         <div className="flex gap-1.5 sm:ml-auto">
           <button
+            onClick={exportMul}
+            className="text-xs px-2 py-1 rounded cursor-pointer"
+            style={{ background: 'var(--accent)', border: '1px solid var(--accent)', color: '#fff' }}
+            disabled={mechs.length === 0}
+            title="Download .mul file for Flechs Sheets"
+          >
+            {mulMsg || '⬇ .mul'}
+          </button>
+          <button
             onClick={exportList}
             className="text-xs px-2 py-1 rounded cursor-pointer"
             style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
             disabled={mechs.length === 0}
           >
-            {exportMsg || 'Export'}
+            {exportMsg || 'Copy Text'}
           </button>
           <button
             onClick={shareList}
