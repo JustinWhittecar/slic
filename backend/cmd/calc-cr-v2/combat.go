@@ -476,7 +476,7 @@ func resolveMRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 	if roll2d6(rng) >= target {
 		bonus := 0
 		if attacker.HasApollo {
-			bonus = 2 // Apollo FCS gives +2 cluster bonus for MRMs
+			bonus = -1 // Apollo FCS: subtract 1 from cluster roll (BMM p.113)
 		}
 		hits := clusterHitsWithBonus(w.RackSize, bonus, rng)
 		hits = amsIntercept(hits, defender, rng)
