@@ -159,7 +159,7 @@ func (h *FeedbackHandler) Submit(w http.ResponseWriter, r *http.Request) {
 			req.Contact,
 			"We got your feedback",
 			customerio.FeedbackAckEmailHTML(ghIssue.HTMLURL),
-			"2",
+			"3",
 			map[string]string{"id": anonID},
 			nil,
 		)

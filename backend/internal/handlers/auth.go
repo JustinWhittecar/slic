@@ -150,7 +150,7 @@ func (h *AuthHandler) Callback(w http.ResponseWriter, r *http.Request) {
 			gUser.Email,
 			"Welcome to SLIC, MechWarrior",
 			customerio.WelcomeEmailHTML(),
-			"1",
+			"2",
 			map[string]string{"id": cioID},
 			nil,
 		)
