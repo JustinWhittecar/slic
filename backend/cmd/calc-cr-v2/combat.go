@@ -114,17 +114,17 @@ func (w *SimWeapon) isTorsoWeapon() bool {
 
 var clusterRackSizes = []int{2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 20, 30, 40}
 var clusterTable = [11][13]int{
-	{1, 1, 1, 1, 2, 2, 2, 3, 4, 5, 6, 10, 12},
-	{1, 1, 2, 2, 2, 2, 3, 3, 4, 5, 6, 10, 12},
-	{1, 1, 2, 2, 3, 3, 4, 4, 5, 6, 9, 12, 18},
-	{1, 2, 2, 3, 3, 4, 4, 6, 8, 9, 12, 18, 24},
-	{1, 2, 3, 3, 4, 4, 5, 6, 8, 9, 12, 18, 24},
-	{1, 2, 3, 3, 4, 4, 5, 6, 8, 9, 12, 18, 24},
-	{2, 2, 3, 4, 4, 5, 5, 8, 10, 12, 16, 24, 32},
-	{2, 3, 3, 4, 5, 5, 5, 8, 10, 12, 16, 24, 32},
-	{2, 3, 4, 4, 5, 6, 7, 8, 10, 12, 16, 24, 32},
-	{2, 3, 4, 5, 5, 8, 8, 10, 12, 15, 20, 30, 40},
-	{2, 4, 4, 5, 6, 8, 9, 10, 12, 15, 20, 30, 40},
+	{1, 1, 1, 1, 2, 3, 3, 3, 4, 5, 6, 10, 12},    // roll 2
+	{1, 1, 2, 2, 2, 3, 3, 3, 4, 5, 6, 10, 12},    // roll 3
+	{1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 9, 12, 18},    // roll 4
+	{1, 2, 2, 3, 3, 4, 5, 6, 8, 9, 12, 18, 24},   // roll 5
+	{1, 2, 2, 3, 4, 5, 5, 6, 8, 9, 12, 18, 24},   // roll 6
+	{1, 2, 3, 3, 4, 5, 5, 6, 8, 9, 12, 18, 24},   // roll 7
+	{2, 2, 3, 3, 4, 5, 5, 6, 8, 9, 12, 18, 24},   // roll 8
+	{2, 2, 3, 4, 5, 6, 7, 8, 10, 12, 16, 24, 32}, // roll 9
+	{2, 3, 3, 4, 5, 6, 7, 8, 10, 12, 16, 24, 32}, // roll 10
+	{2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 20, 30, 40}, // roll 11
+	{2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 20, 30, 40}, // roll 12
 }
 
 func clusterHits(rackSize int, rng *rand.Rand) int {
@@ -150,23 +150,42 @@ func clusterHitsWithBonus(rackSize int, bonus int, rng *rand.Rand) int {
 
 // ─── AMS ────────────────────────────────────────────────────────────────────
 
-func amsIntercept(hits int, defender *MechState, rng *rand.Rand) int {
+// amsClusterMod returns the cluster roll modifier from AMS (-4 per BMM p.118).
+// Marks AMS as used and consumes ammo. Returns 0 if AMS unavailable.
+func amsClusterMod(defender *MechState) int {
 	if !defender.HasAMS || defender.AMSUsedThisTurn {
-		return hits
+		return 0
 	}
 	if !defender.IsLaserAMS {
 		if defender.AMSAmmo <= 0 {
-			return hits
+			return 0
 		}
 		defender.AMSAmmo--
 	}
 	defender.AMSUsedThisTurn = true
-	reduction := roll1d6(rng)
-	hits -= reduction
-	if hits < 0 {
-		hits = 0
+	return -4
+}
+
+// amsInterceptStreak handles AMS vs Streak weapons (BMM p.118):
+// treat as cluster roll of 7 on the appropriate rack size column.
+func amsInterceptStreak(rackSize int, defender *MechState) int {
+	if !defender.HasAMS || defender.AMSUsedThisTurn {
+		return rackSize
 	}
-	return hits
+	if !defender.IsLaserAMS {
+		if defender.AMSAmmo <= 0 {
+			return rackSize
+		}
+		defender.AMSAmmo--
+	}
+	defender.AMSUsedThisTurn = true
+	colIdx := 0
+	for i, rs := range clusterRackSizes {
+		if rs <= rackSize {
+			colIdx = i
+		}
+	}
+	return clusterTable[5][colIdx] // roll 7 = row index 5
 }
 
 func artemisBonus(m *MechState) int {
@@ -261,7 +280,7 @@ func resolveWeaponFire2D(w *SimWeapon, target int, isRear bool, attacker *MechSt
 	case catMRM:
 		return resolveMRM(w, target, isRear, attacker, defender, rng)
 	case catHAG:
-		return resolveHAG(w, target, isRear, defender, rng)
+		return resolveHAG(w, target, isRear, attacker, defender, rng)
 	case catATM:
 		return resolveATM(w, target, isRear, attacker, defender, rng)
 	case catMML:
@@ -305,7 +324,7 @@ func resolveArrowIV(w *SimWeapon, target int, defender *MechState, rng *rand.Ran
 func resolveStreakSRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := amsIntercept(w.RackSize, defender, rng)
+		hits := amsInterceptStreak(w.RackSize, defender)
 		for m := 0; m < hits; m++ {
 			loc := rollHitLocation(isRear, rng)
 			defender.applyDamage(loc, 2, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
@@ -437,9 +456,8 @@ func resolveLBX(w *SimWeapon, target int, isRear bool, defender *MechState, rng 
 func resolveLRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		// Cluster roll first, then AMS reduces hits (BMM p.117)
-		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
-		hits = amsIntercept(hits, defender, rng)
+		// AMS applies -4 to cluster roll (BMM p.118)
+		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker)+amsClusterMod(defender), rng)
 		if hits <= 0 {
 			return 0
 		}
@@ -460,8 +478,7 @@ func resolveLRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 func resolveSRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
-		hits = amsIntercept(hits, defender, rng)
+		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker)+amsClusterMod(defender), rng)
 		for h := 0; h < hits; h++ {
 			loc := rollHitLocation(isRear, rng)
 			defender.applyDamage(loc, 2, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
@@ -478,8 +495,7 @@ func resolveMRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 		if attacker.HasApollo {
 			bonus = -1 // Apollo FCS: subtract 1 from cluster roll (BMM p.113)
 		}
-		hits := clusterHitsWithBonus(w.RackSize, bonus, rng)
-		hits = amsIntercept(hits, defender, rng)
+		hits := clusterHitsWithBonus(w.RackSize, bonus+amsClusterMod(defender), rng)
 		// MRM is C5: 1 dmg/missile, apply in 5-point groups
 		totalDmg := hits // hits * 1 dmg per missile
 		for totalDmg > 0 {
@@ -496,10 +512,18 @@ func resolveMRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 	return dmgDealt
 }
 
-func resolveHAG(w *SimWeapon, target int, isRear bool, defender *MechState, rng *rand.Rand) int {
+func resolveHAG(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := clusterHits(w.RackSize, rng)
+		// HAG cluster modifier: +2 short range, -2 long range (BMM p.100)
+		dist := HexDistance(attacker.Pos, defender.Pos)
+		hagBonus := 0
+		if dist <= w.ShortRange {
+			hagBonus = 2
+		} else if dist > w.MedRange {
+			hagBonus = -2
+		}
+		hits := clusterHitsWithBonus(w.RackSize, hagBonus, rng)
 		for hits > 0 {
 			grp := 5
 			if hits < 5 {
@@ -534,8 +558,7 @@ func resolveATM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
-		hits = amsIntercept(hits, defender, rng)
+		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker)+amsClusterMod(defender), rng)
 		// ATM is C5: total damage = hits * dmgPerMissile, apply in 5-point groups
 		totalDmg := hits * dmgPerMissile
 		for totalDmg > 0 {
@@ -568,8 +591,7 @@ func resolveMML(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
-		hits = amsIntercept(hits, defender, rng)
+		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker)+amsClusterMod(defender), rng)
 		if useSRMMode {
 			// SRM mode: 2 damage per missile, individual hit locations
 			for h := 0; h < hits; h++ {
@@ -598,8 +620,7 @@ func resolveStreakLRM(w *SimWeapon, target int, isRear bool, attacker *MechState
 	// Streak LRM: all missiles hit on successful to-hit (no cluster roll). 1 dmg/missile, 5-point groupings.
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := w.RackSize // all missiles hit — that's the Streak feature
-		hits = amsIntercept(hits, defender, rng)
+		hits := amsInterceptStreak(w.RackSize, defender) // Streak: AMS uses cluster roll 7 (BMM p.118)
 		for hits > 0 {
 			grp := 5
 			if hits < 5 {
