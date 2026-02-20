@@ -27,9 +27,9 @@ var frontHitTable = [11]int{
 	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocHD,
 }
 
-// Rear hit table — roll 12 = CT(rear), NOT head (BMM p.53)
+// Rear hit table — roll 12 = Head for ALL columns (BMM p.33) [fix #1]
 var rearHitTable = [11]int{
-	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocCT,
+	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocHD,
 }
 
 // ─── IS table by tonnage ────────────────────────────────────────────────────
@@ -168,7 +168,10 @@ func (m *MechState) effectiveRunMP() int {
 }
 
 func (m *MechState) isDestroyed() bool {
-	if m.PilotDamage >= 6 || m.CockpitHit || m.EngineHits >= 3 || m.GyroHits >= 2 {
+	// [fix #6] Gyro destruction ≠ mech destroyed (BMM p.48 + errata)
+	// [fix #12] Removed "3+ IS exposed = dead" — not in BMM
+	// [fix #13] Both legs destroyed ≠ dead — just immobile + prone
+	if m.PilotDamage >= 6 || m.CockpitHit || m.EngineHits >= 3 {
 		return true
 	}
 	if m.IS[LocCT] <= 0 || m.IS[LocHD] <= 0 {
@@ -183,19 +186,6 @@ func (m *MechState) isDestroyed() bool {
 		if m.IS[LocLT] <= 0 && m.IS[LocRT] <= 0 {
 			return true
 		}
-	}
-	// Both legs destroyed = dead (BMM: one leg = fall + immobilize, not death)
-	if m.IS[LocLL] <= 0 && m.IS[LocRL] <= 0 {
-		return true
-	}
-	exposed := 0
-	for i := 0; i < NumLoc; i++ {
-		if m.ISExposed[i] {
-			exposed++
-		}
-	}
-	if exposed >= 3 {
-		return true
 	}
 	return false
 }
@@ -257,7 +247,8 @@ func (m *MechState) applyDamage(loc int, dmg int, isRear bool, rng *rand.Rand) {
 		return
 	}
 	if m.IS[loc] <= 0 {
-		m.transferDamage(loc, dmg, rng)
+		// [fix #7] propagate isRear through transfer
+		m.transferDamage(loc, dmg, isRear, rng)
 		return
 	}
 
@@ -284,7 +275,6 @@ func (m *MechState) applyDamage(loc int, dmg int, isRear bool, rng *rand.Rand) {
 		}
 	}
 
-	wasExposed := m.ISExposed[loc]
 	isMult := 1.0
 	if m.IsReinforced {
 		isMult = 0.5
@@ -296,9 +286,8 @@ func (m *MechState) applyDamage(loc int, dmg int, isRear bool, rng *rand.Rand) {
 	if m.IS[loc] > effectiveDmg {
 		m.IS[loc] -= effectiveDmg
 		m.ISExposed[loc] = true
-		if !wasExposed {
-			m.rollCrits(loc, rng)
-		}
+		// [fix #2] Roll crits every time IS takes damage (BMM p.45)
+		m.rollCrits(loc, rng)
 		return
 	}
 
@@ -306,25 +295,27 @@ func (m *MechState) applyDamage(loc int, dmg int, isRear bool, rng *rand.Rand) {
 	m.IS[loc] = 0
 	m.ISExposed[loc] = true
 
-	if !wasExposed {
-		m.rollCrits(loc, rng)
-	}
-
+	// Location destroyed — destroy all equipment
 	for i := range m.Weapons {
 		if m.Weapons[i].Location == loc {
 			m.Weapons[i].Destroyed = true
 		}
 	}
 
-	if overflow > 0 && isMult != 1.0 {
-		overflow = int(math.Ceil(float64(overflow) / isMult))
-	}
 	if overflow > 0 {
-		m.transferDamage(loc, overflow, rng)
+		// [fix #8] Composite: do NOT transfer overflow (BMM p.117)
+		if m.IsComposite {
+			return
+		}
+		// [fix #9] Reinforced: transfer overflow as-is, don't convert back to raw
+		// (the old code did ceil(overflow / 0.5) which doubled transfer damage)
+		// Standard & reinforced both just transfer overflow directly
+		m.transferDamage(loc, overflow, isRear, rng)
 	}
 }
 
-func (m *MechState) transferDamage(fromLoc int, dmg int, rng *rand.Rand) {
+// [fix #7] transferDamage now propagates isRear flag
+func (m *MechState) transferDamage(fromLoc int, dmg int, isRear bool, rng *rand.Rand) {
 	var toLoc int
 	switch fromLoc {
 	case LocLA:
@@ -340,7 +331,7 @@ func (m *MechState) transferDamage(fromLoc int, dmg int, rng *rand.Rand) {
 	default:
 		return
 	}
-	m.applyDamage(toLoc, dmg, false, rng)
+	m.applyDamage(toLoc, dmg, isRear, rng)
 }
 
 func (m *MechState) rollCrits(loc int, rng *rand.Rand) {
@@ -362,9 +353,21 @@ func (m *MechState) rollCrits(loc int, rng *rand.Rand) {
 			numCrits = 1
 		}
 	} else {
+		isLimb := loc == LocLA || loc == LocRA || loc == LocLL || loc == LocRL
 		switch {
 		case critRoll >= 12:
-			numCrits = 3
+			// [fix #3] Roll 12 on arms/legs = limb blown off (BMM p.47-48)
+			if isLimb {
+				m.IS[loc] = 0
+				m.ISExposed[loc] = true
+				for i := range m.Weapons {
+					if m.Weapons[i].Location == loc {
+						m.Weapons[i].Destroyed = true
+					}
+				}
+				return
+			}
+			numCrits = 3 // Torsos get 3 crits on roll 12
 		case critRoll >= 10:
 			numCrits = 2
 		case critRoll >= 8:
@@ -452,28 +455,82 @@ func (m *MechState) applyCrit(loc int, rng *rand.Rand) {
 }
 
 func (m *MechState) ammoExplosion(loc int, slotName string, rng *rand.Rand) {
-	if m.HasCASEII[loc] {
+	ammoKey := parseAmmoSlotKey(slotName)
+
+	// [fix #11] Gauss ammo is non-explosive; gauss WEAPON explodes, not ammo
+	if strings.Contains(strings.ToLower(ammoKey), "gauss") {
 		return
 	}
 
-	ammoKey := parseAmmoSlotKey(slotName)
 	shots := m.Ammo[ammoKey]
 	if shots <= 0 {
 		return
 	}
-	m.Ammo[ammoKey] = 0
 
-	dmgPerShot := estimateAmmoDamage(ammoKey)
-	totalDmg := shots * dmgPerShot
-
-	if m.HasCASE[loc] {
-		m.IS[loc] = 0
-		m.ISExposed[loc] = true
-		for i := range m.Weapons {
-			if m.Weapons[i].Location == loc {
-				m.Weapons[i].Destroyed = true
+	// [fix #5] Per-slot ammo: divide by number of locations containing this ammo type (BMM p.47)
+	locCount := 0
+	for l := 0; l < NumLoc; l++ {
+		for _, slot := range m.Slots[l] {
+			if strings.Contains(strings.ToLower(slot), "ammo") && parseAmmoSlotKey(slot) == ammoKey {
+				locCount++
+				break
 			}
 		}
+	}
+	if locCount < 1 {
+		locCount = 1
+	}
+	slotShots := shots / locCount
+	if slotShots < 1 {
+		slotShots = 1
+	}
+	m.Ammo[ammoKey] -= slotShots
+
+	dmgPerShot := estimateAmmoDamage(ammoKey)
+	totalDmg := slotShots * dmgPerShot
+
+	// [fix #10] CASE II: apply 1 IS damage, roll crits with filtering, discard excess (BMM p.47 + errata)
+	if m.HasCASEII[loc] {
+		if m.IS[loc] > 1 {
+			m.IS[loc]--
+			m.ISExposed[loc] = true
+			m.rollCritsCASEII(loc, rng)
+		} else if m.IS[loc] == 1 {
+			m.IS[loc] = 0
+			m.ISExposed[loc] = true
+			for i := range m.Weapons {
+				if m.Weapons[i].Location == loc {
+					m.Weapons[i].Destroyed = true
+				}
+			}
+		}
+		return
+	}
+
+	// [fix #4] CASE: apply explosion damage to IS normally; excess discarded (BMM p.118)
+	if m.HasCASE[loc] {
+		if m.IS[loc] > totalDmg {
+			m.IS[loc] -= totalDmg
+			m.ISExposed[loc] = true
+			m.rollCrits(loc, rng)
+		} else {
+			m.IS[loc] = 0
+			m.ISExposed[loc] = true
+			for i := range m.Weapons {
+				if m.Weapons[i].Location == loc {
+					m.Weapons[i].Destroyed = true
+				}
+			}
+		}
+		// Excess damage discarded (not transferred)
+		return
+	}
+
+	// No CASE: apply to IS, transfer excess
+	if m.IS[loc] > totalDmg {
+		m.IS[loc] -= totalDmg
+		m.ISExposed[loc] = true
+		m.rollCrits(loc, rng)
 	} else {
 		remaining := totalDmg - m.IS[loc]
 		m.IS[loc] = 0
@@ -484,7 +541,61 @@ func (m *MechState) ammoExplosion(loc int, slotName string, rng *rand.Rand) {
 			}
 		}
 		if remaining > 0 {
-			m.transferDamage(loc, remaining, rng)
+			m.transferDamage(loc, remaining, false, rng)
+		}
+	}
+}
+
+// rollCritsCASEII rolls crits but each result gets a 2d6 filter; 8+ negates that crit [fix #10]
+func (m *MechState) rollCritsCASEII(loc int, rng *rand.Rand) {
+	critRoll := roll2d6(rng)
+	if m.IsReinforced {
+		critRoll--
+	}
+
+	numCrits := 0
+	if loc == LocHD {
+		switch {
+		case critRoll >= 12:
+			filterRoll := roll2d6(rng)
+			if filterRoll < 8 {
+				m.CockpitHit = true
+			}
+			return
+		case critRoll >= 10:
+			numCrits = 2
+		case critRoll >= 8:
+			numCrits = 1
+		}
+	} else {
+		isLimb := loc == LocLA || loc == LocRA || loc == LocLL || loc == LocRL
+		switch {
+		case critRoll >= 12:
+			if isLimb {
+				filterRoll := roll2d6(rng)
+				if filterRoll < 8 {
+					m.IS[loc] = 0
+					m.ISExposed[loc] = true
+					for i := range m.Weapons {
+						if m.Weapons[i].Location == loc {
+							m.Weapons[i].Destroyed = true
+						}
+					}
+				}
+				return
+			}
+			numCrits = 3
+		case critRoll >= 10:
+			numCrits = 2
+		case critRoll >= 8:
+			numCrits = 1
+		}
+	}
+
+	for i := 0; i < numCrits; i++ {
+		filterRoll := roll2d6(rng)
+		if filterRoll < 8 {
+			m.applyCrit(loc, rng)
 		}
 	}
 }
