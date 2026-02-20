@@ -227,7 +227,13 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
       header: 'Name',
       cell: ({ row }) => (
         <div>
-          <span>{row.original.chassis} {row.original.model_code}</span>
+          <button
+            className="mech-name-link"
+            onClick={(e) => { e.stopPropagation(); onSelectMech(row.original) }}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)', textDecoration: 'none', fontWeight: 500, textAlign: 'left' }}
+          >
+            {row.original.chassis} {row.original.model_code}
+          </button>
           {row.original.alternate_name && (
             <span className="ml-1.5 text-xs italic" style={{ color: 'var(--text-tertiary)' }}>
               ({row.original.alternate_name})
