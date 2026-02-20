@@ -928,11 +928,7 @@ func main() {
 				}
 
 				mechTemplate := buildMechState(v, mtf)
-				for wi, w := range mechTemplate.Weapons {
-					log.Printf("  weapon[%d]: %s dmg=%d heat=%d short=%d med=%d long=%d min=%d tohit=%d", wi, w.Name, w.Damage, w.Heat, w.ShortRange, w.MedRange, w.LongRange, w.MinRange, w.ToHitMod)
-				}
 				mechTemplate.OptimalRange = calcOptimalRange(mechTemplate)
-				log.Printf("  %s %s: optimalRange=%d, dissipation=%d, weapons=%d", v.Name, v.ModelCode, mechTemplate.OptimalRange, mechTemplate.Dissipation, len(mechTemplate.Weapons))
 
 				offTurns := runSimsBatch2DPre(preBoards, mechTemplate, hbkTemplate, numSimsPerBoard, localRng)
 				defTurns := runSimsBatch2DPre(preBoards, hbkTemplate, mechTemplate, numSimsPerBoard, localRng)

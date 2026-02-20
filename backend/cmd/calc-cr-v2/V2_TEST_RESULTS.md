@@ -14,9 +14,13 @@
 
 | Mech                                |  Offense |  Defense |     CR |
 |-------------------------------------|----------|----------|--------|
-| Vixen 9 9                           |     10.0 |     10.5 |   5.17 |
-| Hunchback HBK-4P HBK-4P             |     10.0 |     10.0 |   5.00 |
-| Star Python                         |     10.0 |      8.0 |   4.22 |
+| Archer ARC-2Rb ARC-2Rb              |     12.0 |     14.5 |   5.66 |
+| Vixen 9 9                           |     10.0 |     12.0 |   5.64 |
+| Archer ARC-2R ARC-2R                |     12.0 |     13.0 |   5.28 |
+| Catapult CPLT-C1b CPLT-C1b          |     11.0 |     11.0 |   5.00 |
+| Catapult CPLT-C1 (Jenny) 'Butterbee' CPLT-C1 (Jenny) 'Butterbee' |     11.0 |     10.0 |   4.67 |
+| Star Python                         |     10.0 |      9.0 |   4.63 |
+| Catapult CPLT-C1 CPLT-C1            |     13.0 |     10.0 |   4.08 |
 
 ## Key Changes from V1
 - Real 2D hex grid with terrain costs and LOS blocking

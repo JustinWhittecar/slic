@@ -294,151 +294,100 @@ func optimalRange(mech *MechState2) int {
 	return 1
 }
 
-// calcOptimalRange computes the heat-neutral, damage-greedy optimal engagement range.
-// At each hex distance, weapons are filtered to those with TN ≤ 8 (base TN 8 = gunnery 4 +
-// attacker running +2 + TMM +2 for 4/6 defender running), then greedily selected by damage
-// until heat-neutral. The range with highest total expected damage wins.
+// calcOptimalRange computes the optimal engagement range using a damage-weighted average.
+// At each hex distance (1–30), all weapons that can fire (range ≤ longRange, TN ≤ 12) are
+// greedily selected by EV/heat ratio until heat-neutral. The final range is the damage-weighted
+// average across all ranges, giving a realistic tactical engagement distance.
 func calcOptimalRange(m *MechState) int {
 	const baseTN = 8 // gunnery 4 + running +2 + TMM +2
 
-	bestDmg := 0.0
-	bestRange := 1
-
+	// Damage-weighted average: sum(range * dmg) / sum(dmg)
+	weightedSum := 0.0
+	totalWeight := 0.0
 	for r := 1; r <= 30; r++ {
-		// Collect eligible weapons at this range
-		type candidate struct {
-			damage int
-			heat   int
-			tn     int
-			evPerH float64
-		}
-		var candidates []candidate
-
-		for i := range m.Weapons {
-			w := &m.Weapons[i]
-			if w.Destroyed || r > w.LongRange {
-				continue
-			}
-			if w.MinRange > 0 && r < w.MinRange {
-				continue
-			}
-
-			rangeMod := 0
-			switch {
-			case r <= w.ShortRange:
-				rangeMod = 0
-			case r <= w.MedRange:
-				rangeMod = 2
-			default:
-				rangeMod = 4
-			}
-
-			tn := baseTN + rangeMod + w.ToHitMod
-			if tn > 12 {
-				continue
-			}
-
-			ev := float64(w.Damage) * hitProb(tn)
-			heat := w.Heat
-			evH := ev
-			if heat > 0 {
-				evH = ev / float64(heat)
-			} else {
-				evH = ev * 1000 // zero-heat weapons always worth firing
-			}
-			candidates = append(candidates, candidate{w.Damage, w.Heat, tn, evH})
-		}
-
-		// Greedy: sort by EV/heat descending, pick until heat-neutral
-		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].evPerH > candidates[j].evPerH
-		})
-
-		totalDmg := 0.0
-		totalHeat := 0
-		dissipation := m.Dissipation
-		if dissipation < 0 {
-			dissipation = 0
-		}
-
-		for _, c := range candidates {
-			if c.heat > 0 && totalHeat+c.heat > dissipation {
-				continue // skip — would exceed heat neutrality
-			}
-			totalHeat += c.heat
-			totalDmg += float64(c.damage) * hitProb(c.tn)
-		}
-
-		if totalDmg > bestDmg {
-			bestDmg = totalDmg
-			bestRange = r
+		dmg := calcDamageAtRange(m, r, baseTN)
+		if dmg > 0 {
+			weightedSum += float64(r) * dmg
+			totalWeight += dmg
 		}
 	}
-
-	// Pick the farthest range that delivers at least 80% of peak damage.
-	// This gives the tactical AI a more realistic engagement distance —
-	// staying at effective range rather than rushing to point-blank.
-	threshold := bestDmg * 0.80
-	optRange := bestRange
-	for r := 30; r >= 1; r-- {
-		// Recompute damage at this range (lightweight second pass)
-		type candidate2 struct {
-			ev   float64
-			heat int
-			evPH float64
+	if totalWeight > 0 {
+		avg := weightedSum / totalWeight
+		optRange := int(math.Round(avg))
+		if optRange < 1 {
+			optRange = 1
 		}
-		var cands []candidate2
-		for i := range m.Weapons {
-			w := &m.Weapons[i]
-			if w.Destroyed || r > w.LongRange {
-				continue
-			}
-			if w.MinRange > 0 && r < w.MinRange {
-				continue
-			}
-			rangeMod := 0
-			switch {
-			case r <= w.ShortRange:
-				rangeMod = 0
-			case r <= w.MedRange:
-				rangeMod = 2
-			default:
-				rangeMod = 4
-			}
-			tn := baseTN + rangeMod + w.ToHitMod
-			if tn > 12 {
-				continue
-			}
-			ev := float64(w.Damage) * hitProb(tn)
-			h := w.Heat
-			evPH := ev
-			if h > 0 {
-				evPH = ev / float64(h)
-			} else {
-				evPH = ev * 1000
-			}
-			cands = append(cands, candidate2{ev, h, evPH})
-		}
-		sort.Slice(cands, func(i, j int) bool { return cands[i].evPH > cands[j].evPH })
-		dmg := 0.0
-		heat := 0
-		diss := m.Dissipation
-		if diss < 0 {
-			diss = 0
-		}
-		for _, c := range cands {
-			if c.heat > 0 && heat+c.heat > diss {
-				continue
-			}
-			heat += c.heat
-			dmg += c.ev
-		}
-		if dmg >= threshold {
-			optRange = r
-			break
-		}
+		return optRange
 	}
-	return optRange
+	return 1
+}
+
+// effectiveDamage returns the expected damage per hit for a weapon,
+// accounting for cluster weapons (LRM, SRM, etc.) that have Damage=0 but RackSize>0.
+func effectiveDamage(w *SimWeapon) float64 {
+	if w.Damage > 0 {
+		return float64(w.Damage)
+	}
+	if w.RackSize > 0 {
+		return clusterAverage(w.RackSize)
+	}
+	return 0
+}
+
+// calcDamageAtRange computes heat-neutral expected damage at a given range.
+func calcDamageAtRange(m *MechState, r int, baseTN int) float64 {
+	type cand struct {
+		ev   float64
+		heat int
+		evPH float64
+	}
+	var candidates []cand
+	for i := range m.Weapons {
+		w := &m.Weapons[i]
+		if w.Destroyed || r > w.LongRange {
+			continue
+		}
+		if w.MinRange > 0 && r < w.MinRange {
+			continue
+		}
+		rangeMod := 0
+		switch {
+		case r <= w.ShortRange:
+			rangeMod = 0
+		case r <= w.MedRange:
+			rangeMod = 2
+		default:
+			rangeMod = 4
+		}
+		tn := baseTN + rangeMod + w.ToHitMod
+		if tn > 12 {
+			continue
+		}
+		ev := effectiveDamage(w) * hitProb(tn)
+		h := w.Heat
+		evPH := ev
+		if h > 0 {
+			evPH = ev / float64(h)
+		} else {
+			evPH = ev * 1000
+		}
+		candidates = append(candidates, cand{ev, h, evPH})
+	}
+	sort.Slice(candidates, func(i, j int) bool { return candidates[i].evPH > candidates[j].evPH })
+	dmg := 0.0
+	heat := 0
+	diss := m.Dissipation
+	if diss < 0 {
+		diss = 0
+	}
+	for _, c := range candidates {
+		if c.heat > 0 && heat+c.heat > diss {
+			continue
+		}
+		heat += c.heat
+		dmg += c.ev
+	}
+	return dmg
 }
 
 func maxInt(a, b int) int {
