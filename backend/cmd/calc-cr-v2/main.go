@@ -228,6 +228,10 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 			// Compute target number
 			defTMM := tmmFromHexesMoved(defChoice.HexesMoved, defChoice.Mode)
 			heatThisMod := heatToHitMod(attacker.Heat)
+			// BMM p.49: 2+ sensor hits = weapon fire impossible
+			if attacker.SensorHits >= 2 {
+				continue
+			}
 			baseTarget := gunnerySkill + attacker.SensorHits*2 + heatThisMod
 
 			// Attacker movement modifier
@@ -254,9 +258,9 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 			}
 			if defender.Prone {
 				if dist <= 1 {
-					baseTarget += 1
+					baseTarget -= 2 // adjacent: easier to hit (BMM p.28)
 				} else {
-					baseTarget -= 2
+					baseTarget += 1 // non-adjacent: harder to hit (BMM p.28)
 				}
 			}
 

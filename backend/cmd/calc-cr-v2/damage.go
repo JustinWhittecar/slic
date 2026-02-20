@@ -27,9 +27,9 @@ var frontHitTable = [11]int{
 	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocHD,
 }
 
-// Rear hit table — roll 12 = CT(rear), NOT head (BMM p.53)
+// Rear hit table — roll 12 = Head for ALL columns (BMM p.33)
 var rearHitTable = [11]int{
-	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocCT,
+	LocCT, LocRA, LocRA, LocRL, LocRT, LocCT, LocLT, LocLL, LocLA, LocLA, LocHD,
 }
 
 // ─── IS table by tonnage ────────────────────────────────────────────────────

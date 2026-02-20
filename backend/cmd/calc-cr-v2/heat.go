@@ -124,6 +124,25 @@ func heatAmmoExpProb(heat int) float64 {
 	}
 }
 
+// heatShutdownTN returns the 2d6 target number to avoid shutdown at the given
+// heat level. Returns 0 when no roll is needed, 13 when shutdown is automatic.
+func heatShutdownTN(heat int) int {
+	switch {
+	case heat >= 30:
+		return 13 // automatic, cannot avoid
+	case heat >= 26:
+		return 10
+	case heat >= 22:
+		return 8
+	case heat >= 18:
+		return 6
+	case heat >= 14:
+		return 4
+	default:
+		return 0
+	}
+}
+
 func heatCostEV(heat int, avgTurnDmg float64, ammoExpDmg float64, walkMP int, currentDmgCapability float64) float64 {
 	cost := 0.0
 
