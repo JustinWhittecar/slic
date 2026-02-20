@@ -293,11 +293,11 @@ func simulateReplay(board *Board, attackerTemplate, defenderTemplate *MechState,
 
 		var atkChoice, defChoice ReachableHex
 		if atkMovesFirst {
-			atkChoice = ChooseMovement(board, atkM2, defM2, false, defM2.Pos, defM2.Facing, defOptions, rng)
-			defChoice = ChooseMovement(board, defM2, atkM2, true, atkChoice.Coord, atkChoice.Facing, atkOptions, rng)
+			atkChoice = ChooseMovement(board, atkM2, defM2, false, defM2.Pos, defM2.Facing, defOptions, rng, atkOptions)
+			defChoice = ChooseMovement(board, defM2, atkM2, true, atkChoice.Coord, atkChoice.Facing, atkOptions, rng, defOptions)
 		} else {
-			defChoice = ChooseMovement(board, defM2, atkM2, false, atkM2.Pos, atkM2.Facing, atkOptions, rng)
-			atkChoice = ChooseMovement(board, atkM2, defM2, true, defChoice.Coord, defChoice.Facing, defOptions, rng)
+			defChoice = ChooseMovement(board, defM2, atkM2, false, atkM2.Pos, atkM2.Facing, atkOptions, rng, defOptions)
+			atkChoice = ChooseMovement(board, atkM2, defM2, true, defChoice.Coord, defChoice.Facing, defOptions, rng, atkOptions)
 		}
 
 		attacker.Pos = atkChoice.Coord
@@ -750,11 +750,11 @@ func simulateDuelReplay(board *Board, attackerTemplate, defenderTemplate *MechSt
 
 		var atkChoice, defChoice ReachableHex
 		if atkMovesFirst {
-			atkChoice = ChooseMovement(board, atkM2, defM2, false, defM2.Pos, defM2.Facing, defOptions, rng)
-			defChoice = ChooseMovement(board, defM2, atkM2, true, atkChoice.Coord, atkChoice.Facing, atkOptions, rng)
+			atkChoice = ChooseMovement(board, atkM2, defM2, false, defM2.Pos, defM2.Facing, defOptions, rng, atkOptions)
+			defChoice = ChooseMovement(board, defM2, atkM2, true, atkChoice.Coord, atkChoice.Facing, atkOptions, rng, defOptions)
 		} else {
-			defChoice = ChooseMovement(board, defM2, atkM2, false, atkM2.Pos, atkM2.Facing, atkOptions, rng)
-			atkChoice = ChooseMovement(board, atkM2, defM2, true, defChoice.Coord, defChoice.Facing, defOptions, rng)
+			defChoice = ChooseMovement(board, defM2, atkM2, false, atkM2.Pos, atkM2.Facing, atkOptions, rng, defOptions)
+			atkChoice = ChooseMovement(board, atkM2, defM2, true, defChoice.Coord, defChoice.Facing, defOptions, rng, atkOptions)
 		}
 
 		attacker.Pos = atkChoice.Coord

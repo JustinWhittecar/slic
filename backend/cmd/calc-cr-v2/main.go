@@ -57,6 +57,22 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 		if defender.isForcedWithdrawal() {
 			return turn
 		}
+		// Combat ineffective: gyro destroyed (permanently prone, 0 MP),
+		// or both legs destroyed (immobile + prone), or all weapons destroyed.
+		// Not "destroyed" per BMM but effectively out of the fight for CR purposes.
+		if defender.GyroHits >= 2 || (defender.IS[LocLL] <= 0 && defender.IS[LocRL] <= 0) {
+			return turn
+		}
+		defAllWeaponsGone := true
+		for i := range defender.Weapons {
+			if !defender.Weapons[i].Destroyed {
+				defAllWeaponsGone = false
+				break
+			}
+		}
+		if defAllWeaponsGone {
+			return turn
+		}
 
 		// Unjam RAC weapons (RAC clears jam after 1 turn)
 		for i := range attacker.Weapons {
@@ -227,15 +243,15 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 		if atkMovesFirst {
 			// Attacker moves first (blind), defender sees
 			atkChoice = ChooseMovement(board, atkM2, defM2,
-				false, defM2.Pos, defM2.Facing, defOptions, rng)
+				false, defM2.Pos, defM2.Facing, defOptions, rng, atkOptions)
 			defChoice = ChooseMovement(board, defM2, atkM2,
-				true, atkChoice.Coord, atkChoice.Facing, atkOptions, rng)
+				true, atkChoice.Coord, atkChoice.Facing, atkOptions, rng, defOptions)
 		} else {
 			// Defender moves first (blind), attacker sees
 			defChoice = ChooseMovement(board, defM2, atkM2,
-				false, atkM2.Pos, atkM2.Facing, atkOptions, rng)
+				false, atkM2.Pos, atkM2.Facing, atkOptions, rng, defOptions)
 			atkChoice = ChooseMovement(board, atkM2, defM2,
-				true, defChoice.Coord, defChoice.Facing, defOptions, rng)
+				true, defChoice.Coord, defChoice.Facing, defOptions, rng, atkOptions)
 		}
 
 		// Apply movement
@@ -877,10 +893,10 @@ func main() {
 		baselineOffense, baselineDefense, baselineRatio)
 
 	// Process variants
-	numWorkers := runtime.NumCPU()
+	numWorkers := 1 // limit to avoid OOM on 8GB machines
 	log.Printf("Processing %d variants with %d workers...", len(variants), numWorkers)
 
-	results := make(chan simResult, len(variants))
+	results := make(chan simResult, 100)
 	jobs := make(chan int, len(variants))
 
 	var processed atomic.Int64

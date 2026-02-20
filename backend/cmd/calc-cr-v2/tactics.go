@@ -485,18 +485,23 @@ func canWeaponFireTactics(w *SimWeapon2, arcToTarget ArcType) bool {
 // Routes to first-mover or second-mover logic based on initiative.
 func ChooseMovement(board *Board, me *MechState2, op *MechState2,
 	isSecondMover bool, opPos HexCoord, opFacing int,
-	opOptions []ReachableHex, rng *rand.Rand) ReachableHex {
+	opOptions []ReachableHex, rng *rand.Rand, myOptions ...[]ReachableHex) ReachableHex {
 
-	myOptions := collectAllMoveOptions(board, me)
-	if len(myOptions) == 0 {
+	var opts []ReachableHex
+	if len(myOptions) > 0 && myOptions[0] != nil {
+		opts = myOptions[0]
+	} else {
+		opts = collectAllMoveOptions(board, me)
+	}
+	if len(opts) == 0 {
 		return ReachableHex{Coord: me.Pos, Facing: me.Facing, Mode: ModeStand}
 	}
 
 	if isSecondMover {
-		return ChooseHexSecondMover(board, me, myOptions, op, opPos, opFacing)
+		return ChooseHexSecondMover(board, me, opts, op, opPos, opFacing)
 	}
 
-	return ChooseHexFirstMover(board, me, myOptions, op, opOptions)
+	return ChooseHexFirstMover(board, me, opts, op, opOptions)
 }
 
 func collectAllMoveOptions(board *Board, mech *MechState2) []ReachableHex {
