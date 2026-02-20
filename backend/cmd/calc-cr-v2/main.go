@@ -914,6 +914,14 @@ func main() {
 			preBoards := precomputeBoardPairs(boards, numBoardPairs, localRng)
 			for idx := range jobs {
 				v := &variants[idx]
+
+				// HBK-4P is the reference mech — hardcode to exactly 5.00
+				if v.ModelCode == "HBK-4P" {
+					results <- simResult{v.ID, v.Name + " " + v.ModelCode, baselineOffense, baselineDefense, 5.0, 6}
+					processed.Add(1)
+					continue
+				}
+
 				mtf := mtfMap[v.Name]
 				if mtf == nil {
 					altName := strings.TrimSuffix(v.Name, " "+v.ModelCode)
