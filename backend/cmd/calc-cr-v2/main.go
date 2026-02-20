@@ -893,7 +893,10 @@ func main() {
 		baselineOffense, baselineDefense, baselineRatio)
 
 	// Process variants
-	numWorkers := 1 // limit to avoid OOM on 8GB machines
+	numWorkers := runtime.NumCPU()
+	if numWorkers > 8 {
+		numWorkers = 8
+	}
 	log.Printf("Processing %d variants with %d workers...", len(variants), numWorkers)
 
 	results := make(chan simResult, 100)
