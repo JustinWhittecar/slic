@@ -321,6 +321,10 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 				}
 
 				target := baseTarget + w.ToHitMod + attacker.ArmActuatorHit[w.Location]
+				// Artemis V: -1 to-hit in addition to cluster bonus (BMM p.110)
+				if attacker.HasArtemisV && (w.Category == catLRM || w.Category == catSRM || w.Category == catMML || w.Category == catATM) {
+					target -= 1
+				}
 				rm := rangeModifier(w, dist)
 				if rm < 0 {
 					continue
