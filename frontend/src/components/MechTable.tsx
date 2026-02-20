@@ -229,7 +229,7 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
         <div>
           <button
             className="mech-name-link"
-            onClick={(e) => { e.stopPropagation(); onSelectMech(row.original) }}
+            onClick={(e) => { e.stopPropagation(); onSelectMech(row.original.id) }}
             style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--accent)', textDecoration: 'none', fontWeight: 500, textAlign: 'left' }}
           >
             {row.original.chassis} {row.original.model_code}

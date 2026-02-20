@@ -310,6 +310,7 @@ func calcOptimalRange(m *MechState) int {
 			damage int
 			heat   int
 			tn     int
+			evPerH float64
 		}
 		var candidates []candidate
 
@@ -332,21 +333,25 @@ func calcOptimalRange(m *MechState) int {
 				rangeMod = 4
 			}
 
-			// Eligibility: range_mod + to_hit_mod ≤ 0
-			if rangeMod+w.ToHitMod > 0 {
-				continue
-			}
-
 			tn := baseTN + rangeMod + w.ToHitMod
 			if tn > 12 {
 				continue
 			}
-			candidates = append(candidates, candidate{w.Damage, w.Heat, tn})
+
+			ev := float64(w.Damage) * hitProb(tn)
+			heat := w.Heat
+			evH := ev
+			if heat > 0 {
+				evH = ev / float64(heat)
+			} else {
+				evH = ev * 1000 // zero-heat weapons always worth firing
+			}
+			candidates = append(candidates, candidate{w.Damage, w.Heat, tn, evH})
 		}
 
-		// Greedy: sort by damage descending, pick until heat-neutral
+		// Greedy: sort by EV/heat descending, pick until heat-neutral
 		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].damage > candidates[j].damage
+			return candidates[i].evPerH > candidates[j].evPerH
 		})
 
 		totalDmg := 0.0
@@ -357,7 +362,7 @@ func calcOptimalRange(m *MechState) int {
 		}
 
 		for _, c := range candidates {
-			if totalHeat+c.heat > dissipation {
+			if c.heat > 0 && totalHeat+c.heat > dissipation {
 				continue // skip — would exceed heat neutrality
 			}
 			totalHeat += c.heat
@@ -369,7 +374,71 @@ func calcOptimalRange(m *MechState) int {
 			bestRange = r
 		}
 	}
-	return bestRange
+
+	// Pick the farthest range that delivers at least 80% of peak damage.
+	// This gives the tactical AI a more realistic engagement distance —
+	// staying at effective range rather than rushing to point-blank.
+	threshold := bestDmg * 0.80
+	optRange := bestRange
+	for r := 30; r >= 1; r-- {
+		// Recompute damage at this range (lightweight second pass)
+		type candidate2 struct {
+			ev   float64
+			heat int
+			evPH float64
+		}
+		var cands []candidate2
+		for i := range m.Weapons {
+			w := &m.Weapons[i]
+			if w.Destroyed || r > w.LongRange {
+				continue
+			}
+			if w.MinRange > 0 && r < w.MinRange {
+				continue
+			}
+			rangeMod := 0
+			switch {
+			case r <= w.ShortRange:
+				rangeMod = 0
+			case r <= w.MedRange:
+				rangeMod = 2
+			default:
+				rangeMod = 4
+			}
+			tn := baseTN + rangeMod + w.ToHitMod
+			if tn > 12 {
+				continue
+			}
+			ev := float64(w.Damage) * hitProb(tn)
+			h := w.Heat
+			evPH := ev
+			if h > 0 {
+				evPH = ev / float64(h)
+			} else {
+				evPH = ev * 1000
+			}
+			cands = append(cands, candidate2{ev, h, evPH})
+		}
+		sort.Slice(cands, func(i, j int) bool { return cands[i].evPH > cands[j].evPH })
+		dmg := 0.0
+		heat := 0
+		diss := m.Dissipation
+		if diss < 0 {
+			diss = 0
+		}
+		for _, c := range cands {
+			if c.heat > 0 && heat+c.heat > diss {
+				continue
+			}
+			heat += c.heat
+			dmg += c.ev
+		}
+		if dmg >= threshold {
+			optRange = r
+			break
+		}
+	}
+	return optRange
 }
 
 func maxInt(a, b int) int {

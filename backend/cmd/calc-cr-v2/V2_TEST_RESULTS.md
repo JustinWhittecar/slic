@@ -14,7 +14,9 @@
 
 | Mech                                |  Offense |  Defense |     CR |
 |-------------------------------------|----------|----------|--------|
-| Hunchback HBK-4P HBK-4P             |      9.0 |      9.0 |   5.00 |
+| Vixen 9 9                           |     10.0 |     10.5 |   5.17 |
+| Hunchback HBK-4P HBK-4P             |     10.0 |     10.0 |   5.00 |
+| Star Python                         |     10.0 |      8.0 |   4.22 |
 
 ## Key Changes from V1
 - Real 2D hex grid with terrain costs and LOS blocking
