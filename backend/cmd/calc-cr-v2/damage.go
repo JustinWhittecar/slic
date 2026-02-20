@@ -165,6 +165,14 @@ func (m *MechState) effectiveWalkMP() int {
 	return mp
 }
 
+func (m *MechState) effectiveJumpMP() int {
+	// Legs destroyed = no jumping; leg actuator hits don't reduce jump MP
+	if m.IS[LocLL] <= 0 || m.IS[LocRL] <= 0 {
+		return 0
+	}
+	return m.JumpMP
+}
+
 func (m *MechState) effectiveRunMP() int {
 	w := m.effectiveWalkMP()
 	return int(math.Ceil(float64(w) * 1.5))
@@ -193,11 +201,52 @@ func (m *MechState) isDestroyed() bool {
 	return false
 }
 
+// isCripplingWeaponsLoss checks the BMM p.81 nuanced weapons loss condition:
+// All weapons with range >5 hexes destroyed AND remaining weapons deal <5 total damage.
+// Returns false (never triggers) if the mech never had any weapon with range >5 or
+// never had >5 total damage capability from such weapons.
+func (m *MechState) isCripplingWeaponsLoss() bool {
+	hadLongRange := false
+	for _, w := range m.Weapons {
+		if w.LongRange > 5 {
+			hadLongRange = true
+			break
+		}
+	}
+	if !hadLongRange {
+		// Mech never had weapons with range >5; this condition cannot trigger
+		return false
+	}
+
+	// Check if any weapon with range >5 survives
+	for _, w := range m.Weapons {
+		if !w.Destroyed && w.LongRange > 5 {
+			return false
+		}
+	}
+
+	// All long-range weapons destroyed; check remaining damage output
+	remainingDmg := 0
+	for _, w := range m.Weapons {
+		if !w.Destroyed {
+			remainingDmg += w.Damage
+		}
+	}
+	return remainingDmg < 5
+}
+
 // isForcedWithdrawal returns true if the mech should retreat (BMM p.81)
 func (m *MechState) isForcedWithdrawal() bool {
 	if m.isDestroyed() {
 		return true
 	}
+
+	// [fix: immobile + weaponless = destroyed] BMM p.81
+	// If all weapons lost (nuanced) AND cannot move, considered destroyed
+	if m.isCripplingWeaponsLoss() && m.effectiveWalkMP() == 0 && m.effectiveJumpMP() == 0 {
+		return true
+	}
+
 	// Pilot damage 4+
 	if m.PilotDamage >= 4 {
 		return true
@@ -210,18 +259,25 @@ func (m *MechState) isForcedWithdrawal() bool {
 	if m.GyroHits >= 1 && m.EngineHits >= 1 {
 		return true
 	}
+	// Sensors destroyed (both sensor crit slots in head destroyed)
+	if m.SensorHits >= 2 {
+		return true
+	}
 	// Side torso destroyed (IS XL already dead, but standard engines survive)
 	if m.IS[LocLT] <= 0 || m.IS[LocRT] <= 0 {
 		return true
 	}
-	// IS exposed in 3+ locations (limbs count)
+	// IS exposed in 3+ locations — torsos only count if front armor is also gone (BMM p.81)
 	exposedLimbs := 0
 	exposedTorsos := 0
 	for i := 0; i < NumLoc; i++ {
 		if m.ISExposed[i] {
 			switch i {
 			case LocCT, LocLT, LocRT:
-				exposedTorsos++
+				// Torso IS damage doesn't count if front armor remains
+				if m.Armor[i] <= 0 {
+					exposedTorsos++
+				}
 			case LocLA, LocRA, LocLL, LocRL:
 				exposedLimbs++
 			}
@@ -230,15 +286,8 @@ func (m *MechState) isForcedWithdrawal() bool {
 	if exposedLimbs >= 3 || exposedTorsos >= 2 {
 		return true
 	}
-	// All weapons destroyed
-	allDestroyed := true
-	for _, w := range m.Weapons {
-		if !w.Destroyed {
-			allDestroyed = false
-			break
-		}
-	}
-	if allDestroyed && len(m.Weapons) > 0 {
+	// Nuanced weapons loss (BMM p.81)
+	if m.isCripplingWeaponsLoss() {
 		return true
 	}
 	return false
