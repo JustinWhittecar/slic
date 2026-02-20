@@ -361,7 +361,7 @@ func calcOptimalRange(m *MechState) int {
 				continue // skip — would exceed heat neutrality
 			}
 			totalHeat += c.heat
-			totalDmg += float64(c.damage) * hitProbability(c.tn)
+			totalDmg += float64(c.damage) * hitProb(c.tn)
 		}
 
 		if totalDmg > bestDmg {
@@ -454,7 +454,7 @@ func expectedDamage(mech *MechState2, dist int, los LOSResult,
 			target = 2
 		}
 
-		pHit := hitProbability(target)
+		pHit := hitProb(target)
 		totalDmg += pHit * float64(w.Damage)
 	}
 	return totalDmg
@@ -565,20 +565,6 @@ func BestTorsoTwist(mechPos HexCoord, facing int, targetPos HexCoord) int {
 }
 
 // ─── Hit Probability ────────────────────────────────────────────────────────
-
-func hitProbability(target int) float64 {
-	if target <= 2 {
-		return 1.0
-	}
-	if target >= 13 {
-		return 0.0
-	}
-	table := [13]float64{
-		0, 0, 1.0, 35.0 / 36, 33.0 / 36, 30.0 / 36, 26.0 / 36,
-		21.0 / 36, 15.0 / 36, 10.0 / 36, 6.0 / 36, 3.0 / 36, 1.0 / 36,
-	}
-	return table[target]
-}
 
 func tmmFromHexesMoved(hexes int, mode MoveMode) int {
 	if mode == ModeJump {
