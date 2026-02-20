@@ -71,28 +71,70 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 			}
 		}
 
-		// Handle shutdown
+		// Handle shutdown — attacker
 		if attacker.IsShutdown {
+			// Restart requires a roll against shutdown avoidance TN (BMM p.52)
+			tn := heatShutdownTN(attacker.Heat)
+			if tn >= 13 || roll2d6(rng) < tn {
+				// Failed restart — stay shutdown, dissipate heat, skip turn
+				attacker.Heat += attacker.HeatPenalty
+				attacker.HeatPenalty = 0
+				attacker.Heat -= attacker.Dissipation
+				if attacker.Heat < 0 {
+					attacker.Heat = 0
+				}
+				// Still process defender heat
+				defender.Heat += defender.HeatPenalty
+				defender.HeatPenalty = 0
+				defender.Heat -= defender.Dissipation
+				if defender.Heat < 0 {
+					defender.Heat = 0
+				}
+				continue
+			}
+			// Successful restart
 			attacker.IsShutdown = false
+			// Involuntary shutdown PSR: piloting + 3 modifier (BMM p.52)
 			if !attacker.Prone {
-				attacker.applyFall(rng)
+				psrTN := pilotingSkill + 3
+				if roll2d6(rng) < psrTN {
+					attacker.applyFall(rng)
+				}
 			}
 			if attacker.isDestroyed() {
 				return maxTurns // attacker died
 			}
-			attacker.Heat += attacker.HeatPenalty
-			attacker.HeatPenalty = 0
-			attacker.Heat -= attacker.Dissipation
-			if attacker.Heat < 0 {
-				attacker.Heat = 0
+		}
+
+		// Handle shutdown — defender
+		if defender.IsShutdown {
+			tn := heatShutdownTN(defender.Heat)
+			if tn >= 13 || roll2d6(rng) < tn {
+				// Failed restart — stay shutdown, dissipate heat, skip turn for defender
+				defender.Heat += defender.HeatPenalty
+				defender.HeatPenalty = 0
+				defender.Heat -= defender.Dissipation
+				if defender.Heat < 0 {
+					defender.Heat = 0
+				}
+				attacker.Heat += attacker.HeatPenalty
+				attacker.HeatPenalty = 0
+				attacker.Heat -= attacker.Dissipation
+				if attacker.Heat < 0 {
+					attacker.Heat = 0
+				}
+				continue
 			}
-			defender.Heat += defender.HeatPenalty
-			defender.HeatPenalty = 0
-			defender.Heat -= defender.Dissipation
-			if defender.Heat < 0 {
-				defender.Heat = 0
+			defender.IsShutdown = false
+			if !defender.Prone {
+				psrTN := pilotingSkill + 3
+				if roll2d6(rng) < psrTN {
+					defender.applyFall(rng)
+				}
 			}
-			continue
+			if defender.isDestroyed() {
+				return turn
+			}
 		}
 
 		// Stand from prone
@@ -331,6 +373,10 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 		if !attacker.IsShutdown {
 			attacker.Heat += attacker.EngineHits * 5
 		}
+		// Outside heat sources capped at 15 per turn (BMM p.52)
+		if attacker.HeatPenalty > 15 {
+			attacker.HeatPenalty = 15
+		}
 		attacker.Heat += attacker.HeatPenalty // plasma weapon heat from enemy
 		attacker.HeatPenalty = 0
 		attacker.Heat -= attacker.Dissipation
@@ -339,6 +385,9 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 		}
 		if !defender.IsShutdown {
 			defender.Heat += defender.EngineHits * 5
+		}
+		if defender.HeatPenalty > 15 {
+			defender.HeatPenalty = 15
 		}
 		defender.Heat += defender.HeatPenalty // plasma weapon heat from enemy
 		defender.HeatPenalty = 0
@@ -374,6 +423,39 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 			if len(bins) > 0 {
 				bin := bins[rng.IntN(len(bins))]
 				attacker.ammoExplosion(bin.loc, bin.key, rng)
+			}
+		}
+
+		// Heat shutdown/ammo explosion for defender (BMM p.52)
+		shutdownPDef := heatShutdownProb(defender.Heat)
+		if shutdownPDef >= 1.0 || (shutdownPDef > 0 && rng.Float64() < shutdownPDef) {
+			defender.IsShutdown = true
+		}
+
+		ammoExpPDef := heatAmmoExpProb(defender.Heat)
+		if ammoExpPDef > 0 && rng.Float64() < ammoExpPDef {
+			type ammoBin struct {
+				key string
+				loc int
+			}
+			var bins []ammoBin
+			for loc := 0; loc < NumLoc; loc++ {
+				for _, slot := range defender.Slots[loc] {
+					sLower := strings.ToLower(slot)
+					if strings.Contains(sLower, "ammo") && !strings.Contains(sLower, "gauss") {
+						key := parseAmmoSlotKey(slot)
+						if defender.Ammo[key] > 0 {
+							bins = append(bins, ammoBin{key, loc})
+						}
+					}
+				}
+			}
+			if len(bins) > 0 {
+				bin := bins[rng.IntN(len(bins))]
+				defender.ammoExplosion(bin.loc, bin.key, rng)
+				if defender.isDestroyed() {
+					return turn
+				}
 			}
 		}
 	}

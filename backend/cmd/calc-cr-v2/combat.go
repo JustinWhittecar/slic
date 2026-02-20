@@ -150,22 +150,49 @@ func clusterHitsWithBonus(rackSize int, bonus int, rng *rand.Rand) int {
 
 // ─── AMS ────────────────────────────────────────────────────────────────────
 
-func amsIntercept(hits int, defender *MechState, rng *rand.Rand) int {
+// amsClusterMod returns the cluster roll modifier from AMS (-4 per BMM p.118).
+// It also marks AMS as used and consumes ammo. Returns 0 if AMS unavailable.
+func amsClusterMod(defender *MechState) int {
 	if !defender.HasAMS || defender.AMSUsedThisTurn {
-		return hits
+		return 0
 	}
 	if !defender.IsLaserAMS {
 		if defender.AMSAmmo <= 0 {
-			return hits
+			return 0
 		}
 		defender.AMSAmmo--
 	}
 	defender.AMSUsedThisTurn = true
-	reduction := roll1d6(rng)
-	hits -= reduction
-	if hits < 0 {
-		hits = 0
+	return -4
+}
+
+// amsInterceptStreak handles AMS vs Streak weapons (BMM p.118):
+// treat as cluster roll of 7 on the appropriate rack size column.
+func amsInterceptStreak(rackSize int, defender *MechState) int {
+	if !defender.HasAMS || defender.AMSUsedThisTurn {
+		return rackSize
 	}
+	if !defender.IsLaserAMS {
+		if defender.AMSAmmo <= 0 {
+			return rackSize
+		}
+		defender.AMSAmmo--
+	}
+	defender.AMSUsedThisTurn = true
+	// Look up cluster table at roll 7 (row index 5) for the rack size
+	colIdx := 0
+	for i, rs := range clusterRackSizes {
+		if rs <= rackSize {
+			colIdx = i
+		}
+	}
+	return clusterTable[5][colIdx] // roll 7 = row index 5
+}
+
+// amsIntercept is kept for backward compatibility but now uses cluster mod approach.
+// For non-cluster weapons that need simple hit reduction, use amsInterceptStreak.
+func amsIntercept(hits int, defender *MechState, rng *rand.Rand) int {
+	// Legacy wrapper — callers should migrate to amsClusterMod or amsInterceptStreak
 	return hits
 }
 
@@ -305,7 +332,7 @@ func resolveArrowIV(w *SimWeapon, target int, defender *MechState, rng *rand.Ran
 func resolveStreakSRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := amsIntercept(w.RackSize, defender, rng)
+		hits := amsInterceptStreak(w.RackSize, defender)
 		for m := 0; m < hits; m++ {
 			loc := rollHitLocation(isRear, rng)
 			defender.applyDamage(loc, 2, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
@@ -437,9 +464,8 @@ func resolveLBX(w *SimWeapon, target int, isRear bool, defender *MechState, rng 
 func resolveLRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		// Cluster roll first, then AMS reduces hits (BMM p.117)
-		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
-		hits = amsIntercept(hits, defender, rng)
+		// AMS applies -4 to cluster roll (BMM p.118)
+		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker)+amsClusterMod(defender), rng)
 		if hits <= 0 {
 			return 0
 		}
@@ -460,8 +486,7 @@ func resolveLRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 func resolveSRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defender *MechState, rng *rand.Rand) int {
 	dmgDealt := 0
 	if roll2d6(rng) >= target {
-		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker), rng)
-		hits = amsIntercept(hits, defender, rng)
+		hits := clusterHitsWithBonus(w.RackSize, artemisBonus(attacker)+amsClusterMod(defender), rng)
 		for h := 0; h < hits; h++ {
 			loc := rollHitLocation(isRear, rng)
 			defender.applyDamage(loc, 2, isRear && (loc == LocCT || loc == LocLT || loc == LocRT), rng)
@@ -478,8 +503,7 @@ func resolveMRM(w *SimWeapon, target int, isRear bool, attacker *MechState, defe
 		if attacker.HasApollo {
 			bonus = -1 // Apollo FCS: subtract 1 from cluster roll (BMM p.113)
 		}
-		hits := clusterHitsWithBonus(w.RackSize, bonus, rng)
-		hits = amsIntercept(hits, defender, rng)
+		hits := clusterHitsWithBonus(w.RackSize, bonus+amsClusterMod(defender), rng)
 		// MRM is C5: 1 dmg/missile, apply in 5-point groups
 		totalDmg := hits // hits * 1 dmg per missile
 		for totalDmg > 0 {

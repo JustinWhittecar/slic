@@ -168,7 +168,7 @@ func (m *MechState) effectiveRunMP() int {
 }
 
 func (m *MechState) isDestroyed() bool {
-	if m.PilotDamage >= 6 || m.CockpitHit || m.EngineHits >= 3 || m.GyroHits >= 2 {
+	if m.PilotDamage >= 6 || m.CockpitHit || m.EngineHits >= 3 {
 		return true
 	}
 	if m.IS[LocCT] <= 0 || m.IS[LocHD] <= 0 {
@@ -183,19 +183,6 @@ func (m *MechState) isDestroyed() bool {
 		if m.IS[LocLT] <= 0 && m.IS[LocRT] <= 0 {
 			return true
 		}
-	}
-	// Both legs destroyed = dead (BMM: one leg = fall + immobilize, not death)
-	if m.IS[LocLL] <= 0 && m.IS[LocRL] <= 0 {
-		return true
-	}
-	exposed := 0
-	for i := 0; i < NumLoc; i++ {
-		if m.ISExposed[i] {
-			exposed++
-		}
-	}
-	if exposed >= 3 {
-		return true
 	}
 	return false
 }
