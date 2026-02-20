@@ -203,9 +203,25 @@ func reachableGround(board *Board, start HexCoord, startFacing int,
 func reachableJump(board *Board, start HexCoord, startFacing int, jumpMP int) []ReachableHex {
 	var results []ReachableHex
 
-	// Check all hexes within jumpMP distance
-	for col := 1; col <= board.Width; col++ {
-		for row := 1; row <= board.Height; row++ {
+	// Check hexes within bounded range of jumpMP distance
+	minCol := start.Col - jumpMP
+	if minCol < 1 {
+		minCol = 1
+	}
+	maxCol := start.Col + jumpMP
+	if maxCol > board.Width {
+		maxCol = board.Width
+	}
+	minRow := start.Row - jumpMP
+	if minRow < 1 {
+		minRow = 1
+	}
+	maxRow := start.Row + jumpMP
+	if maxRow > board.Height {
+		maxRow = board.Height
+	}
+	for col := minCol; col <= maxCol; col++ {
+		for row := minRow; row <= maxRow; row++ {
 			coord := HexCoord{Col: col, Row: row}
 			dist := HexDistance(start, coord)
 			if dist == 0 || dist > jumpMP {
