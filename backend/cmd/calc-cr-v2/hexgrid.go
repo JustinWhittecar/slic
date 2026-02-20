@@ -284,6 +284,7 @@ func (b *Board) buildGrid() {
 			b.Grid[idx] = *hex
 		}
 	}
+	b.Hexes = nil // free map; all lookups use flat Grid from here
 }
 
 func (b *Board) InBounds(h HexCoord) bool {
@@ -428,14 +429,37 @@ func parseTerrainFeature(s string) *TerrainFeature {
 // Board B's columns are offset by boardA.Width.
 func CombineBoards(a, b *Board) *Board {
 	combined := NewBoard(a.Width+b.Width, max(a.Height, b.Height))
-	for coord, hex := range a.Hexes {
-		combined.Hexes[coord] = hex
+	// Copy from Grid (flat array) since Hexes may be nil after buildGrid
+	if a.Grid != nil {
+		for col := 1; col <= a.Width; col++ {
+			for row := 1; row <= a.Height; row++ {
+				idx := (col-1)*a.Height + (row - 1)
+				hex := a.Grid[idx]
+				combined.Hexes[hex.Coord] = &hex
+			}
+		}
+	} else {
+		for coord, hex := range a.Hexes {
+			combined.Hexes[coord] = hex
+		}
 	}
-	for coord, hex := range b.Hexes {
-		newCoord := HexCoord{Col: coord.Col + a.Width, Row: coord.Row}
-		newHex := *hex
-		newHex.Coord = newCoord
-		combined.Hexes[newCoord] = &newHex
+	if b.Grid != nil {
+		for col := 1; col <= b.Width; col++ {
+			for row := 1; row <= b.Height; row++ {
+				idx := (col-1)*b.Height + (row - 1)
+				hex := b.Grid[idx]
+				newCoord := HexCoord{Col: hex.Coord.Col + a.Width, Row: hex.Coord.Row}
+				hex.Coord = newCoord
+				combined.Hexes[newCoord] = &hex
+			}
+		}
+	} else {
+		for coord, hex := range b.Hexes {
+			newCoord := HexCoord{Col: coord.Col + a.Width, Row: coord.Row}
+			newHex := *hex
+			newHex.Coord = newCoord
+			combined.Hexes[newCoord] = &newHex
+		}
 	}
 	combined.buildGrid()
 	return combined
