@@ -1,5 +1,7 @@
 package main
 
+import "sync"
+
 // ─── Movement ───────────────────────────────────────────────────────────────
 // BT movement: flood-fill reachable hexes with terrain MP costs.
 
@@ -127,20 +129,45 @@ func ReachableHexes(board *Board, start HexCoord, facing int,
 	return reachableGround(board, start, facing, mp, mode, heat)
 }
 
+// bfsPool provides reusable allocations for BFS ground movement.
+type bfsPool struct {
+	visited map[HexCoord]int
+	queue   []bfsState
+}
+
+type bfsState struct {
+	coord  HexCoord
+	mpLeft int
+	hexes  int
+}
+
+// bfsPoolSync provides thread-safe reuse of BFS allocations.
+// Each worker goroutine gets its own pool entry, avoiding fresh allocations
+// on every call (~160K calls per variant).
+var bfsPoolSync = sync.Pool{
+	New: func() any {
+		return &bfsPool{
+			visited: make(map[HexCoord]int, 128),
+			queue:   make([]bfsState, 0, 128),
+		}
+	},
+}
+
 // reachableGround does BFS/flood-fill for walking/running movement.
 func reachableGround(board *Board, start HexCoord, startFacing int,
 	totalMP int, mode MoveMode, moveHeat int) []ReachableHex {
 
-	type state struct {
-		coord  HexCoord
-		mpLeft int
-		hexes  int
+	pool := bfsPoolSync.Get().(*bfsPool)
+	// Reset visited map by clearing keys
+	for k := range pool.visited {
+		delete(pool.visited, k)
 	}
+	pool.visited[start] = 0
+	pool.queue = pool.queue[:0]
+	pool.queue = append(pool.queue, bfsState{coord: start, mpLeft: totalMP, hexes: 0})
 
-	visited := make(map[HexCoord]int) // coord -> min MP spent
-	visited[start] = 0
-
-	queue := []state{{coord: start, mpLeft: totalMP, hexes: 0}}
+	visited := pool.visited
+	queue := pool.queue
 	var results []ReachableHex
 
 	for len(queue) > 0 {
@@ -170,7 +197,7 @@ func reachableGround(board *Board, start HexCoord, startFacing int,
 			visited[n] = mpSpent
 
 			newHexes := cur.hexes + 1
-			queue = append(queue, state{coord: n, mpLeft: remaining, hexes: newHexes})
+			queue = append(queue, bfsState{coord: n, mpLeft: remaining, hexes: newHexes})
 		}
 	}
 
@@ -195,6 +222,8 @@ func reachableGround(board *Board, start HexCoord, startFacing int,
 		})
 	}
 
+	pool.queue = queue // save back grown slice for reuse
+	bfsPoolSync.Put(pool)
 	return results
 }
 
