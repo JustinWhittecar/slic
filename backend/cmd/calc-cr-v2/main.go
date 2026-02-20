@@ -882,13 +882,11 @@ func main() {
 	hbkTemplate.OptimalRange = calcOptimalRange(hbkTemplate)
 
 	baseRng := rand.New(rand.NewPCG(42, 0))
-	// Run more baseline sims for stability (50 board pairs × 10 sims = 500 runs)
+	// HBK-4P mirror match is symmetric by definition — baseline ratio is always 1.0.
+	// We still run offense to get the median turns (used for display/reference).
 	baselineOffense := runSimsBatch2D(boards, hbkTemplate, hbkTemplate, 50, numSimsPerBoard, baseRng)
-	baselineDefense := runSimsBatch2D(boards, hbkTemplate, hbkTemplate, 50, numSimsPerBoard, baseRng)
-	baselineRatio := baselineDefense / baselineOffense
-	if baselineRatio == 0 {
-		baselineRatio = 1.0
-	}
+	baselineDefense := baselineOffense // symmetric: same mech on both sides
+	baselineRatio := 1.0
 	log.Printf("HBK-4P baseline: offense=%.1f defense=%.1f ratio=%.3f",
 		baselineOffense, baselineDefense, baselineRatio)
 
