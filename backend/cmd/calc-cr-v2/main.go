@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -188,13 +189,13 @@ func simulateCombat2D(board *Board, attackerTemplate, defenderTemplate *MechStat
 			Pos: attacker.Pos, Facing: attacker.Facing,
 			WalkMP: atkWalk, RunMP: atkRun, JumpMP: attacker.JumpMP,
 			Tonnage: attacker.Tonnage, GunnerySkill: gunnerySkill,
-			Heat: attacker.Heat,
+			Heat: attacker.Heat, OptimalRange: attacker.OptimalRange,
 		}
 		defM2 := &MechState2{
 			Pos: defender.Pos, Facing: defender.Facing,
 			WalkMP: defWalk, RunMP: defRun, JumpMP: defender.JumpMP,
 			Tonnage: defender.Tonnage, GunnerySkill: gunnerySkill,
-			Heat: defender.Heat,
+			Heat: defender.Heat, OptimalRange: defender.OptimalRange,
 		}
 		// Copy weapons for damage estimation
 		for _, w := range attacker.Weapons {
@@ -484,6 +485,7 @@ type MechState2 struct {
 	Weapons       []SimWeapon2
 	Prone         bool
 	Heat          int
+	OptimalRange  int
 }
 
 type SimWeapon2 struct {
@@ -661,6 +663,8 @@ func main() {
 
 		atkTemplate := buildMechState(&atkVariants[0], atkMTF)
 		defTemplate := buildMechState(&defVariants[0], defMTF)
+		atkTemplate.OptimalRange = calcOptimalRange(atkTemplate)
+		defTemplate.OptimalRange = calcOptimalRange(defTemplate)
 		atkTemplate.DebugName = atkName
 		defTemplate.DebugName = defName
 
@@ -720,6 +724,7 @@ func main() {
 		}
 
 		hbkTemplate := buildHBK4P()
+		hbkTemplate.OptimalRange = calcOptimalRange(hbkTemplate)
 
 		log.Printf("Generating replays for %d variants...", limit)
 
@@ -776,6 +781,7 @@ func main() {
 						mtf = mtfMap[v.Name]
 					}
 					mechTemplate := buildMechState(v, mtf)
+					mechTemplate.OptimalRange = calcOptimalRange(mechTemplate)
 
 					// Run 5 sims with different seeds, pick median by turn count
 					const numDuelSims = 5
@@ -857,6 +863,7 @@ func main() {
 	// Build HBK-4P baseline
 	log.Println("Running HBK-4P baseline...")
 	hbkTemplate := buildHBK4P()
+	hbkTemplate.OptimalRange = calcOptimalRange(hbkTemplate)
 
 	baseRng := rand.New(rand.NewPCG(42, 0))
 	// Run more baseline sims for stability (50 board pairs × 10 sims = 500 runs)
@@ -896,6 +903,7 @@ func main() {
 				}
 
 				mechTemplate := buildMechState(v, mtf)
+				mechTemplate.OptimalRange = calcOptimalRange(mechTemplate)
 
 				offTurns := runSimsBatch2DPre(preBoards, mechTemplate, hbkTemplate, numSimsPerBoard, localRng)
 				defTurns := runSimsBatch2DPre(preBoards, hbkTemplate, mechTemplate, numSimsPerBoard, localRng)
@@ -909,7 +917,7 @@ func main() {
 					score = 10
 				}
 
-				results <- simResult{v.ID, v.Name + " " + v.ModelCode, offTurns, defTurns, score}
+				results <- simResult{v.ID, v.Name + " " + v.ModelCode, offTurns, defTurns, score, mechTemplate.OptimalRange}
 
 				n := processed.Add(1)
 				if n%50 == 0 || *testMode || filter != "" {
@@ -937,8 +945,8 @@ func main() {
 		allResults = append(allResults, r)
 		if !*testMode {
 			_, err := pool.Exec(ctx, `
-				UPDATE variant_stats SET combat_rating = $2, offense_turns = $3, defense_turns = $4
-				WHERE variant_id = $1`, r.id, r.score, r.offense, r.defense)
+				UPDATE variant_stats SET combat_rating = $2, offense_turns = $3, defense_turns = $4, heat_neutral_range = $5
+				WHERE variant_id = $1`, r.id, r.score, r.offense, r.defense, strconv.Itoa(r.optimalRange))
 			if err != nil {
 				log.Printf("Update %d: %v", r.id, err)
 				continue
@@ -1009,9 +1017,10 @@ func writeTestResults(results []simResult) {
 }
 
 type simResult struct {
-	id      int
-	name    string
-	offense float64
-	defense float64
-	score   float64
+	id           int
+	name         string
+	offense      float64
+	defense      float64
+	score        float64
+	optimalRange int
 }

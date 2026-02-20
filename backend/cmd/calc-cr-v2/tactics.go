@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"math/rand/v2"
+	"sort"
 )
 
 // ─── Tactical AI ────────────────────────────────────────────────────────────
@@ -289,16 +290,42 @@ func approachValue(board *Board, me *MechState2, myHex ReachableHex,
 	return approachScore
 }
 
+// optimalRange returns the precomputed optimal range stored on the mech.
 func optimalRange(mech *MechState2) int {
+	if mech.OptimalRange > 0 {
+		return mech.OptimalRange
+	}
+	return 1
+}
+
+// calcOptimalRange computes the heat-neutral, damage-greedy optimal engagement range.
+// At each hex distance, weapons are filtered to those with TN ≤ 8 (base TN 8 = gunnery 4 +
+// attacker running +2 + TMM +2 for 4/6 defender running), then greedily selected by damage
+// until heat-neutral. The range with highest total expected damage wins.
+func calcOptimalRange(m *MechState) int {
+	const baseTN = 8 // gunnery 4 + running +2 + TMM +2
+
 	bestDmg := 0.0
 	bestRange := 1
 
 	for r := 1; r <= 30; r++ {
-		dmg := 0.0
-		for _, w := range mech.Weapons {
+		// Collect eligible weapons at this range
+		type candidate struct {
+			damage int
+			heat   int
+			tn     int
+		}
+		var candidates []candidate
+
+		for i := range m.Weapons {
+			w := &m.Weapons[i]
 			if w.Destroyed || r > w.LongRange {
 				continue
 			}
+			if w.MinRange > 0 && r < w.MinRange {
+				continue
+			}
+
 			rangeMod := 0
 			switch {
 			case r <= w.ShortRange:
@@ -308,13 +335,41 @@ func optimalRange(mech *MechState2) int {
 			default:
 				rangeMod = 4
 			}
-			target := mech.GunnerySkill + rangeMod
-			if target <= 12 {
-				dmg += hitProbability(target) * float64(w.Damage)
+
+			// Eligibility: range_mod + to_hit_mod ≤ 0
+			if rangeMod+w.ToHitMod > 0 {
+				continue
 			}
+
+			tn := baseTN + rangeMod + w.ToHitMod
+			if tn > 12 {
+				continue
+			}
+			candidates = append(candidates, candidate{w.Damage, w.Heat, tn})
 		}
-		if dmg > bestDmg {
-			bestDmg = dmg
+
+		// Greedy: sort by damage descending, pick until heat-neutral
+		sort.Slice(candidates, func(i, j int) bool {
+			return candidates[i].damage > candidates[j].damage
+		})
+
+		totalDmg := 0.0
+		totalHeat := 0
+		dissipation := m.Dissipation
+		if dissipation < 0 {
+			dissipation = 0
+		}
+
+		for _, c := range candidates {
+			if totalHeat+c.heat > dissipation {
+				continue // skip — would exceed heat neutrality
+			}
+			totalHeat += c.heat
+			totalDmg += float64(c.damage) * hitProbability(c.tn)
+		}
+
+		if totalDmg > bestDmg {
+			bestDmg = totalDmg
 			bestRange = r
 		}
 	}

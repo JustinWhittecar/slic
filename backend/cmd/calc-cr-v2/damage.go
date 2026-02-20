@@ -121,6 +121,9 @@ type MechState struct {
 	// IS exposure tracking
 	ISExposed [NumLoc]bool
 
+	// Computed
+	OptimalRange int
+
 	// Equipment
 	HasTargetingComputer bool
 	HasAMS               bool
