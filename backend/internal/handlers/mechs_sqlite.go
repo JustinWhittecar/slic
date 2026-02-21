@@ -27,10 +27,12 @@ func (h *MechHandlerSQLite) List(w http.ResponseWriter, r *http.Request) {
 		       COALESCE(vs.heat_sink_count,0), COALESCE(vs.heat_sink_type,''),
 		       COALESCE(vs.run_mp,0),
 		       COALESCE(v.rules_level,0), COALESCE(v.source,''), COALESCE(v.config,''),
-		       COALESCE(vs.combat_rating,0)
+		       COALESCE(vs.combat_rating,0),
+		       COALESCE(er.rating,'')
 		FROM variants v
 		JOIN chassis c ON c.id = v.chassis_id
 		LEFT JOIN variant_stats vs ON vs.variant_id = v.id
+		LEFT JOIN external_ratings er ON er.variant_id = v.id AND er.source = 'goonhammer'
 		WHERE v.mul_id IS NOT NULL AND v.mul_id > 0 AND v.battle_value > 0`
 
 	args := []any{}
@@ -188,6 +190,24 @@ func (h *MechHandlerSQLite) List(w http.ResponseWriter, r *http.Request) {
 			query += " AND (" + strings.Join(clauses, " OR ") + ")"
 		}
 	}
+	if v := r.URL.Query().Get("armor_type"); v != "" {
+		query += " AND vs.armor_type LIKE ?"
+		args = append(args, "%"+v+"%")
+	}
+	if v := r.URL.Query().Get("structure_type"); v != "" {
+		query += " AND vs.structure_type LIKE ?"
+		args = append(args, "%"+v+"%")
+	}
+	if v := r.URL.Query().Get("equipment"); v != "" {
+		names := strings.Split(v, "|")
+		for _, name := range names {
+			name = strings.TrimSpace(name)
+			if name != "" {
+				query += ` AND v.id IN (SELECT ve.variant_id FROM variant_equipment ve JOIN equipment e ON e.id = ve.equipment_id WHERE e.name = ?)`
+				args = append(args, name)
+			}
+		}
+	}
 	if v := r.URL.Query().Get("tech_base"); v != "" {
 		query += " AND c.tech_base = ?"
 		args = append(args, v)
@@ -221,7 +241,7 @@ func (h *MechHandlerSQLite) List(w http.ResponseWriter, r *http.Request) {
 			&m.EngineType, &m.EngineRating,
 			&m.HeatSinkCount, &m.HeatSinkType,
 			&m.RunMP, &m.RulesLevel, &m.Source, &m.Config,
-			&m.CombatRating); err != nil {
+			&m.CombatRating, &m.GoonhammerRating); err != nil {
 			http.Error(w, "scan error: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -334,6 +354,21 @@ func (h *MechHandlerSQLite) GetByID(w http.ResponseWriter, r *http.Request) {
 				&eq.EffDPSTon, &eq.EffDPSHeat,
 				&eq.Location, &eq.Quantity)
 			m.Equipment = append(m.Equipment, eq)
+		}
+	}
+
+	// Load external ratings
+	ratingRows, err := h.DB.Query(`
+		SELECT source, COALESCE(rating,''), COALESCE(url,''), COALESCE(notes,'')
+		FROM external_ratings
+		WHERE variant_id = ?
+		ORDER BY source`, id)
+	if err == nil {
+		defer ratingRows.Close()
+		for ratingRows.Next() {
+			var er models.ExternalRating
+			ratingRows.Scan(&er.Source, &er.Rating, &er.URL, &er.Notes)
+			m.ExternalRatings = append(m.ExternalRatings, er)
 		}
 	}
 

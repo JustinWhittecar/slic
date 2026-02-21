@@ -68,6 +68,7 @@ func main() {
 	eventsHandler := handlers.NewEventsHandler(userDB)
 	replayHandler := &handlers.ReplayHandler{DB: sqlDB}
 	recommendationsHandler := &handlers.RecommendationsHandler{DB: sqlDB}
+	equipmentHandler := &handlers.EquipmentHandler{DB: sqlDB}
 
 	mux := http.NewServeMux()
 
@@ -83,6 +84,9 @@ func main() {
 
 	// Recommendations
 	mux.HandleFunc("GET /api/recommendations", recommendationsHandler.Recommend)
+
+	// Equipment
+	mux.HandleFunc("GET /api/equipment/names", equipmentHandler.Names)
 
 	// Feedback
 	mux.HandleFunc("POST /api/feedback", feedbackHandler.Submit)
