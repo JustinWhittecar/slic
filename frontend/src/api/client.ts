@@ -56,6 +56,7 @@ export interface MechListItem {
   game_damage?: number
   combat_rating?: number
   bv_efficiency?: number
+  goonhammer_rating?: string
 }
 
 export interface MechEquipment {
@@ -96,10 +97,18 @@ export interface MechModelInfo {
   year?: number
 }
 
+export interface ExternalRating {
+  source: string
+  rating: string
+  url?: string
+  notes?: string
+}
+
 export interface MechDetail extends MechListItem {
   chassis_id: number
   sarna_url?: string
   models?: MechModelInfo[]
+  external_ratings?: ExternalRating[]
   stats?: {
     walk_mp: number
     run_mp: number
@@ -152,7 +161,23 @@ export interface MechFilters {
   jump_mp_min?: number
   engine_types?: string[]
   heat_sink_type?: string
+  armor_type?: string
+  structure_type?: string
+  equipment?: string[]
   owned_only?: boolean
+}
+
+export interface EquipmentName {
+  id: number
+  name: string
+  type: string
+}
+
+export async function fetchEquipmentNames(q?: string): Promise<EquipmentName[]> {
+  const params = q ? `?q=${encodeURIComponent(q)}` : ''
+  const res = await fetch(`${BASE}/equipment/names${params}`)
+  if (!res.ok) throw new Error(`Failed to fetch equipment names: ${res.status}`)
+  return res.json()
 }
 
 export async function fetchMechs(filters: MechFilters = {}): Promise<MechListItem[]> {
@@ -160,7 +185,7 @@ export async function fetchMechs(filters: MechFilters = {}): Promise<MechListIte
   for (const [key, value] of Object.entries(filters)) {
     if (value !== undefined && value !== '') {
       if (Array.isArray(value)) {
-        if (value.length > 0) params.set(key, value.join(','))
+        if (value.length > 0) params.set(key, value.join(key === 'equipment' ? '|' : ','))
       } else {
         params.set(key, String(value))
       }

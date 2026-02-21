@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import type { MechFilters } from '../api/client'
+import { fetchEquipmentNames } from '../api/client'
+import type { EquipmentName } from '../api/client'
 import { track } from '../analytics'
 
 const WEIGHT_CLASSES = [
@@ -22,19 +24,28 @@ const ROLES = [
 const ENGINE_TYPES = ['Fusion', 'XL', 'XXL', 'Light', 'Compact', 'Primitive', 'ICE', 'Fuel Cell', 'Fission'] as const
 const DEFAULT_ENGINES = ['Fusion', 'XL', 'XXL']
 const HEAT_SINK_TYPES = ['Single', 'Double'] as const
+const ARMOR_TYPES = [
+  'Standard', 'Ferro-Fibrous', 'Light Ferro-Fibrous', 'Heavy Ferro-Fibrous',
+  'Stealth', 'Reactive', 'Reflective', 'Hardened', 'Patchwork',
+  'Ferro-Lamellor', 'Ballistic-Reinforced', 'Heat-Dissipating',
+  'Anti-Penetrative Ablation', 'Impact-Resistant', 'Primitive',
+  'Industrial', 'Heavy Industrial', 'Commercial',
+] as const
+const STRUCTURE_TYPES = [
+  'Standard', 'Endo Steel', 'Endo-Composite', 'Composite',
+  'Reinforced', 'Industrial', 'Endo Steel Prototype',
+] as const
 
 // Filter definitions
-type FilterType = 'range' | 'enum' | 'multi-select'
+type FilterType = 'range' | 'enum' | 'multi-select' | 'equipment'
 interface FilterDef {
   field: string
   label: string
   type: FilterType
   group: string
   options?: readonly string[]
-  // For range filters, which MechFilters keys map to min/max
   minKey?: keyof MechFilters
   maxKey?: keyof MechFilters
-  // For enum filters
   filterKey?: keyof MechFilters
   placeholder?: string
 }
@@ -57,14 +68,18 @@ const FILTER_DEFS: FilterDef[] = [
   // Technical
   { field: 'engine_types', label: 'Engine Type', type: 'multi-select', group: 'Technical', options: ENGINE_TYPES, filterKey: 'engine_types' },
   { field: 'heat_sink_type', label: 'Heat Sink Type', type: 'enum', group: 'Technical', options: HEAT_SINK_TYPES, filterKey: 'heat_sink_type' },
+  { field: 'armor_type', label: 'Armor Type', type: 'enum', group: 'Technical', options: ARMOR_TYPES, filterKey: 'armor_type' },
+  { field: 'structure_type', label: 'Structure Type', type: 'enum', group: 'Technical', options: STRUCTURE_TYPES, filterKey: 'structure_type' },
   { field: 'walk_mp', label: 'Walk MP', type: 'range', group: 'Technical', minKey: 'walk_mp_min', placeholder: 'e.g. 4' },
   { field: 'jump_mp', label: 'Jump MP', type: 'range', group: 'Technical', minKey: 'jump_mp_min', placeholder: 'e.g. 3' },
+  // Equipment
+  { field: 'equipment', label: 'Equipment', type: 'equipment', group: 'Equipment', filterKey: 'equipment' },
 ]
 
 // What an active chip looks like
 export interface ActiveFilterChip {
   field: string
-  op: string // ≥, ≤, =, :, in
+  op: string
   value: string | string[]
 }
 
@@ -80,7 +95,7 @@ const FILTER_KEYS: (keyof MechFilters)[] = [
   'bv_min', 'bv_max', 'tmm_min', 'armor_pct_min', 'heat_neutral_min', 'max_damage_min',
   'game_damage_min', 'combat_rating_min', 'combat_rating_max',
   'intro_year_min', 'intro_year_max', 'walk_mp_min', 'jump_mp_min',
-  'engine_types', 'heat_sink_type',
+  'engine_types', 'heat_sink_type', 'armor_type', 'structure_type', 'equipment',
 ]
 
 export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
@@ -132,7 +147,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
       'game_damage_min', 'combat_rating_min', 'combat_rating_max',
       'intro_year_min', 'intro_year_max', 'walk_mp_min', 'jump_mp_min',
     ]
-    const strKeys: (keyof MechFilters)[] = ['name', 'era', 'tech_base', 'role', 'heat_sink_type']
+    const strKeys: (keyof MechFilters)[] = ['name', 'era', 'tech_base', 'role', 'heat_sink_type', 'armor_type', 'structure_type']
     for (const k of numKeys) {
       const v = params.get(k)
       if (v) (f as any)[k] = Number(v)
@@ -147,6 +162,10 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
     } else {
       f.engine_types = DEFAULT_ENGINES
     }
+    const eq = params.get('equipment')
+    if (eq) {
+      f.equipment = eq.split('|').map(s => s.trim()).filter(Boolean)
+    }
     setSearchText(f.name ?? '')
     onFiltersChange(f)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -159,7 +178,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
       const v = filters[k]
       if (v === undefined || v === '') continue
       if (Array.isArray(v)) {
-        if (v.length > 0) params.set(k, v.join(','))
+        if (v.length > 0) params.set(k, v.join(k === 'equipment' ? '|' : ','))
       } else {
         params.set(k, String(v))
       }
@@ -177,16 +196,15 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
     setShowFilterMenu(false)
     track('filter_add', { field: def.field })
     if (def.type === 'enum') {
-      // Add with first option
       const firstOpt = def.options?.[0]
       if (firstOpt && def.filterKey) {
         onFiltersChange({ ...filters, [def.filterKey]: firstOpt })
       }
     } else if (def.type === 'multi-select') {
       // Already has engine_types default, don't change
+    } else if (def.type === 'equipment') {
+      onFiltersChange({ ...filters, equipment: filters.equipment ?? [] })
     } else if (def.type === 'range') {
-      // Add with empty min (will show the chip with input)
-      // Set a sentinel so the chip appears
       if (def.minKey) {
         onFiltersChange({ ...filters, [def.minKey]: 0 })
       }
@@ -198,8 +216,9 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
     const newFilters = { ...filters }
     if (def.type === 'enum' && def.filterKey) {
       delete (newFilters as any)[def.filterKey]
+    } else if (def.type === 'equipment') {
+      delete (newFilters as any).equipment
     } else if (def.type === 'multi-select' && def.filterKey) {
-      // Reset to default engines
       if (def.field === 'engine_types') {
         newFilters.engine_types = DEFAULT_ENGINES
       } else {
@@ -216,11 +235,13 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
     if (def.type === 'enum' && def.filterKey) {
       return filters[def.filterKey] !== undefined
     }
+    if (def.type === 'equipment') {
+      return filters.equipment !== undefined
+    }
     if (def.type === 'multi-select') {
       if (def.field === 'engine_types') {
         const et = filters.engine_types
         if (!et) return false
-        // Active if not default
         return !(et.length === DEFAULT_ENGINES.length && DEFAULT_ENGINES.every(e => et.includes(e)))
       }
       return false
@@ -237,7 +258,38 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   }
 
   // Group filter defs for menu
-  const groups = ['Identity', 'Combat', 'Damage', 'Technical']
+  const groups = ['Identity', 'Combat', 'Damage', 'Technical', 'Equipment']
+
+  // Render active chips
+  const renderActiveChips = () => {
+    const nodes: React.ReactNode[] = []
+    for (const chip of activeChips) {
+      const def = FILTER_DEFS.find(d => d.field === chip.field)
+      if (!def) continue
+      if (def.type === 'equipment') {
+        nodes.push(
+          <EquipmentFilterChip
+            key="equipment"
+            equipment={filters.equipment ?? []}
+            onEquipmentChange={(eq) => onFiltersChange({ ...filters, equipment: eq.length > 0 ? eq : [] })}
+            onRemove={() => removeFilter(def)}
+          />
+        )
+      } else {
+        nodes.push(
+          <FilterChip
+            key={chip.field + chip.op}
+            chip={chip}
+            def={def}
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            onRemove={() => removeFilter(def)}
+          />
+        )
+      }
+    }
+    return nodes
+  }
 
   return (
     <div className="mb-4 space-y-2">
@@ -361,20 +413,7 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
       {/* Row 2: Active filter chips */}
       {activeChips.length > 0 && (
         <div className="flex gap-1.5 flex-wrap">
-          {activeChips.map(chip => {
-            const def = FILTER_DEFS.find(d => d.field === chip.field)
-            if (!def) return null
-            return (
-              <FilterChip
-                key={chip.field + chip.op}
-                chip={chip}
-                def={def}
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-                onRemove={() => removeFilter(def)}
-              />
-            )
-          })}
+          {renderActiveChips()}
         </div>
       )}
     </div>
@@ -386,6 +425,12 @@ function deriveChipsFromFilters(filters: MechFilters): ActiveFilterChip[] {
   const chips: ActiveFilterChip[] = []
 
   for (const def of FILTER_DEFS) {
+    if (def.type === 'equipment') {
+      if (filters.equipment !== undefined) {
+        chips.push({ field: def.field, op: 'has', value: filters.equipment })
+      }
+      continue
+    }
     if (def.type === 'enum' && def.filterKey) {
       const val = filters[def.filterKey]
       if (val !== undefined) {
@@ -399,7 +444,6 @@ function deriveChipsFromFilters(filters: MechFilters): ActiveFilterChip[] {
         }
       }
     } else if (def.type === 'range') {
-      // Skip bv_efficiency since it shares keys with combat_rating
       if (def.field === 'bv_efficiency') continue
       const minVal = def.minKey ? filters[def.minKey] : undefined
       const maxVal = def.maxKey ? filters[def.maxKey] : undefined
@@ -522,4 +566,108 @@ function FilterChip({ chip, def, filters, onFiltersChange, onRemove }: FilterChi
   }
 
   return null
+}
+
+interface EquipmentFilterChipProps {
+  equipment: string[]
+  onEquipmentChange: (eq: string[]) => void
+  onRemove: () => void
+}
+
+function EquipmentFilterChip({ equipment, onEquipmentChange, onRemove }: EquipmentFilterChipProps) {
+  const [search, setSearch] = useState('')
+  const [suggestions, setSuggestions] = useState<EquipmentName[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [allEquipment, setAllEquipment] = useState<EquipmentName[]>([])
+  const inputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Load all equipment names once
+  useEffect(() => {
+    fetchEquipmentNames().then(setAllEquipment).catch(() => {})
+  }, [])
+
+  // Filter suggestions locally
+  useEffect(() => {
+    if (!search.trim()) {
+      setSuggestions([])
+      return
+    }
+    const q = search.toLowerCase()
+    const filtered = allEquipment
+      .filter(e => e.name.toLowerCase().includes(q) && !equipment.includes(e.name))
+      .slice(0, 20)
+    setSuggestions(filtered)
+  }, [search, allEquipment, equipment])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const addEquipment = (name: string) => {
+    if (!equipment.includes(name)) {
+      onEquipmentChange([...equipment, name])
+      track('filter_equipment_add', { name })
+    }
+    setSearch('')
+    setShowDropdown(false)
+    inputRef.current?.focus()
+  }
+
+  const removeEquipment = (name: string) => {
+    onEquipmentChange(equipment.filter(e => e !== name))
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs flex-wrap relative"
+      style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
+      ref={dropdownRef}>
+      <span style={{ color: 'var(--text-tertiary)' }}>Equipment:</span>
+      {equipment.map(name => (
+        <span key={name} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px]"
+          style={{ background: 'var(--accent)', color: '#fff' }}>
+          {name}
+          <button onClick={() => removeEquipment(name)} className="cursor-pointer hover:opacity-70">×</button>
+        </span>
+      ))}
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={search}
+          onChange={e => { setSearch(e.target.value); setShowDropdown(true) }}
+          onFocus={() => setShowDropdown(true)}
+          placeholder="Search..."
+          className="w-24 bg-transparent text-xs outline-none"
+          style={{ color: 'var(--text-primary)' }}
+        />
+        {showDropdown && suggestions.length > 0 && (
+          <div className="absolute left-0 top-full mt-1 rounded shadow-lg z-50 w-64 max-h-48 overflow-y-auto py-1"
+            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+            {suggestions.map(s => (
+              <button
+                key={s.id}
+                onClick={() => addEquipment(s.name)}
+                className="w-full text-left px-3 py-1.5 text-xs cursor-pointer flex items-center justify-between"
+                style={{ color: 'var(--text-primary)' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = ''}
+              >
+                <span>{s.name}</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{s.type}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <button onClick={onRemove} className="ml-0.5 cursor-pointer hover:opacity-70" style={{ color: 'var(--text-tertiary)' }}>×</button>
+    </span>
+  )
 }
