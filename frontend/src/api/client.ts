@@ -56,6 +56,7 @@ export interface MechListItem {
   game_damage?: number
   combat_rating?: number
   bv_efficiency?: number
+  goonhammer_rating?: string
 }
 
 export interface MechEquipment {
@@ -96,10 +97,18 @@ export interface MechModelInfo {
   year?: number
 }
 
+export interface ExternalRating {
+  source: string
+  rating: string
+  url?: string
+  notes?: string
+}
+
 export interface MechDetail extends MechListItem {
   chassis_id: number
   sarna_url?: string
   models?: MechModelInfo[]
+  external_ratings?: ExternalRating[]
   stats?: {
     walk_mp: number
     run_mp: number

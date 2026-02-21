@@ -54,6 +54,7 @@ type MechListItem struct {
 	RulesLevel        int     `json:"rules_level,omitempty"`
 	Source            string  `json:"source,omitempty"`
 	Config            string  `json:"config,omitempty"`
+	GoonhammerRating  string  `json:"goonhammer_rating,omitempty"`
 }
 
 type Equipment struct {
@@ -126,11 +127,19 @@ type PhysicalModelInfo struct {
 	Year         int    `json:"year,omitempty"`
 }
 
+type ExternalRating struct {
+	Source string `json:"source"`
+	Rating string `json:"rating"`
+	URL    string `json:"url,omitempty"`
+	Notes  string `json:"notes,omitempty"`
+}
+
 type MechDetail struct {
 	MechListItem
-	ChassisID   int                `json:"chassis_id"`
-	SarnaURL    string             `json:"sarna_url,omitempty"`
-	Stats       *VariantStats      `json:"stats,omitempty"`
-	Equipment   []VariantEquipment `json:"equipment,omitempty"`
-	Models      []PhysicalModelInfo `json:"models,omitempty"`
+	ChassisID       int                `json:"chassis_id"`
+	SarnaURL        string             `json:"sarna_url,omitempty"`
+	Stats           *VariantStats      `json:"stats,omitempty"`
+	Equipment       []VariantEquipment `json:"equipment,omitempty"`
+	Models          []PhysicalModelInfo `json:"models,omitempty"`
+	ExternalRatings []ExternalRating   `json:"external_ratings,omitempty"`
 }

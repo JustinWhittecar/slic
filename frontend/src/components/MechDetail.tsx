@@ -11,6 +11,19 @@ interface MechDetailProps {
   onAddToList?: (mech: MechDetailType) => void
 }
 
+function gradeColor(grade: string): string {
+  const g = grade.replace(/[+-]/g, '').toUpperCase()
+  switch (g) {
+    case 'S': return '#e040fb'
+    case 'A': return '#4caf50'
+    case 'B': return '#2196f3'
+    case 'C': return '#ff9800'
+    case 'D': return '#f44336'
+    case 'F': return '#9e9e9e'
+    default: return '#9e9e9e'
+  }
+}
+
 const LOCATION_ORDER = ['HD', 'CT', 'LT', 'RT', 'LA', 'RA', 'LL', 'RL']
 const LOCATION_NAMES: Record<string, string> = {
   HD: 'Head', CT: 'Center Torso', LT: 'Left Torso', RT: 'Right Torso',
@@ -391,6 +404,13 @@ export function MechDetail({ mechId, onClose, onAddToList }: MechDetailProps) {
                     Sarna <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
                   </a>
                 )}
+                {mech.external_ratings?.filter(r => r.source === 'goonhammer').map(r => (
+                  <a key={r.source} href={r.url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium transition-colors"
+                    style={{ border: `1px solid ${gradeColor(r.rating)}40`, color: gradeColor(r.rating), background: `${gradeColor(r.rating)}14` }}>
+                    GH: {r.rating} <span style={{ fontSize: 9, opacity: 0.6 }}>↗</span>
+                  </a>
+                ))}
               </div>
               {user && ownedCount > 0 && (
                 <div className="mt-2 text-xs font-medium px-2 py-1 rounded inline-flex items-center gap-1" style={{ background: 'var(--bg-elevated)', color: 'var(--accent)' }}>
