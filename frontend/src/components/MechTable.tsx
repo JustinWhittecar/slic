@@ -15,7 +15,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 export const DEFAULT_COLUMN_ORDER = [
   'name', 'tonnage', 'tech_base', 'role', 'bv', 'move', 'tmm', 'combat_rating', 'bv_efficiency',
-  'era', 'intro_year', 'armor_total', 'heat_neutral_damage', 'alpha_damage', 'optimal_range',
+  'goonhammer', 'era', 'intro_year', 'armor_total', 'heat_neutral_damage', 'alpha_damage', 'optimal_range',
   'armor_coverage_pct', 'engine_type', 'engine_rating', 'heat_sinks', 'rules_level', 'source', 'config',
 ]
 
@@ -26,6 +26,7 @@ export const DEFAULT_VISIBILITY: VisibilityState = {
   armor_total: false, heat_neutral_damage: false, alpha_damage: false, optimal_range: false,
   armor_coverage_pct: false, era: false, intro_year: false,
   engine_type: false, engine_rating: false, heat_sinks: false,
+  goonhammer: false,
   rules_level: false, source: false, config: false,
 }
 
@@ -52,6 +53,7 @@ export const COLUMN_DEFS_META = [
   { id: 'source', label: 'Source' },
   { id: 'config', label: 'Config' },
   { id: 'intro_year', label: 'Intro Year' },
+  { id: 'goonhammer', label: 'Goonhammer' },
 ]
 
 function loadState<T>(key: string, fallback: T): T {
@@ -355,6 +357,24 @@ export function MechTable({ filters, onSelectMech, selectedMechId, onCountChange
       id: 'intro_year',
       header: 'Year',
       cell: info => <span className="tabular-nums">{info.getValue() ?? '—'}</span>,
+    }),
+    columnHelper.accessor('goonhammer_rating', {
+      id: 'goonhammer',
+      header: () => <span className="tooltip-header" data-tip="Goonhammer expert letter grade (F–S)">GH</span>,
+      cell: info => {
+        const v = info.getValue()
+        if (!v) return <span style={{ color: 'var(--text-tertiary)' }}>—</span>
+        const g = v.replace(/[+-]/g, '').toUpperCase()
+        const colors: Record<string, string> = { S: '#e040fb', A: '#4caf50', B: '#2196f3', C: '#ff9800', D: '#f44336', F: '#9e9e9e' }
+        const color = colors[g] || 'var(--text-secondary)'
+        return <span className="tabular-nums font-semibold" style={{ color }}>{v}</span>
+      },
+      sortingFn: (a, b) => {
+        const order = ['F-','F','F+','D-','D','D+','C-','C','C+','B-','B','B+','A-','A','A+','S']
+        const ai = order.indexOf(a.original.goonhammer_rating ?? '')
+        const bi = order.indexOf(b.original.goonhammer_rating ?? '')
+        return (ai === -1 ? -1 : ai) - (bi === -1 ? -1 : bi)
+      },
     }),
   ], [compareIds, onToggleCompare, onAddToList])
 

@@ -177,6 +177,17 @@ func main() {
 			created_at TEXT
 		)`,
 		`CREATE INDEX idx_physical_models_chassis ON physical_models(chassis_id)`,
+		`CREATE TABLE external_ratings (
+			id INTEGER PRIMARY KEY,
+			variant_id INTEGER NOT NULL REFERENCES variants(id) ON DELETE CASCADE,
+			source TEXT NOT NULL,
+			rating TEXT,
+			url TEXT,
+			notes TEXT,
+			updated_at TEXT
+		)`,
+		`CREATE INDEX idx_external_ratings_variant ON external_ratings(variant_id)`,
+		`CREATE INDEX idx_external_ratings_source ON external_ratings(source)`,
 		// Indexes
 		`CREATE INDEX idx_variants_chassis ON variants(chassis_id)`,
 		`CREATE INDEX idx_variants_intro_year ON variants(intro_year)`,
@@ -255,6 +266,10 @@ func main() {
 	copyTable(ctx, pg, sl, "physical_models",
 		"SELECT id, chassis_id, name, manufacturer, COALESCE(sku,''), COALESCE(scale,'6mm'), COALESCE(source_url,''), COALESCE(image_url,''), COALESCE(in_print,true), COALESCE(material,''), COALESCE(year,0), COALESCE(created_at::text,'') FROM physical_models",
 		"INSERT INTO physical_models (id, chassis_id, name, manufacturer, sku, scale, source_url, image_url, in_print, material, year, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", 12)
+
+	copyTable(ctx, pg, sl, "external_ratings",
+		"SELECT id, variant_id, source, COALESCE(rating,''), COALESCE(url,''), COALESCE(notes,''), COALESCE(updated_at::text,'') FROM external_ratings",
+		"INSERT INTO external_ratings (id, variant_id, source, rating, url, notes, updated_at) VALUES (?,?,?,?,?,?,?)", 7)
 
 	log.Println("Export complete!")
 }
